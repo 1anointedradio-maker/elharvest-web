@@ -79,20 +79,40 @@ export default function Home() {
       </section>
 
       <section
-        style={{
-          marginTop: "40px",
-          background: "#fffdf7",
-          border: "1px solid #d9c77b",
-          borderRadius: "16px",
-          padding: "24px",
-        }}
-      >
-        <h3>Trading Windows</h3>
-        <p style={{ lineHeight: "1.6" }}>
-          EL HARVEST will enforce only two primary trading windows: Market Open
-          and Power Hour. Outside approved conditions, the system remains flat.
-        </p>
-      </section>
-    </main>
-  );
-}
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    FLAT BY DEFAULT
+  </div>
+
+  <h3>Trading Windows</h3>
+
+  <p style={{ lineHeight: "1.6" }}>
+    EL HARVEST will enforce only two primary trading windows: Market Open
+    and Power Hour. Outside approved conditions, the system remains flat.
+  </p>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Market Open: 9:30 AM – 10:15 AM ET</li>
+    <li>Midday: Blocked unless manually reviewed</li>
+    <li>Power Hour: 3:00 PM – 4:00 PM ET</li>
+    <li>Default State: No trade</li>
+  </ul>
+</section>
