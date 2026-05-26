@@ -15,3 +15,8 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+<img
+  src="/El%20Harvest%20Logo%20Official.PNG"
+  alt="El Harvest Logo"
+  className="logo"
+/>
