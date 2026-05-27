@@ -233,11 +233,11 @@ export default function Home() {
   </div>
   <h3>Alert Engine</h3>
   <ul style={{ lineHeight: "1.8" }}>
-  <li>Replay Market Open and Power Hour sessions</li>
-  <li>Compare live decisions against rule-approved setups</li>
-  <li>Track missed exits and invalid entries</li>
-  <li>Review flat-state blocks after each session</li>
-  <li>Build consistency through post-trade accountability</li>
+  <li>Priority alerts only during approved windows</li>
+  <li>Exit alerts always override entry alerts</li>
+  <li>Flat-state alerts block invalid setups</li>
+  <li>User acknowledgement required before next signal</li>
+  <li>Sound and haptic logic reserved for high-priority alerts</li>
 </ul>
 </section>
       <section
