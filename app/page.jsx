@@ -646,7 +646,6 @@ export default function Home() {
     <li>Lesson Logged: Pending</li>
   </ul>
 </section>
-      
     </main>
   );
 }
