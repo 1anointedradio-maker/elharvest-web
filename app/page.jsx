@@ -918,7 +918,6 @@ export default function Home() {
     <li>Replay Review: Built</li>
   </ul>
 </section>
-      
     </main>
   );
 }
