@@ -184,7 +184,41 @@ export default function Home() {
     <li>No Revenge Trades: Cooldown required after loss</li>
     <li>Survival Rule: Protect capital before seeking upside</li>
   </ul>
-</section> 
+</section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    NO TRADE IS A TRADE
+  </div>
+
+  <h3>Flat-State Protection</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Blocks entries when rules are incomplete</li>
+    <li>Prevents impulsive midday trades</li>
+    <li>Requires confirmed structure before alerting</li>
+    <li>Forces cooldown after invalid setups</li>
+    <li>Protects capital when no A+ or B trade exists</li>
+  </ul>
+</section>
     </main>
   );
 }
