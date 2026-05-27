@@ -578,6 +578,41 @@ export default function Home() {
     <li>Trade Permission: Locked until confirmed</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    MANUAL REVIEW
+  </div>
+
+  <h3>Override Review Protocol</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Manual Override: Disabled by default</li>
+    <li>Override Reason Required: Yes</li>
+    <li>Post-Session Review Required: Yes</li>
+    <li>Rule Violation Logged: Pending</li>
+    <li>System State After Override: Flat until reviewed</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
