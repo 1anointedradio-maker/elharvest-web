@@ -4,7 +4,7 @@ export default function Home() {
       title: "Rules Engine",
       status: "Online",
       badge: "ACTIVE",
-      detail: "A+ / B trade hierarchy active.<li>C Trades: Disabled by default</li>",
+      detail: "A+ / B trade hierarchy active. C trades disabled by default.",
     },
     {
       title: "Market Window",
