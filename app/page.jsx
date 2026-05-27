@@ -850,6 +850,41 @@ export default function Home() {
     <li>Exit Rule: Required before trade authorization</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    SESSION COMMAND
+  </div>
+
+  <h3>Operator Instruction</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Current Command: Stay Flat</li>
+    <li>Reason: Setup not confirmed</li>
+    <li>Allowed Action: Observe only</li>
+    <li>Blocked Action: New entry</li>
+    <li>Next Review: Market Open or Power Hour</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
