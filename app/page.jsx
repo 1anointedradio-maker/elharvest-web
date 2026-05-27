@@ -272,7 +272,40 @@ export default function Home() {
     <li>Build consistency through post-trade accountability</li>
   </ul>
 </section>
-      
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    SESSION REVIEW
+  </div>
+
+  <h3>Session Review Summary</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Trades Taken: Pending</li>
+    <li>Flat Blocks: Pending</li>
+    <li>Missed Exits: Pending</li>
+    <li>Invalid Entries: Pending</li>
+    <li>Rule Score: Pending</li>
+  </ul>
+</section>
     </main>
   );
 }
