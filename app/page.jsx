@@ -150,7 +150,42 @@ export default function Home() {
     <li>Exit Priority: Always comes before new entries</li>
     <li>Flat State: Enforced when criteria are incomplete</li>
   </ul>
+</section>
+     <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    EXIT FIRST
+  </div>
+
+  <h3>Exit Logic</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Profit Target: 18% - 21%</li>
+    <li>Hard Stop: Enforced before continuation</li>
+    <li>No Averaging Down: Blocked unless rule-approved</li>
+    <li>No Revenge Trades: Cooldown required after loss</li>
+    <li>Survival Rule: Protect capital before seeking upside</li>
+  </ul>
 </section> 
     </main>
   );
 }
+  
