@@ -476,6 +476,40 @@ export default function Home() {
     <li>Recommended Contract Size: Pending</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    RISK FORMULA
+  </div>
+
+  <h3>Risk Calculation Engine</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Risk Per Trade = Account Balance x Risk Percentage</li>
+    <li>Trade Risk = Entry Price - Stop Price</li>
+    <li>Position Size = Risk Per Trade / Trade Risk</li>
+    <li>Contracts Rounded Down: Required</li>
+    <li>Invalid Calculation: Blocks trade authorization</li>
+  </ul>
+</section>
       
     </main>
   );
