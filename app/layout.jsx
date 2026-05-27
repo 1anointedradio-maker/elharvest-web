@@ -27,7 +27,6 @@ export default function RootLayout({ children }) {
               alt="El Harvest Logo"
               style={{ width: "190px", height: "auto", marginBottom: "28px" }}
             />
-
             <h1 style={{ margin: 0, letterSpacing: "3px" }}>
               EL HARVEST CORE
             </h1>
