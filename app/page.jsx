@@ -909,6 +909,7 @@ export default function Home() {
   </div>
 
   <h3>System Readiness</h3>
+        
   <ul style={{ lineHeight: "1.8" }}>
     <li>Rules Engine: Online</li>
     <li>Market Window: Built</li>
@@ -917,6 +918,7 @@ export default function Home() {
     <li>Replay Review: Built</li>
   </ul>
 </section>
+      
     </main>
   );
 }
