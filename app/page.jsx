@@ -816,6 +816,41 @@ export default function Home() {
     <li>System Lock: Flat until confirmation improves</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    ALERT TEMPLATE
+  </div>
+
+  <h3>Signal Alert Message</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Alert Type: Pending</li>
+    <li>Ticker: Pending</li>
+    <li>Direction: Pending</li>
+    <li>Entry Trigger: Pending</li>
+    <li>Exit Rule: Required before trade authorization</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
