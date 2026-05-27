@@ -23,8 +23,7 @@ export default function Home() {
       status: "Pending",
       badge: "BUILD",
       detail:
- detail:
-  "Priority alerts, acknowledgement, haptics, and sound logic pending."
+  "Priority alerts, acknowledgement, haptics, and sound logic pending.",
     },
     {
       title: "Replay Engine",
