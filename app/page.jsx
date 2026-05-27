@@ -839,9 +839,7 @@ export default function Home() {
   >
     ALERT TEMPLATE
   </div>
-
   <h3>Signal Alert Message</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Alert Type: Pending</li>
     <li>Ticker: Pending</li>
@@ -873,9 +871,7 @@ export default function Home() {
   >
     SESSION COMMAND
   </div>
-
   <h3>Operator Instruction</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Current Command: Stay Flat</li>
     <li>Reason: Setup not confirmed</li>
@@ -907,9 +903,7 @@ export default function Home() {
   >
     BUILD STATUS
   </div>
-
-  <h3>System Readiness</h3>
-        
+  <h3>System Readiness</h3>        
   <ul style={{ lineHeight: "1.8" }}>
     <li>Rules Engine: Online</li>
     <li>Market Window: Built</li>
@@ -941,9 +935,7 @@ export default function Home() {
   >
     SYSTEM LOCK
   </div>
-
   <h3>Readiness Gate</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>System Mode: Protected</li>
     <li>Trading Permission: Locked</li>
