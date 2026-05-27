@@ -680,7 +680,40 @@ export default function Home() {
     <li>Session Grade: Pending</li>
   </ul>
 </section>
-      
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    DATA INPUT
+  </div>
+
+  <h3>Market Data Intake</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Ticker Input: Pending</li>
+    <li>VWAP Status: Pending</li>
+    <li>Cloud Direction: Pending</li>
+    <li>Price Structure: Pending</li>
+    <li>Volume Confirmation: Pending</li>
+  </ul>
+</section>
     </main>
   );
 }
