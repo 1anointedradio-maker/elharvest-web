@@ -646,6 +646,41 @@ export default function Home() {
     <li>Lesson Logged: Pending</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    ACCOUNTABILITY
+  </div>
+
+  <h3>Rule Discipline Scorecard</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Setup Quality: Pending</li>
+    <li>Entry Discipline: Pending</li>
+    <li>Exit Discipline: Pending</li>
+    <li>Risk Compliance: Pending</li>
+    <li>Session Grade: Pending</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
