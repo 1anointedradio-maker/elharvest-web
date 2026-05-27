@@ -510,7 +510,40 @@ export default function Home() {
     <li>Invalid Calculation: Blocks trade authorization</li>
   </ul>
 </section>
-      
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    EXECUTION RULES
+  </div>
+
+  <h3>Entry and Exit Discipline</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>No entry without confirmed trade state</li>
+    <li>No entry while exit management is active</li>
+    <li>No trade during blocked market windows</li>
+    <li>Exit signal overrides all new setups</li>
+    <li>Manual override requires post-session review</li>
+  </ul>
+</section>
     </main>
   );
 }
