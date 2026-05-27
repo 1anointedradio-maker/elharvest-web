@@ -884,6 +884,41 @@ export default function Home() {
     <li>Next Review: Market Open or Power Hour</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    BUILD STATUS
+  </div>
+
+  <h3>System Readiness</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Rules Engine: Online</li>
+    <li>Market Window: Built</li>
+    <li>Risk Control: Built</li>
+    <li>Alert Logic: Built</li>
+    <li>Replay Review: Built</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
