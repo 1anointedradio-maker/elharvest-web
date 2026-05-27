@@ -612,6 +612,40 @@ export default function Home() {
     <li>System State After Override: Flat until reviewed</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    POST-TRADE JOURNAL
+  </div>
+
+  <h3>Trade Review Log</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Entry Reason: Pending</li>
+    <li>Exit Reason: Pending</li>
+    <li>Rule Followed: Pending</li>
+    <li>Emotional State: Pending</li>
+    <li>Lesson Logged: Pending</li>
+  </ul>
+</section>
       
     </main>
   );
