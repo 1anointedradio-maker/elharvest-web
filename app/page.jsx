@@ -265,7 +265,6 @@ export default function Home() {
   </div>
 
   <h3>Replay Engine</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Replay Market Open and Power Hour sessions</li>
     <li>Compare live decisions against rule-approved setups</li>
