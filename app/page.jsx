@@ -4,7 +4,7 @@ export default function Home() {
       title: "Rules Engine",
       status: "Online",
       badge: "ACTIVE",
-      detail: "A+ / B trade hierarchy active. C trades disabled by default.",
+      detail: "A+ / B trade hierarchy active.<li>C Trades: Disabled by default</li>",
     },
     {
       title: "Market Window",
@@ -23,7 +23,7 @@ export default function Home() {
       status: "Pending",
       badge: "BUILD",
       detail:
-        "Priority alerts, acknowledgement, haptics, and sound logic pending.",
+  "Priority alerts, acknowledgement, haptics, and sound logic pending",
     },
     {
       title: "Replay Engine",
@@ -217,6 +217,40 @@ export default function Home() {
     <li>Requires confirmed structure before alerting</li>
     <li>Forces cooldown after invalid setups</li>
     <li>Protects capital when no A+ or B trade exists</li>
+  </ul>
+</section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    ALERT PRIORITY
+  </div>
+
+  <h3>Alert Engine</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Priority alerts only during approved windows</li>
+    <li>Exit alerts always override entry alerts</li>
+    <li>Flat-state alerts block invalid setups</li>
+    <li>User acknowledgement required before next signal</li>
+    <li>Sound and haptic logic reserved for high-priority alerts</li>
   </ul>
 </section>
     </main>
