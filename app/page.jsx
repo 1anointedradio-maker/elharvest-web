@@ -408,6 +408,40 @@ export default function Home() {
     <li>Override Status: Locked</li>
   </ul>
 </section>
+    <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    TRADE CHECKLIST
+  </div>
+
+  <h3>Pre-Trade Confirmation</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Price Above/Below VWAP: Pending</li>
+    <li>Cloud Direction Confirmed: Pending</li>
+    <li>Market Window Approved: Pending</li>
+    <li>Risk Defined Before Entry: Required</li>
+    <li>Final Approval: Not Authorized</li>
+  </ul>
+</section>
       
     </main>
   );
