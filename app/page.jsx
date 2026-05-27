@@ -32,12 +32,10 @@ export default function Home() {
       detail: "Historical playback and live-market comparison pending.",
     },
   ];
-
-  return (
+(
     <main>
       <h2 style={{ letterSpacing: "1px" }}>EL HARVEST Web PWA</h2>
       <p>Governance + Replay Dashboard Online.</p>
-
       <section
         style={{
           display: "grid",
