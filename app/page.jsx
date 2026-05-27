@@ -952,6 +952,41 @@ export default function Home() {
     <li>Release Condition: Confirmed A+ or B setup</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#e7f7df",
+      marginBottom: "14px",
+    }}
+  >
+    LAUNCH CHECKLIST
+  </div>
+
+  <h3>Pre-Launch Validation</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Logo Loaded: Confirmed</li>
+    <li>Core Sections Built: Confirmed</li>
+    <li>Trading Rules Displayed: Confirmed</li>
+    <li>Risk Logic Displayed: Confirmed</li>
+    <li>Final Review Status: Pending</li>
+  </ul>
+</section>
+      
     </main>
   );
 }
