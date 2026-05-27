@@ -782,6 +782,40 @@ export default function Home() {
     <li>System Command: Wait for confirmed A+ or B setup</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    APPROVED ACTION
+  </div>
+
+  <h3>Next Authorized Move</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Primary Action: Wait</li>
+    <li>Secondary Action: Monitor structure</li>
+    <li>Entry Order: Blocked</li>
+    <li>Exit Order: Active only if position exists</li>
+    <li>System Lock: Flat until confirmation improves</li>
+  </ul>
+</section>
     </main>
   );
 }
