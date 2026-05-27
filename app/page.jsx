@@ -31,7 +31,6 @@ export default function Home() {
       badge: "BUILD",
       detail: "Historical playback and live-market comparison pending.",
     },
-  ];
   return (
     <main>
       <h2 style={{ letterSpacing: "1px" }}>EL HARVEST Web PWA</h2>
