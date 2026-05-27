@@ -975,9 +975,7 @@ export default function Home() {
   >
     LAUNCH CHECKLIST
   </div>
-
   <h3>Pre-Launch Validation</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Logo Loaded: Confirmed</li>
     <li>Core Sections Built: Confirmed</li>
@@ -985,8 +983,7 @@ export default function Home() {
     <li>Risk Logic Displayed: Confirmed</li>
     <li>Final Review Status: Pending</li>
   </ul>
-</section>
-      
+</section>     
     </main>
   );
 }
