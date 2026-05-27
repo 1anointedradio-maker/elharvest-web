@@ -805,9 +805,7 @@ export default function Home() {
   >
     APPROVED ACTION
   </div>
-
   <h3>Next Authorized Move</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Primary Action: Wait</li>
     <li>Secondary Action: Monitor structure</li>
