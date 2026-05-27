@@ -918,7 +918,40 @@ export default function Home() {
     <li>Replay Review: Built</li>
   </ul>
 </section>
-      
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    SYSTEM LOCK
+  </div>
+
+  <h3>Readiness Gate</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>System Mode: Protected</li>
+    <li>Trading Permission: Locked</li>
+    <li>Data Requirement: Pending live inputs</li>
+    <li>Override Permission: Disabled</li>
+    <li>Release Condition: Confirmed A+ or B setup</li>
+  </ul>
+</section>
     </main>
   );
 }
