@@ -884,7 +884,6 @@ export default function Home() {
     <li>Next Review: Market Open or Power Hour</li>
   </ul>
 </section>
-      
     </main>
   );
 }
