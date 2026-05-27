@@ -909,7 +909,6 @@ export default function Home() {
   </div>
 
   <h3>System Readiness</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Rules Engine: Online</li>
     <li>Market Window: Built</li>
