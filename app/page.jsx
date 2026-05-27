@@ -850,7 +850,6 @@ export default function Home() {
     <li>Exit Rule: Required before trade authorization</li>
   </ul>
 </section>
-      
     </main>
   );
 }
