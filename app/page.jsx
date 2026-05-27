@@ -442,6 +442,40 @@ export default function Home() {
     <li>Final Approval: Not Authorized</li>
   </ul>
 </section>
+      <section
+  style={{
+    marginTop: "40px",
+    background: "#fffdf7",
+    border: "1px solid #d9c77b",
+    borderRadius: "16px",
+    padding: "24px",
+  }}
+>
+  <div
+    style={{
+      display: "inline-block",
+      fontSize: "12px",
+      fontWeight: "bold",
+      letterSpacing: "1px",
+      padding: "6px 10px",
+      borderRadius: "999px",
+      background: "#f3ead0",
+      marginBottom: "14px",
+    }}
+  >
+    POSITION SIZING
+  </div>
+
+  <h3>Trade Size Control</h3>
+
+  <ul style={{ lineHeight: "1.8" }}>
+    <li>Account Balance Input: Pending</li>
+    <li>Risk Percentage: Pending</li>
+    <li>Entry Price: Pending</li>
+    <li>Stop Price: Pending</li>
+    <li>Recommended Contract Size: Pending</li>
+  </ul>
+</section>
       
     </main>
   );
