@@ -71,14 +71,12 @@ export default function Home() {
             >
               {card.badge}
             </div>
-
             <h3 style={{ marginTop: 0 }}>{card.title}</h3>
             <strong>Status: {card.status}</strong>
             <p style={{ lineHeight: "1.5" }}>{card.detail}</p>
           </div>
         ))}
       </section>
-
       <section
         style={{
           marginTop: "40px",
@@ -102,14 +100,11 @@ export default function Home() {
         >
           FLAT BY DEFAULT
         </div>
-
         <h3>Trading Windows</h3>
-
         <p style={{ lineHeight: "1.6" }}>
           EL HARVEST will enforce only two primary trading windows: Market Open
           and Power Hour. Outside approved conditions, the system remains flat.
         </p>
-
         <ul style={{ lineHeight: "1.8" }}>
           <li>Market Open: 9:30 AM - 10:15 AM ET</li>
           <li>Midday: Blocked unless manually reviewed</li>
@@ -140,9 +135,7 @@ export default function Home() {
   >
     RULE HIERARCHY
   </div>
-
   <h3>Rules Engine Hierarchy</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>A+ Trades: Highest priority, confirmed structure only</li>
     <li>B Trades: VWAP + Cloud confirmation required</li>
@@ -174,9 +167,7 @@ export default function Home() {
   >
     EXIT FIRST
   </div>
-
   <h3>Exit Logic</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Profit Target: 18% - 21%</li>
     <li>Hard Stop: Enforced before continuation</li>
@@ -208,9 +199,7 @@ export default function Home() {
   >
     NO TRADE IS A TRADE
   </div>
-
   <h3>Flat-State Protection</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
     <li>Blocks entries when rules are incomplete</li>
     <li>Prevents impulsive midday trades</li>
@@ -242,16 +231,14 @@ export default function Home() {
   >
     ALERT PRIORITY
   </div>
-
   <h3>Alert Engine</h3>
-
   <ul style={{ lineHeight: "1.8" }}>
-    <li>Priority alerts only during approved windows</li>
-    <li>Exit alerts always override entry alerts</li>
-    <li>Flat-state alerts block invalid setups</li>
-    <li>User acknowledgement required before next signal</li>
-    <li>Sound and haptic logic reserved for high-priority alerts</li>
-  </ul>
+  <li>Replay Market Open and Power Hour sessions</li>
+  <li>Compare live decisions against rule-approved setups</li>
+  <li>Track missed exits and invalid entries</li>
+  <li>Review flat-state blocks after each session</li>
+  <li>Build consistency through post-trade accountability</li>
+</ul>
 </section>
       <section
   style={{
