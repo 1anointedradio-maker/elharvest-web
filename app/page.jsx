@@ -1,128 +1,81 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 export default function Home() {
-  const statusCards = [
-    {
-      badge: "ACTIVE",
-      title: "Rules Engine",
-      status: "Online",
-      detail: "A+ / B hierarchy active. C trades disabled by default.",
-      tone: "green",
-    },
-    {
-      badge: "BUILT",
-      title: "Market Window",
-      status: "Built",
-      detail: "Market Open and Power Hour windows are enforced.",
-      tone: "gold",
-    },
-    {
-      badge: "LOCKED",
-      title: "Risk Control",
-      status: "Protected",
-      detail: "Risk rules block entries without defined stop logic.",
-      tone: "gold",
-    },
-    {
-      badge: "READY",
-      title: "Replay Review",
-      status: "Built",
-      detail: "Session review supports accountability and rule discipline.",
-      tone: "green",
-    },
-  ];
+  const [ticker, setTicker] = useState("QQQ");
+  const [accountBalance, setAccountBalance] = useState("2000");
+  const [riskPercent, setRiskPercent] = useState("2");
+  const [entryPrice, setEntryPrice] = useState("");
+  const [stopPrice, setStopPrice] = useState("");
+  const [vwapConfirmed, setVwapConfirmed] = useState(false);
+  const [cloudConfirmed, setCloudConfirmed] = useState(false);
+  const [volumeConfirmed, setVolumeConfirmed] = useState(false);
+  const [marketWindow, setMarketWindow] = useState(false);
 
-  const confirmationChecks = [
-    { label: "VWAP Confirmation", value: "Pending", status: "pending" },
-    { label: "Cloud Confirmation", value: "Pending", status: "pending" },
-    { label: "Structure Confirmation", value: "Pending", status: "pending" },
-    { label: "Volume Confirmation", value: "Pending", status: "pending" },
-    { label: "Market Window", value: "Locked", status: "locked" },
-  ];
+  const calculations = useMemo(() => {
+    const balance = Number(accountBalance);
+    const risk = Number(riskPercent);
+    const entry = Number(entryPrice);
+    const stop = Number(stopPrice);
 
-  const decisionItems = [
-    "Decision State: Flat",
-    "Entry Permission: Not Authorized",
-    "Exit Permission: Priority Override",
-    "Risk Approval: Pending",
-    "System Command: Wait for confirmed A+ or B setup",
-  ];
+    const validBalance = balance > 0;
+    const validRisk = risk > 0;
+    const validEntry = entry > 0;
+    const validStop = stop > 0;
+    const tradeRisk = Math.abs(entry - stop);
+    const riskDollars = validBalance && validRisk ? balance * (risk / 100) : 0;
+    const positionSize =
+      riskDollars > 0 && tradeRisk > 0 ? Math.floor(riskDollars / tradeRisk) : 0;
 
-  const brokerItems = [
-    "Robinhood: Not connected",
-    "IBKR: Not connected",
-    "Paper Mode: Available",
-    "Live Execution: Disabled",
-    "Broker Permission: Locked",
-  ];
+    const confirmations = [vwapConfirmed, cloudConfirmed, volumeConfirmed, marketWindow];
+    const confirmedCount = confirmations.filter(Boolean).length;
 
-  const sessionStats = [
-    { label: "Rule Discipline", value: "82%" },
-    { label: "Re-entry Blocked", value: "5" },
-    { label: "Risk Compliance", value: "Pending" },
-    { label: "Session Grade", value: "Pending" },
-  ];
+    let decision = "FLAT";
+    let permission = "Not Authorized";
+    let reason = "Waiting for confirmed setup and valid risk inputs.";
 
-  const modules = [
-    {
-      badge: "TRADE CHECKLIST",
-      title: "Pre-Trade Confirmation",
-      tone: "green",
-      items: [
-        "Price Above/Below VWAP: Pending",
-        "Cloud Direction Confirmed: Pending",
-        "Market Window Approved: Pending",
-        "Risk Defined Before Entry: Required",
-        "Final Approval: Not Authorized",
-      ],
-    },
-    {
-      badge: "EXECUTION RULES",
-      title: "Entry and Exit Discipline",
-      tone: "gold",
-      items: [
-        "No entry without confirmed trade state",
-        "No entry while exit management is active",
-        "No trade during blocked market windows",
-        "Exit signal overrides all new setups",
-        "Manual override requires post-session review",
-      ],
-    },
-    {
-      badge: "SESSION COMMAND",
-      title: "Operator Instruction",
-      tone: "gold",
-      items: [
-        "Current Command: Stay Flat",
-        "Reason: Setup not confirmed",
-        "Allowed Action: Observe only",
-        "Blocked Action: New entry",
-        "Next Review: Market Open or Power Hour",
-      ],
-    },
-    {
-      badge: "SYSTEM LOCK",
-      title: "Readiness Gate",
-      tone: "gold",
-      items: [
-        "System Mode: Protected",
-        "Trading Permission: Locked",
-        "Data Requirement: Pending live inputs",
-        "Override Permission: Disabled",
-        "Release Condition: Confirmed A+ or B setup",
-      ],
-    },
-    {
-      badge: "LAUNCH CHECKLIST",
-      title: "Pre-Launch Validation",
-      tone: "green",
-      items: [
-        "Logo Loaded: Confirmed",
-        "Core Sections Built: Confirmed",
-        "Trading Rules Displayed: Confirmed",
-        "Risk Logic Displayed: Confirmed",
-        "Final Review Status: Pending",
-      ],
-    },
-  ];
+    if (!validBalance || !validRisk || !validEntry || !validStop) {
+      decision = "WAIT";
+      permission = "Not Authorized";
+      reason = "Complete account balance, risk %, entry, and stop price.";
+    } else if (tradeRisk <= 0) {
+      decision = "WAIT";
+      permission = "Not Authorized";
+      reason = "Entry and stop cannot be the same.";
+    } else if (confirmedCount < 4) {
+      decision = "FLAT";
+      permission = "Locked";
+      reason = "All confirmations are not aligned yet.";
+    } else {
+      decision = "PAPER ONLY";
+      permission = "Paper Trade Authorized";
+      reason = "Setup is confirmed for paper execution only.";
+    }
+
+    return {
+      balance,
+      risk,
+      entry,
+      stop,
+      tradeRisk,
+      riskDollars,
+      positionSize,
+      confirmedCount,
+      decision,
+      permission,
+      reason,
+    };
+  }, [
+    accountBalance,
+    riskPercent,
+    entryPrice,
+    stopPrice,
+    vwapConfirmed,
+    cloudConfirmed,
+    volumeConfirmed,
+    marketWindow,
+  ]);
 
   const panelStyle = {
     background: "#fffdf7",
@@ -135,13 +88,23 @@ export default function Home() {
   const badgeStyle = (tone = "gold") => ({
     display: "inline-block",
     fontSize: "12px",
-    fontWeight: "800",
+    fontWeight: "900",
     letterSpacing: "2px",
     padding: "8px 14px",
     borderRadius: "999px",
-    background: tone === "green" ? "#e7f7df" : "#f3ead0",
+    background: tone === "green" ? "#e7f7df" : tone === "red" ? "#f8dddd" : "#f3ead0",
     marginBottom: "18px",
   });
+
+  const inputStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    border: "1px solid #d9c77b",
+    borderRadius: "12px",
+    padding: "14px",
+    fontSize: "16px",
+    background: "#fffaf0",
+  };
 
   const buttonStyle = {
     width: "100%",
@@ -157,35 +120,69 @@ export default function Home() {
     boxShadow: "0 10px 18px rgba(159,109,22,0.22)",
   };
 
-  function StatusDot({ status }) {
-    const color =
-      status === "locked" ? "#b54b4b" : status === "confirmed" ? "#4f9b57" : "#d9c77b";
+  const decisionTone =
+    calculations.decision === "PAPER ONLY"
+      ? "green"
+      : calculations.decision === "WAIT"
+      ? "gold"
+      : "red";
 
+  function Field({ label, value, onChange, placeholder, type = "text" }) {
     return (
-      <span
-        style={{
-          width: "10px",
-          height: "10px",
-          borderRadius: "50%",
-          background: color,
-          display: "inline-block",
-          marginRight: "10px",
-        }}
-      />
+      <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
+        {label}
+        <input
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          style={inputStyle}
+        />
+      </label>
     );
   }
 
-  function ModuleCard({ badge, title, items, tone }) {
+  function ToggleCheck({ label, checked, onChange }) {
     return (
-      <section style={{ ...panelStyle, marginTop: "32px" }}>
-        <div style={badgeStyle(tone)}>{badge}</div>
-        <h3 style={{ marginTop: 0, fontSize: "26px" }}>{title}</h3>
-        <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
-          {items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
+      <button
+        type="button"
+        onClick={() => onChange(!checked)}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          border: "1px solid #eadfb3",
+          borderRadius: "14px",
+          padding: "15px 16px",
+          background: checked ? "#e7f7df" : "#fffaf0",
+          fontSize: "16px",
+          fontWeight: "800",
+          textAlign: "left",
+        }}
+      >
+        <span>{label}</span>
+        <span>{checked ? "Confirmed" : "Pending"}</span>
+      </button>
+    );
+  }
+
+  function StatBox({ label, value }) {
+    return (
+      <div
+        style={{
+          border: "1px solid #eadfb3",
+          borderRadius: "16px",
+          padding: "20px",
+          background: "#fffaf0",
+        }}
+      >
+        <div style={{ fontSize: "12px", letterSpacing: "1.5px", fontWeight: "900" }}>
+          {label}
+        </div>
+        <div style={{ fontSize: "26px", fontWeight: "900", marginTop: "10px" }}>
+          {value}
+        </div>
+      </div>
     );
   }
 
@@ -207,7 +204,7 @@ export default function Home() {
 
         .eh-grid-2 {
           display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
+          grid-template-columns: 1.1fr 0.9fr;
           gap: 28px;
           align-items: stretch;
         }
@@ -215,7 +212,7 @@ export default function Home() {
         .eh-grid-3 {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 22px;
+          gap: 18px;
         }
 
         .eh-grid-4 {
@@ -224,23 +221,16 @@ export default function Home() {
           gap: 18px;
         }
 
-        .eh-mobile-stack {
-          display: grid;
-          grid-template-columns: 1fr 0.9fr;
-          gap: 28px;
-        }
-
         @media (max-width: 900px) {
           .eh-grid-2,
           .eh-grid-3,
-          .eh-grid-4,
-          .eh-mobile-stack {
+          .eh-grid-4 {
             grid-template-columns: 1fr;
           }
 
           .eh-command-bar {
-            align-items: flex-start;
             flex-direction: column;
+            align-items: flex-start;
           }
         }
       `}</style>
@@ -249,108 +239,121 @@ export default function Home() {
         <div>
           <strong style={{ letterSpacing: "1.5px" }}>EL HARVEST COMMAND CENTER</strong>
           <div style={{ fontSize: "14px", marginTop: "6px", opacity: 0.8 }}>
-            Protected Mode · Paper Execution · Live Trading Locked
+            Interactive Risk Calculator · Paper Execution · Live Trading Locked
           </div>
         </div>
 
-        <div
-          style={{
-            padding: "8px 12px",
-            borderRadius: "999px",
-            background: "#e7f7df",
-            fontWeight: "800",
-            letterSpacing: "1px",
-            fontSize: "12px",
-          }}
-        >
-          SYSTEM SAFE
-        </div>
+        <div style={badgeStyle(decisionTone)}>{calculations.decision}</div>
       </section>
 
       <section className="eh-grid-2">
         <div style={panelStyle}>
-          <div style={badgeStyle("green")}>PRODUCT CORE</div>
-          <h2
-            style={{
-              fontSize: "36px",
-              letterSpacing: "2px",
-              marginTop: 0,
-              marginBottom: "12px",
-            }}
-          >
-            Protected Trade Governance
+          <div style={badgeStyle("green")}>TRADE INPUT</div>
+          <h2 style={{ fontSize: "34px", letterSpacing: "2px", marginTop: 0 }}>
+            Paper Trade Setup
           </h2>
 
-          <p style={{ fontSize: "18px", lineHeight: "1.65", maxWidth: "760px" }}>
-            EL Harvest protects capital before execution. The system remains flat until
-            structure, timing, confirmation, and risk rules align.
-          </p>
-
-          <div className="eh-grid-4" style={{ marginTop: "26px" }}>
-            {statusCards.map((card) => (
-              <div
-                key={card.title}
-                style={{
-                  border: "1px solid #eadfb3",
-                  borderRadius: "16px",
-                  padding: "18px",
-                  background: "#fffaf0",
-                }}
-              >
-                <div style={badgeStyle(card.tone)}>{card.badge}</div>
-                <h3 style={{ marginTop: 0 }}>{card.title}</h3>
-                <strong>Status: {card.status}</strong>
-                <p style={{ lineHeight: "1.55" }}>{card.detail}</p>
-              </div>
-            ))}
+          <div className="eh-grid-3" style={{ marginTop: "22px" }}>
+            <Field label="Ticker" value={ticker} onChange={setTicker} placeholder="QQQ" />
+            <Field
+              label="Account Balance"
+              value={accountBalance}
+              onChange={setAccountBalance}
+              placeholder="2000"
+              type="number"
+            />
+            <Field
+              label="Risk %"
+              value={riskPercent}
+              onChange={setRiskPercent}
+              placeholder="2"
+              type="number"
+            />
           </div>
+
+          <div className="eh-grid-2" style={{ marginTop: "18px" }}>
+            <Field
+              label="Entry Price"
+              value={entryPrice}
+              onChange={setEntryPrice}
+              placeholder="Example: 5.40"
+              type="number"
+            />
+            <Field
+              label="Stop Price"
+              value={stopPrice}
+              onChange={setStopPrice}
+              placeholder="Example: 4.90"
+              type="number"
+            />
+          </div>
+
+          <button style={buttonStyle}>EXECUTE PAPER TRADE</button>
         </div>
 
         <div style={panelStyle}>
-          <div style={badgeStyle("gold")}>BROKER STATUS</div>
-          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Connection Control</h3>
+          <div style={badgeStyle(decisionTone)}>FINAL DECISION</div>
+          <h3 style={{ marginTop: 0, fontSize: "28px" }}>{calculations.decision}</h3>
 
           <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
-            {brokerItems.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
+            <li>Ticker: {ticker || "Pending"}</li>
+            <li>Permission: {calculations.permission}</li>
+            <li>Reason: {calculations.reason}</li>
+            <li>Confirmations: {calculations.confirmedCount}/4</li>
+            <li>Live Trading: Disabled</li>
           </ul>
-
-          <button style={buttonStyle}>CONNECT PAPER ACCOUNT</button>
         </div>
       </section>
 
-      <section className="eh-mobile-stack" style={{ marginTop: "32px" }}>
+      <section className="eh-grid-2" style={{ marginTop: "32px" }}>
         <div style={panelStyle}>
           <div style={badgeStyle("green")}>CONFIRMATION ENGINE</div>
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Setup Validation</h3>
 
           <div style={{ display: "grid", gap: "14px", marginTop: "20px" }}>
-            {confirmationChecks.map((check) => (
-              <div
-                key={check.label}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: "16px",
-                  padding: "15px 16px",
-                  border: "1px solid #eadfb3",
-                  borderRadius: "14px",
-                  background: "#fffaf0",
-                  fontSize: "16px",
-                }}
-              >
-                <span>
-                  <StatusDot status={check.status} />
-                  {check.label}
-                </span>
-                <strong>{check.value}</strong>
-              </div>
-            ))}
+            <ToggleCheck
+              label="VWAP Confirmation"
+              checked={vwapConfirmed}
+              onChange={setVwapConfirmed}
+            />
+            <ToggleCheck
+              label="Cloud Confirmation"
+              checked={cloudConfirmed}
+              onChange={setCloudConfirmed}
+            />
+            <ToggleCheck
+              label="Volume Confirmation"
+              checked={volumeConfirmed}
+              onChange={setVolumeConfirmed}
+            />
+            <ToggleCheck
+              label="Market Window Approved"
+              checked={marketWindow}
+              onChange={setMarketWindow}
+            />
           </div>
         </div>
 
+        <div style={panelStyle}>
+          <div style={badgeStyle("gold")}>RISK FORMULA</div>
+          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Risk Calculation Engine</h3>
+
+          <div className="eh-grid-2" style={{ marginTop: "22px" }}>
+            <StatBox
+              label="Risk Per Trade"
+              value={`$${calculations.riskDollars.toFixed(2)}`}
+            />
+            <StatBox
+              label="Trade Risk"
+              value={`$${calculations.tradeRisk.toFixed(2)}`}
+            />
+            <StatBox label="Suggested Size" value={calculations.positionSize} />
+            <StatBox label="Risk Mode" value="Protected" />
+          </div>
+        </div>
+      </section>
+
+      <section className="eh-grid-2" style={{ marginTop: "32px" }}>
         <div style={panelStyle}>
           <div style={badgeStyle("gold")}>RISK DIAL</div>
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Hard Stop Protection</h3>
@@ -373,84 +376,47 @@ export default function Home() {
             }}
           >
             <div>
-              <div style={{ fontSize: "12px", letterSpacing: "2px", fontWeight: "800" }}>
+              <div style={{ fontSize: "12px", letterSpacing: "2px", fontWeight: "900" }}>
                 TARGET
               </div>
               <div style={{ fontSize: "32px", fontWeight: "900", marginTop: "8px" }}>
                 18–21%
               </div>
-              <div style={{ marginTop: "8px", fontWeight: "700" }}>Hard Stop: 15%</div>
+              <div style={{ marginTop: "8px", fontWeight: "800" }}>Hard Stop: 15%</div>
             </div>
           </div>
 
-          <button style={buttonStyle}>EXECUTE PAPER TRADE</button>
-
-          <p style={{ lineHeight: "1.65", marginTop: "18px" }}>
-            Live execution remains locked. Paper execution is allowed only for testing the
-            rules engine and trade review flow.
+          <p style={{ lineHeight: "1.65" }}>
+            No averaging down. No revenge trade. No new entry while exit management is
+            active.
           </p>
         </div>
-      </section>
-
-      <section className="eh-grid-2" style={{ marginTop: "32px" }}>
-        <div style={panelStyle}>
-          <div style={badgeStyle("green")}>FINAL DECISION</div>
-          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Trade Decision Output</h3>
-          <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
-            {decisionItems.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
 
         <div style={panelStyle}>
-          <div style={badgeStyle("gold")}>APPROVED ACTION</div>
-          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Next Authorized Move</h3>
-          <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
-            <li>Primary Action: Wait</li>
-            <li>Secondary Action: Monitor structure</li>
-            <li>Entry Order: Blocked</li>
-            <li>Exit Order: Active only if position exists</li>
-            <li>System Lock: Flat until confirmation improves</li>
-          </ul>
+          <div style={badgeStyle("green")}>SESSION RESULTS</div>
+          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Discipline Scoreboard</h3>
+
+          <div className="eh-grid-2" style={{ marginTop: "22px" }}>
+            <StatBox label="Rule Discipline" value="82%" />
+            <StatBox label="Re-entry Blocked" value="5" />
+            <StatBox label="Risk Compliance" value="Pending" />
+            <StatBox label="Session Grade" value="Pending" />
+          </div>
         </div>
       </section>
 
       <section style={{ ...panelStyle, marginTop: "32px" }}>
-        <div style={badgeStyle("green")}>SESSION RESULTS</div>
-        <h3 style={{ marginTop: 0, fontSize: "28px" }}>Discipline Scoreboard</h3>
+        <div style={badgeStyle("green")}>LAUNCH CHECKLIST</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Pre-Launch Validation</h3>
 
-        <div className="eh-grid-4" style={{ marginTop: "22px" }}>
-          {sessionStats.map((stat) => (
-            <div
-              key={stat.label}
-              style={{
-                border: "1px solid #eadfb3",
-                borderRadius: "16px",
-                padding: "22px",
-                background: "#fffaf0",
-              }}
-            >
-              <div style={{ fontSize: "12px", letterSpacing: "1.6px", fontWeight: "900" }}>
-                {stat.label}
-              </div>
-              <div style={{ fontSize: "30px", fontWeight: "900", marginTop: "12px" }}>
-                {stat.value}
-              </div>
-            </div>
-          ))}
-        </div>
+        <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
+          <li>Logo Loaded: Confirmed</li>
+          <li>Core Sections Built: Confirmed</li>
+          <li>Interactive Inputs Built: Confirmed</li>
+          <li>Risk Logic Displayed: Confirmed</li>
+          <li>Paper Execution Only: Confirmed</li>
+        </ul>
       </section>
-
-      {modules.map((module) => (
-        <ModuleCard
-          key={module.badge}
-          badge={module.badge}
-          title={module.title}
-          items={module.items}
-          tone={module.tone}
-        />
-      ))}
 
       <footer
         style={{
@@ -459,7 +425,7 @@ export default function Home() {
           textAlign: "center",
           borderTop: "1px solid #d9c77b",
           letterSpacing: "1px",
-          fontWeight: "700",
+          fontWeight: "800",
         }}
       >
         EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
