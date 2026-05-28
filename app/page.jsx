@@ -2,6 +2,86 @@
 
 import { useMemo, useState } from "react";
 
+function Field({ label, value, onChange, placeholder, type = "text", inputStyle }) {
+  return (
+    <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
+      {label}
+      <input
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        style={inputStyle}
+        inputMode={type === "number" ? "decimal" : "text"}
+      />
+    </label>
+  );
+}
+
+function TextAreaField({ label, value, onChange, placeholder, inputStyle }) {
+  return (
+    <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
+      {label}
+      <textarea
+        value={value}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+        rows={4}
+        style={{
+          ...inputStyle,
+          resize: "vertical",
+          lineHeight: "1.5",
+          fontFamily: "Arial, sans-serif",
+        }}
+      />
+    </label>
+  );
+}
+
+function ToggleCheck({ label, checked, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        border: "1px solid #eadfb3",
+        borderRadius: "14px",
+        padding: "15px 16px",
+        background: checked ? "#e7f7df" : "#fffaf0",
+        fontSize: "16px",
+        fontWeight: "800",
+        textAlign: "left",
+      }}
+    >
+      <span>{label}</span>
+      <span>{checked ? "Confirmed" : "Pending"}</span>
+    </button>
+  );
+}
+
+function StatBox({ label, value }) {
+  return (
+    <div
+      style={{
+        border: "1px solid #eadfb3",
+        borderRadius: "16px",
+        padding: "20px",
+        background: "#fffaf0",
+      }}
+    >
+      <div style={{ fontSize: "12px", letterSpacing: "1.5px", fontWeight: "900" }}>
+        {label}
+      </div>
+      <div style={{ fontSize: "26px", fontWeight: "900", marginTop: "10px" }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [ticker, setTicker] = useState("QQQ");
   const [accountBalance, setAccountBalance] = useState("2000");
@@ -70,8 +150,6 @@ export default function Home() {
     return {
       balance,
       risk,
-      entry,
-      stop,
       tradeRisk,
       riskDollars,
       positionSize,
@@ -135,6 +213,16 @@ Mode: Paper Execution Only
     boxShadow: "0 10px 26px rgba(0,0,0,0.055)",
   };
 
+  const inputStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    border: "1px solid #d9c77b",
+    borderRadius: "12px",
+    padding: "14px",
+    fontSize: "16px",
+    background: "#fffaf0",
+  };
+
   const badgeStyle = (tone = "gold") => ({
     display: "inline-block",
     fontSize: "12px",
@@ -145,16 +233,6 @@ Mode: Paper Execution Only
     background: tone === "green" ? "#e7f7df" : tone === "red" ? "#f8dddd" : "#f3ead0",
     marginBottom: "18px",
   });
-
-  const inputStyle = {
-    width: "100%",
-    boxSizing: "border-box",
-    border: "1px solid #d9c77b",
-    borderRadius: "12px",
-    padding: "14px",
-    fontSize: "16px",
-    background: "#fffaf0",
-  };
 
   const buttonStyle = {
     width: "100%",
@@ -206,89 +284,6 @@ Mode: Paper Execution Only
     setSessionSaved(false);
   }
 
-  function saveSession() {
-    setSessionSaved(true);
-  }
-
-  function Field({ label, value, onChange, placeholder, type = "text" }) {
-    return (
-      <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
-        {label}
-        <input
-          type={type}
-          value={value}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          style={inputStyle}
-        />
-      </label>
-    );
-  }
-
-  function TextAreaField({ label, value, onChange, placeholder }) {
-    return (
-      <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
-        {label}
-        <textarea
-          value={value}
-          placeholder={placeholder}
-          onChange={(event) => onChange(event.target.value)}
-          rows={4}
-          style={{
-            ...inputStyle,
-            resize: "vertical",
-            lineHeight: "1.5",
-            fontFamily: "Arial, sans-serif",
-          }}
-        />
-      </label>
-    );
-  }
-
-  function ToggleCheck({ label, checked, onChange }) {
-    return (
-      <button
-        type="button"
-        onClick={() => onChange(!checked)}
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          border: "1px solid #eadfb3",
-          borderRadius: "14px",
-          padding: "15px 16px",
-          background: checked ? "#e7f7df" : "#fffaf0",
-          fontSize: "16px",
-          fontWeight: "800",
-          textAlign: "left",
-        }}
-      >
-        <span>{label}</span>
-        <span>{checked ? "Confirmed" : "Pending"}</span>
-      </button>
-    );
-  }
-
-  function StatBox({ label, value }) {
-    return (
-      <div
-        style={{
-          border: "1px solid #eadfb3",
-          borderRadius: "16px",
-          padding: "20px",
-          background: "#fffaf0",
-        }}
-      >
-        <div style={{ fontSize: "12px", letterSpacing: "1.5px", fontWeight: "900" }}>
-          {label}
-        </div>
-        <div style={{ fontSize: "26px", fontWeight: "900", marginTop: "10px" }}>
-          {value}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main>
       <style>{`
@@ -318,16 +313,9 @@ Mode: Paper Execution Only
           gap: 18px;
         }
 
-        .eh-grid-4 {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 18px;
-        }
-
         @media (max-width: 900px) {
           .eh-grid-2,
-          .eh-grid-3,
-          .eh-grid-4 {
+          .eh-grid-3 {
             grid-template-columns: 1fr;
           }
 
@@ -357,38 +345,14 @@ Mode: Paper Execution Only
           </h2>
 
           <div className="eh-grid-3" style={{ marginTop: "22px" }}>
-            <Field label="Ticker" value={ticker} onChange={setTicker} placeholder="QQQ" />
-            <Field
-              label="Account Balance"
-              value={accountBalance}
-              onChange={setAccountBalance}
-              placeholder="2000"
-              type="number"
-            />
-            <Field
-              label="Risk %"
-              value={riskPercent}
-              onChange={setRiskPercent}
-              placeholder="2"
-              type="number"
-            />
+            <Field label="Ticker" value={ticker} onChange={setTicker} placeholder="QQQ" inputStyle={inputStyle} />
+            <Field label="Account Balance" value={accountBalance} onChange={setAccountBalance} placeholder="2000" type="number" inputStyle={inputStyle} />
+            <Field label="Risk %" value={riskPercent} onChange={setRiskPercent} placeholder="2" type="number" inputStyle={inputStyle} />
           </div>
 
           <div className="eh-grid-2" style={{ marginTop: "18px" }}>
-            <Field
-              label="Entry Price"
-              value={entryPrice}
-              onChange={setEntryPrice}
-              placeholder="Example: 5.40"
-              type="number"
-            />
-            <Field
-              label="Stop Price"
-              value={stopPrice}
-              onChange={setStopPrice}
-              placeholder="Example: 4.90"
-              type="number"
-            />
+            <Field label="Entry Price" value={entryPrice} onChange={setEntryPrice} placeholder="Example: 5.40" type="number" inputStyle={inputStyle} />
+            <Field label="Stop Price" value={stopPrice} onChange={setStopPrice} placeholder="Example: 4.90" type="number" inputStyle={inputStyle} />
           </div>
 
           <button style={buttonStyle}>EXECUTE PAPER TRADE</button>
@@ -414,26 +378,10 @@ Mode: Paper Execution Only
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Setup Validation</h3>
 
           <div style={{ display: "grid", gap: "14px", marginTop: "20px" }}>
-            <ToggleCheck
-              label="VWAP Confirmation"
-              checked={vwapConfirmed}
-              onChange={setVwapConfirmed}
-            />
-            <ToggleCheck
-              label="Cloud Confirmation"
-              checked={cloudConfirmed}
-              onChange={setCloudConfirmed}
-            />
-            <ToggleCheck
-              label="Volume Confirmation"
-              checked={volumeConfirmed}
-              onChange={setVolumeConfirmed}
-            />
-            <ToggleCheck
-              label="Market Window Approved"
-              checked={marketWindow}
-              onChange={setMarketWindow}
-            />
+            <ToggleCheck label="VWAP Confirmation" checked={vwapConfirmed} onChange={setVwapConfirmed} />
+            <ToggleCheck label="Cloud Confirmation" checked={cloudConfirmed} onChange={setCloudConfirmed} />
+            <ToggleCheck label="Volume Confirmation" checked={volumeConfirmed} onChange={setVolumeConfirmed} />
+            <ToggleCheck label="Market Window Approved" checked={marketWindow} onChange={setMarketWindow} />
           </div>
         </div>
 
@@ -442,14 +390,8 @@ Mode: Paper Execution Only
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Risk Calculation Engine</h3>
 
           <div className="eh-grid-2" style={{ marginTop: "22px" }}>
-            <StatBox
-              label="Risk Per Trade"
-              value={`$${calculations.riskDollars.toFixed(2)}`}
-            />
-            <StatBox
-              label="Trade Risk"
-              value={`$${calculations.tradeRisk.toFixed(2)}`}
-            />
+            <StatBox label="Risk Per Trade" value={`$${calculations.riskDollars.toFixed(2)}`} />
+            <StatBox label="Trade Risk" value={`$${calculations.tradeRisk.toFixed(2)}`} />
             <StatBox label="Suggested Size" value={calculations.positionSize} />
             <StatBox label="Risk Mode" value="Protected" />
           </div>
@@ -462,24 +404,9 @@ Mode: Paper Execution Only
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Session Notes</h3>
 
           <div style={{ display: "grid", gap: "18px", marginTop: "20px" }}>
-            <TextAreaField
-              label="Entry Reason"
-              value={entryReason}
-              onChange={setEntryReason}
-              placeholder="Why is this setup valid?"
-            />
-            <TextAreaField
-              label="Exit Plan"
-              value={exitPlan}
-              onChange={setExitPlan}
-              placeholder="What is the profit target, stop, and invalidation rule?"
-            />
-            <TextAreaField
-              label="Lesson Logged"
-              value={lessonLogged}
-              onChange={setLessonLogged}
-              placeholder="What should be reviewed after the session?"
-            />
+            <TextAreaField label="Entry Reason" value={entryReason} onChange={setEntryReason} placeholder="Why is this setup valid?" inputStyle={inputStyle} />
+            <TextAreaField label="Exit Plan" value={exitPlan} onChange={setExitPlan} placeholder="What is the profit target, stop, and invalidation rule?" inputStyle={inputStyle} />
+            <TextAreaField label="Lesson Logged" value={lessonLogged} onChange={setLessonLogged} placeholder="What should be reviewed after the session?" inputStyle={inputStyle} />
           </div>
         </div>
 
@@ -494,7 +421,7 @@ Mode: Paper Execution Only
             <StatBox label="Mode" value="Paper Only" />
           </div>
 
-          <button type="button" onClick={saveSession} style={buttonStyle}>
+          <button type="button" onClick={() => setSessionSaved(true)} style={buttonStyle}>
             SAVE SESSION
           </button>
 
@@ -522,21 +449,6 @@ Mode: Paper Execution Only
         >
           {reportText}
         </pre>
-      </section>
-
-      <section style={{ ...panelStyle, marginTop: "32px" }}>
-        <div style={badgeStyle("green")}>LAUNCH CHECKLIST</div>
-        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Pre-Launch Validation</h3>
-
-        <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
-          <li>Logo Loaded: Confirmed</li>
-          <li>Core Sections Built: Confirmed</li>
-          <li>Interactive Inputs Built: Confirmed</li>
-          <li>Risk Logic Displayed: Confirmed</li>
-          <li>Journal Layer Built: Confirmed</li>
-          <li>Export Report Built: Confirmed</li>
-          <li>Paper Execution Only: Confirmed</li>
-        </ul>
       </section>
 
       <footer
