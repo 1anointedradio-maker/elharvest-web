@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         >
           <header style={{ marginBottom: "32px" }}>
             <img
-              src="/public/el-harvest-logo.png.PNG"
+              src="/el-harvest-logo.png.PNG"
               alt="El Harvest Logo"
               style={{ width: "190px", height: "auto", marginBottom: "28px" }}
             />
