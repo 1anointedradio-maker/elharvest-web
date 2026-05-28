@@ -8,10 +8,16 @@ export default function Home() {
   const [riskPercent, setRiskPercent] = useState("2");
   const [entryPrice, setEntryPrice] = useState("");
   const [stopPrice, setStopPrice] = useState("");
+
   const [vwapConfirmed, setVwapConfirmed] = useState(false);
   const [cloudConfirmed, setCloudConfirmed] = useState(false);
   const [volumeConfirmed, setVolumeConfirmed] = useState(false);
   const [marketWindow, setMarketWindow] = useState(false);
+
+  const [entryReason, setEntryReason] = useState("");
+  const [exitPlan, setExitPlan] = useState("");
+  const [lessonLogged, setLessonLogged] = useState("");
+  const [sessionSaved, setSessionSaved] = useState(false);
 
   const calculations = useMemo(() => {
     const balance = Number(accountBalance);
@@ -23,6 +29,7 @@ export default function Home() {
     const validRisk = risk > 0;
     const validEntry = entry > 0;
     const validStop = stop > 0;
+
     const tradeRisk = Math.abs(entry - stop);
     const riskDollars = validBalance && validRisk ? balance * (risk / 100) : 0;
     const positionSize =
@@ -53,6 +60,13 @@ export default function Home() {
       reason = "Setup is confirmed for paper execution only.";
     }
 
+    const journalComplete = entryReason.trim() && exitPlan.trim() && lessonLogged.trim();
+
+    let sessionScore = 0;
+    if (validBalance && validRisk && validEntry && validStop && tradeRisk > 0) sessionScore += 25;
+    sessionScore += confirmedCount * 12.5;
+    if (journalComplete) sessionScore += 25;
+
     return {
       balance,
       risk,
@@ -65,6 +79,8 @@ export default function Home() {
       decision,
       permission,
       reason,
+      journalComplete,
+      sessionScore: Math.min(Math.round(sessionScore), 100),
     };
   }, [
     accountBalance,
@@ -75,7 +91,41 @@ export default function Home() {
     cloudConfirmed,
     volumeConfirmed,
     marketWindow,
+    entryReason,
+    exitPlan,
+    lessonLogged,
   ]);
+
+  const reportText = `
+EL HARVEST SESSION REPORT
+
+Ticker: ${ticker || "Pending"}
+Decision: ${calculations.decision}
+Permission: ${calculations.permission}
+Reason: ${calculations.reason}
+
+Account Balance: $${calculations.balance || 0}
+Risk Percentage: ${calculations.risk || 0}%
+Risk Per Trade: $${calculations.riskDollars.toFixed(2)}
+Entry Price: ${entryPrice || "Pending"}
+Stop Price: ${stopPrice || "Pending"}
+Trade Risk: $${calculations.tradeRisk.toFixed(2)}
+Suggested Size: ${calculations.positionSize}
+
+Confirmations: ${calculations.confirmedCount}/4
+VWAP Confirmation: ${vwapConfirmed ? "Confirmed" : "Pending"}
+Cloud Confirmation: ${cloudConfirmed ? "Confirmed" : "Pending"}
+Volume Confirmation: ${volumeConfirmed ? "Confirmed" : "Pending"}
+Market Window Approved: ${marketWindow ? "Confirmed" : "Pending"}
+
+Entry Reason: ${entryReason || "Pending"}
+Exit Plan: ${exitPlan || "Pending"}
+Lesson Logged: ${lessonLogged || "Pending"}
+
+Session Score: ${calculations.sessionScore}%
+Live Trading: Disabled
+Mode: Paper Execution Only
+`.trim();
 
   const panelStyle = {
     background: "#fffdf7",
@@ -120,12 +170,45 @@ export default function Home() {
     boxShadow: "0 10px 18px rgba(159,109,22,0.22)",
   };
 
+  const secondaryButtonStyle = {
+    width: "100%",
+    border: "1px solid #d9c77b",
+    borderRadius: "10px",
+    padding: "15px 18px",
+    background: "#fffaf0",
+    color: "#111",
+    fontWeight: "900",
+    letterSpacing: "1.2px",
+    fontSize: "14px",
+    marginTop: "14px",
+  };
+
   const decisionTone =
     calculations.decision === "PAPER ONLY"
       ? "green"
       : calculations.decision === "WAIT"
       ? "gold"
       : "red";
+
+  function resetSession() {
+    setTicker("QQQ");
+    setAccountBalance("2000");
+    setRiskPercent("2");
+    setEntryPrice("");
+    setStopPrice("");
+    setVwapConfirmed(false);
+    setCloudConfirmed(false);
+    setVolumeConfirmed(false);
+    setMarketWindow(false);
+    setEntryReason("");
+    setExitPlan("");
+    setLessonLogged("");
+    setSessionSaved(false);
+  }
+
+  function saveSession() {
+    setSessionSaved(true);
+  }
 
   function Field({ label, value, onChange, placeholder, type = "text" }) {
     return (
@@ -137,6 +220,26 @@ export default function Home() {
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
           style={inputStyle}
+        />
+      </label>
+    );
+  }
+
+  function TextAreaField({ label, value, onChange, placeholder }) {
+    return (
+      <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
+        {label}
+        <textarea
+          value={value}
+          placeholder={placeholder}
+          onChange={(event) => onChange(event.target.value)}
+          rows={4}
+          style={{
+            ...inputStyle,
+            resize: "vertical",
+            lineHeight: "1.5",
+            fontFamily: "Arial, sans-serif",
+          }}
         />
       </label>
     );
@@ -239,7 +342,7 @@ export default function Home() {
         <div>
           <strong style={{ letterSpacing: "1.5px" }}>EL HARVEST COMMAND CENTER</strong>
           <div style={{ fontSize: "14px", marginTop: "6px", opacity: 0.8 }}>
-            Interactive Risk Calculator · Paper Execution · Live Trading Locked
+            Risk Calculator · Session Journal · Export Report · Live Trading Locked
           </div>
         </div>
 
@@ -355,54 +458,70 @@ export default function Home() {
 
       <section className="eh-grid-2" style={{ marginTop: "32px" }}>
         <div style={panelStyle}>
-          <div style={badgeStyle("gold")}>RISK DIAL</div>
-          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Hard Stop Protection</h3>
+          <div style={badgeStyle("gold")}>TRADE JOURNAL</div>
+          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Session Notes</h3>
 
-          <div
-            style={{
-              width: "210px",
-              height: "210px",
-              borderRadius: "50%",
-              borderTop: "24px solid #4f9b57",
-              borderRight: "24px solid #4f9b57",
-              borderBottom: "24px solid #d9c77b",
-              borderLeft: "24px solid #c9942f",
-              margin: "22px auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "#fffaf0",
-              textAlign: "center",
-            }}
-          >
-            <div>
-              <div style={{ fontSize: "12px", letterSpacing: "2px", fontWeight: "900" }}>
-                TARGET
-              </div>
-              <div style={{ fontSize: "32px", fontWeight: "900", marginTop: "8px" }}>
-                18–21%
-              </div>
-              <div style={{ marginTop: "8px", fontWeight: "800" }}>Hard Stop: 15%</div>
-            </div>
+          <div style={{ display: "grid", gap: "18px", marginTop: "20px" }}>
+            <TextAreaField
+              label="Entry Reason"
+              value={entryReason}
+              onChange={setEntryReason}
+              placeholder="Why is this setup valid?"
+            />
+            <TextAreaField
+              label="Exit Plan"
+              value={exitPlan}
+              onChange={setExitPlan}
+              placeholder="What is the profit target, stop, and invalidation rule?"
+            />
+            <TextAreaField
+              label="Lesson Logged"
+              value={lessonLogged}
+              onChange={setLessonLogged}
+              placeholder="What should be reviewed after the session?"
+            />
           </div>
-
-          <p style={{ lineHeight: "1.65" }}>
-            No averaging down. No revenge trade. No new entry while exit management is
-            active.
-          </p>
         </div>
 
         <div style={panelStyle}>
-          <div style={badgeStyle("green")}>SESSION RESULTS</div>
-          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Discipline Scoreboard</h3>
+          <div style={badgeStyle("green")}>SESSION CONTROL</div>
+          <h3 style={{ marginTop: 0, fontSize: "26px" }}>Save / Reset / Score</h3>
 
           <div className="eh-grid-2" style={{ marginTop: "22px" }}>
-            <StatBox label="Rule Discipline" value="82%" />
-            <StatBox label="Re-entry Blocked" value="5" />
-            <StatBox label="Risk Compliance" value="Pending" />
-            <StatBox label="Session Grade" value="Pending" />
+            <StatBox label="Session Score" value={`${calculations.sessionScore}%`} />
+            <StatBox label="Journal Status" value={calculations.journalComplete ? "Complete" : "Pending"} />
+            <StatBox label="Session Saved" value={sessionSaved ? "Yes" : "No"} />
+            <StatBox label="Mode" value="Paper Only" />
           </div>
+
+          <button type="button" onClick={saveSession} style={buttonStyle}>
+            SAVE SESSION
+          </button>
+
+          <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
+            RESET SESSION
+          </button>
         </div>
+      </section>
+
+      <section style={{ ...panelStyle, marginTop: "32px" }}>
+        <div style={badgeStyle("green")}>EXPORT REPORT</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Paper Trade Log Summary</h3>
+
+        <pre
+          style={{
+            whiteSpace: "pre-wrap",
+            background: "#fffaf0",
+            border: "1px solid #eadfb3",
+            borderRadius: "16px",
+            padding: "22px",
+            lineHeight: "1.65",
+            fontSize: "15px",
+            overflowX: "auto",
+          }}
+        >
+          {reportText}
+        </pre>
       </section>
 
       <section style={{ ...panelStyle, marginTop: "32px" }}>
@@ -414,6 +533,8 @@ export default function Home() {
           <li>Core Sections Built: Confirmed</li>
           <li>Interactive Inputs Built: Confirmed</li>
           <li>Risk Logic Displayed: Confirmed</li>
+          <li>Journal Layer Built: Confirmed</li>
+          <li>Export Report Built: Confirmed</li>
           <li>Paper Execution Only: Confirmed</li>
         </ul>
       </section>
