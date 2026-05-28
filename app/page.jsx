@@ -98,6 +98,8 @@ export default function Home() {
   const [exitPlan, setExitPlan] = useState("");
   const [lessonLogged, setLessonLogged] = useState("");
   const [sessionSaved, setSessionSaved] = useState(false);
+  const [copyStatus, setCopyStatus] = useState("Not copied");
+  const [savedSessions, setSavedSessions] = useState([]);
 
   const calculations = useMemo(() => {
     const balance = Number(accountBalance);
@@ -282,6 +284,48 @@ Mode: Paper Execution Only
     setExitPlan("");
     setLessonLogged("");
     setSessionSaved(false);
+    setCopyStatus("Not copied");
+  }
+
+  function saveSession() {
+    const timestamp = new Date().toLocaleString();
+
+    const newSession = {
+      id: `${Date.now()}`,
+      timestamp,
+      ticker: ticker || "Pending",
+      decision: calculations.decision,
+      score: calculations.sessionScore,
+      riskDollars: calculations.riskDollars.toFixed(2),
+      tradeRisk: calculations.tradeRisk.toFixed(2),
+      size: calculations.positionSize,
+      report: reportText,
+    };
+
+    setSavedSessions((current) => [newSession, ...current].slice(0, 5));
+    setSessionSaved(true);
+  }
+
+  async function copyReport() {
+    try {
+      await navigator.clipboard.writeText(reportText);
+      setCopyStatus("Copied");
+    } catch {
+      setCopyStatus("Copy failed");
+    }
+  }
+
+  function downloadReport() {
+    const blob = new Blob([reportText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `el-harvest-${ticker || "session"}-report.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   }
 
   return (
@@ -330,7 +374,7 @@ Mode: Paper Execution Only
         <div>
           <strong style={{ letterSpacing: "1.5px" }}>EL HARVEST COMMAND CENTER</strong>
           <div style={{ fontSize: "14px", marginTop: "6px", opacity: 0.8 }}>
-            Risk Calculator · Session Journal · Export Report · Live Trading Locked
+            Risk Calculator · Session Journal · Export Report · Saved History
           </div>
         </div>
 
@@ -418,10 +462,10 @@ Mode: Paper Execution Only
             <StatBox label="Session Score" value={`${calculations.sessionScore}%`} />
             <StatBox label="Journal Status" value={calculations.journalComplete ? "Complete" : "Pending"} />
             <StatBox label="Session Saved" value={sessionSaved ? "Yes" : "No"} />
-            <StatBox label="Mode" value="Paper Only" />
+            <StatBox label="Copy Status" value={copyStatus} />
           </div>
 
-          <button type="button" onClick={() => setSessionSaved(true)} style={buttonStyle}>
+          <button type="button" onClick={saveSession} style={buttonStyle}>
             SAVE SESSION
           </button>
 
@@ -435,6 +479,16 @@ Mode: Paper Execution Only
         <div style={badgeStyle("green")}>EXPORT REPORT</div>
         <h3 style={{ marginTop: 0, fontSize: "26px" }}>Paper Trade Log Summary</h3>
 
+        <div className="eh-grid-2">
+          <button type="button" onClick={copyReport} style={buttonStyle}>
+            COPY REPORT
+          </button>
+
+          <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
+            DOWNLOAD REPORT
+          </button>
+        </div>
+
         <pre
           style={{
             whiteSpace: "pre-wrap",
@@ -445,10 +499,39 @@ Mode: Paper Execution Only
             lineHeight: "1.65",
             fontSize: "15px",
             overflowX: "auto",
+            marginTop: "20px",
           }}
         >
           {reportText}
         </pre>
+      </section>
+
+      <section style={{ ...panelStyle, marginTop: "32px" }}>
+        <div style={badgeStyle("gold")}>SAVED HISTORY</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Last Saved Sessions</h3>
+
+        {savedSessions.length === 0 ? (
+          <p style={{ lineHeight: "1.7" }}>No sessions saved yet.</p>
+        ) : (
+          <div style={{ display: "grid", gap: "16px" }}>
+            {savedSessions.map((session) => (
+              <div
+                key={session.id}
+                style={{
+                  border: "1px solid #eadfb3",
+                  borderRadius: "16px",
+                  padding: "18px",
+                  background: "#fffaf0",
+                }}
+              >
+                <strong>{session.ticker} · {session.decision} · Score {session.score}%</strong>
+                <p style={{ marginBottom: 0, lineHeight: "1.6" }}>
+                  Saved: {session.timestamp} · Risk ${session.riskDollars} · Trade Risk ${session.tradeRisk} · Size {session.size}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <footer
