@@ -779,17 +779,17 @@ function restoreSavedSession(session) {
         )}
       </section>
 
-      <footer
-        style={{
-          marginTop: "40px",
-          padding: "28px",
-          textAlign: "center",
-          borderTop: "1px solid #d9c77b",
-          letterSpacing: "1px",
-          fontWeight: "800",
-        }
-      >
-        EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
+<footer
+  style={{
+    marginTop: "40px",
+    padding: "28px",
+    textAlign: "center",
+    borderTop: "1px solid #d9c77b",
+    letterSpacing: "1px",
+    fontWeight: "800",
+  }}
+>
+  EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
       </footer>
     </main>
   );
