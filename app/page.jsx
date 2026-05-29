@@ -678,109 +678,103 @@ function restoreSavedSession(session) {
           <p style={{ lineHeight: "1.7" }}>No sessions saved yet.</p>
         ) : (
           <div style={{ display: "grid", gap: "16px" }}>
-{savedSessions.map((session, index) => (
-  <div
-    key={session.id}
-    style={{
-      border: "1px solid #eadfb3",
-      borderRadius: "16px",
-      padding: "18px",
-      background: "#fffaf0",
-    }}
-  >
-<div
-  style={{
-    display: "grid",
-    gap: "8px",
-    marginBottom: "16px",
-  }}
->
-  <div
-    style={{
-      fontSize: "12px",
-      fontWeight: "900",
-      letterSpacing: "1.8px",
-      opacity: 0.75,
-    }}
-  >
-    SAVED SESSION #{index + 1}
-  </div>
+            {savedSessions.map((session, index) => (
+              <div
+                key={session.id}
+                style={{
+                  border: "1px solid #eadfb3",
+                  borderRadius: "16px",
+                  padding: "18px",
+                  background: "#fffaf0",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gap: "8px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: "900",
+                      letterSpacing: "1.8px",
+                      opacity: 0.75,
+                    }}
+                  >
+                    SAVED SESSION #{index + 1}
+                  </div>
 
-  <strong style={{ fontSize: "18px" }}>
-    {session.ticker} · {session.decision} · Score {session.score}%
-  </strong>
+                  <strong style={{ fontSize: "18px" }}>
+                    {session.ticker} · {session.decision} · Score {session.score}%
+                  </strong>
 
-  <div style={{ lineHeight: "1.7", fontSize: "15px" }}>
-    <div>Saved: {session.timestamp}</div>
-    <div>Risk Per Trade: ${session.riskDollars}</div>
-    <div>Trade Risk: ${session.tradeRisk}</div>
-    <div>Suggested Size: {session.size}</div>
-  </div>
-</div>
+                  <div style={{ lineHeight: "1.7", fontSize: "15px" }}>
+                    <div>Saved: {session.timestamp}</div>
+                    <div>Risk Per Trade: ${session.riskDollars}</div>
+                    <div>Trade Risk: ${session.tradeRisk}</div>
+                    <div>Suggested Size: {session.size}</div>
+                  </div>
+                </div>
 
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-        gap: "10px",
-      }}
-    >
-      <button
-        type="button"
-        onClick={() =>
-          setExpandedSessionId(
-            expandedSessionId === session.id ? null : session.id
-          )
-        }
-        style={secondaryButtonStyle}
-      >
-        VIEW REPORT
-      </button>
+                <div className="eh-grid-4" style={{ marginTop: "18px" }}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedSessionId(
+                        expandedSessionId === session.id ? null : session.id
+                      )
+                    }
+                    style={secondaryButtonStyle}
+                  >
+                    VIEW REPORT
+                  </button>
 
-      <button
-        type="button"
-        onClick={() => copySavedReport(session.report)}
-        style={secondaryButtonStyle}
-      >
-        COPY REPORT
-      </button>
+                  <button
+                    type="button"
+                    onClick={() => copySavedReport(session.report)}
+                    style={secondaryButtonStyle}
+                  >
+                    COPY REPORT
+                  </button>
 
-      <button
-        type="button"
-        onClick={() => restoreSavedSession(session)}
-        style={secondaryButtonStyle}
-      >
-        RESTORE
-      </button>
+                  <button
+                    type="button"
+                    onClick={() => restoreSavedSession(session)}
+                    style={secondaryButtonStyle}
+                  >
+                    RESTORE
+                  </button>
 
-      <button
-        type="button"
-        onClick={() => deleteSavedSession(session.id)}
-        style={secondaryButtonStyle}
-      >
-        DELETE
-      </button>
-    </div>
+                  <button
+                    type="button"
+                    onClick={() => deleteSavedSession(session.id)}
+                    style={secondaryButtonStyle}
+                  >
+                    DELETE
+                  </button>
+                </div>
 
-    {expandedSessionId === session.id && (
-      <pre
-        style={{
-          whiteSpace: "pre-wrap",
-          background: "#fffdf7",
-          border: "1px solid #eadfb3",
-          borderRadius: "14px",
-          padding: "18px",
-          lineHeight: "1.6",
-          fontSize: "14px",
-          overflowX: "auto",
-          marginTop: "16px",
-        }}
-      >
-        {session.report}
-      </pre>
-    )}
-  </div>
-))}
+                {expandedSessionId === session.id && (
+                  <pre
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      background: "#fffdf7",
+                      border: "1px solid #eadfb3",
+                      borderRadius: "14px",
+                      padding: "18px",
+                      lineHeight: "1.65",
+                      fontSize: "14px",
+                      overflowX: "auto",
+                      marginTop: "18px",
+                    }}
+                  >
+                    {session.report}
+                  </pre>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </section>
