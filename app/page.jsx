@@ -344,7 +344,14 @@ function saveSession() {
   setSessionSaved(true);
   setCopyStatus("Session saved");
 }
-
+async function copyReport() {
+  try {
+    await navigator.clipboard.writeText(reportText);
+    setCopyStatus("Copied");
+  } catch {
+    setCopyStatus("Copy failed");
+  }
+}
   function downloadReport() {
     const blob = new Blob([reportText], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
