@@ -364,20 +364,57 @@ function deleteSavedSession(id) {
 }
 
 function restoreSavedSession(session) {
-  setTicker(session.ticker === "Pending" ? "QQQ" : session.ticker || "QQQ");
+  setTicker(session.ticker && session.ticker !== "Pending" ? session.ticker : "QQQ");
+
   setAccountBalance(session.accountBalance || "2000");
   setRiskPercent(session.riskPercent || "2");
-  setEntryPrice(session.entryPrice || "");
-  setStopPrice(session.stopPrice || "");
 
-  setVwapConfirmed(Boolean(session.vwapConfirmed));
-  setCloudConfirmed(Boolean(session.cloudConfirmed));
-  setVolumeConfirmed(Boolean(session.volumeConfirmed));
-  setMarketWindow(Boolean(session.marketWindow));
+  let restoredEntry = session.entryPrice || "";
+  let restoredStop = session.stopPrice || "";
+  let restoredEntryReason = session.entryReason || "";
+  let restoredExitPlan = session.exitPlan || "";
+  let restoredLesson = session.lessonLogged || "";
 
-  setEntryReason(session.entryReason || "");
-  setExitPlan(session.exitPlan || "");
-  setLessonLogged(session.lessonLogged || "");
+  if ((!restoredEntry || !restoredStop) && session.report) {
+    const entryMatch = session.report.match(/Entry Price:\s(.+)/);
+    const stopMatch = session.report.match(/Stop Price:\s(.+)/);
+    const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
+    const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
+    const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
+
+    restoredEntry =
+      entryMatch?.[1] && entryMatch[1] !== "Pending" ? entryMatch[1].trim() : "";
+
+    restoredStop =
+      stopMatch?.[1] && stopMatch[1] !== "Pending" ? stopMatch[1].trim() : "";
+
+    restoredEntryReason =
+      entryReasonMatch?.[1] && entryReasonMatch[1] !== "Pending"
+        ? entryReasonMatch[1].trim()
+        : "";
+
+    restoredExitPlan =
+      exitPlanMatch?.[1] && exitPlanMatch[1] !== "Pending"
+        ? exitPlanMatch[1].trim()
+        : "";
+
+    restoredLesson =
+      lessonMatch?.[1] && lessonMatch[1] !== "Pending"
+        ? lessonMatch[1].trim()
+        : "";
+  }
+
+  setEntryPrice(restoredEntry);
+  setStopPrice(restoredStop);
+
+  setVwapConfirmed(Boolean(session.vwapConfirmed) || session.report?.includes("VWAP Confirmation: Confirmed"));
+  setCloudConfirmed(Boolean(session.cloudConfirmed) || session.report?.includes("Cloud Confirmation: Confirmed"));
+  setVolumeConfirmed(Boolean(session.volumeConfirmed) || session.report?.includes("Volume Confirmation: Confirmed"));
+  setMarketWindow(Boolean(session.marketWindow) || session.report?.includes("Market Window Approved: Confirmed"));
+
+  setEntryReason(restoredEntryReason);
+  setExitPlan(restoredExitPlan);
+  setLessonLogged(restoredLesson);
 
   setSessionSaved(false);
   setCopyStatus("Restored saved session");
