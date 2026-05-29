@@ -787,7 +787,7 @@ function restoreSavedSession(session) {
           borderTop: "1px solid #d9c77b",
           letterSpacing: "1px",
           fontWeight: "800",
-        }}
+        }
       >
         EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
       </footer>
