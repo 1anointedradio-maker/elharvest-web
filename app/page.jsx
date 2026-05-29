@@ -381,14 +381,22 @@ if (!canSaveSession) {
   setSessionSaved(true);
   setCopyStatus("Session saved");
 }
-async function copyReport() {
-  try {await navigator.clipboard.writeText(fullExportReport);
-    setCopyStatus("Copied");
+async function copySavedReport(report) {
+  try {
+    await navigator.clipboard.writeText(report);
+    setCopyStatus("Saved report copied");
   } catch {
-    setCopyStatus("Copy failed");
+    setCopyStatus("Saved report copy failed");
   }
 }
-  function downloadReport() {
+
+function deleteSavedSession(id) {
+  setSavedSessions((current) => current.filter((session) => session.id !== id));
+
+  if (expandedSessionId === id) {
+    setExpandedSessionId(null);
+  }
+}
    const blob = new Blob([fullExportReport], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
