@@ -656,13 +656,35 @@ function restoreSavedSession(session) {
       background: "#fffaf0",
     }}
   >
-    <strong>
-      {session.ticker} · {session.decision} · Score {session.score}%
-    </strong>
+<div
+  style={{
+    display: "grid",
+    gap: "8px",
+    marginBottom: "16px",
+  }}
+>
+  <div
+    style={{
+      fontSize: "12px",
+      fontWeight: "900",
+      letterSpacing: "1.8px",
+      opacity: 0.75,
+    }}
+  >
+    SAVED SESSION #{index + 1}
+  </div>
 
-    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-      Saved: {session.timestamp} · Risk ${session.riskDollars} · Trade Risk ${session.tradeRisk} · Size {session.size}
-    </p>
+  <strong style={{ fontSize: "18px" }}>
+    {session.ticker} · {session.decision} · Score {session.score}%
+  </strong>
+
+  <div style={{ lineHeight: "1.7", fontSize: "15px" }}>
+    <div>Saved: {session.timestamp}</div>
+    <div>Risk Per Trade: ${session.riskDollars}</div>
+    <div>Trade Risk: ${session.tradeRisk}</div>
+    <div>Suggested Size: {session.size}</div>
+  </div>
+</div>
 
     <div
       style={{
