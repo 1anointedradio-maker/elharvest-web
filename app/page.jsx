@@ -407,7 +407,6 @@ async function copySavedReport(report) {
   } catch {
     setCopyStatus("Saved report copy failed");
   }
-}
 
 function deleteSavedSession(id) {
   setSavedSessions((current) => current.filter((session) => session.id !== id));
