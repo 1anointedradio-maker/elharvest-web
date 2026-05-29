@@ -576,11 +576,6 @@ function restoreSavedSession(session) {
 <StatBox label="Last Save Status" value={sessionSaved ? "Saved" : "Not Saved"} />
 <StatBox label="Saved History Count" value={savedSessions.length} />
           </div>
-
-          <button type="button" onClick={saveSession} style={buttonStyle}>
-            SAVE SESSION
-          </button>
-
           <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
             RESET SESSION
           </button>
