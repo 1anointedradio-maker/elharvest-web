@@ -850,15 +850,18 @@ function downloadCsvLedger() {
         <h3 style={{ marginTop: 0, fontSize: "26px" }}>Paper Trade Log Summary</h3>
 
 <div className="eh-grid-3">
-          <button type="button" onClick={copyReport} style={buttonStyle}>
-            COPY REPORT
-          </button>
+  <button type="button" onClick={copyReport} style={buttonStyle}>
+    COPY REPORT
+  </button>
 
-          <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
-            OPEN / DOWNLOAD TEXT REPORT
-          </button>
-        </div>
+  <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
+    OPEN / DOWNLOAD TEXT REPORT
+  </button>
 
+  <button type="button" onClick={downloadCsvLedger} style={secondaryButtonStyle}>
+    DOWNLOAD CSV LEDGER
+  </button>
+</div>
         <pre
           style={{
             whiteSpace: "pre-wrap",
