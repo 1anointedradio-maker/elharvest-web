@@ -99,7 +99,8 @@ export default function Home() {
   const [lessonLogged, setLessonLogged] = useState("");
   const [sessionSaved, setSessionSaved] = useState(false);
   const [copyStatus, setCopyStatus] = useState("Not copied");
-  const [savedSessions, setSavedSessions] = useState([]);
+const [savedSessions, setSavedSessions] = useState([]);
+const [expandedSessionId, setExpandedSessionId] = useState(null);
   useEffect(() => {
   const storedSessions = window.localStorage.getItem("elHarvestSavedSessions");
 
@@ -345,7 +346,49 @@ Mode: Paper Execution Only
     link.remove();
     URL.revokeObjectURL(url);
   }
+async function copySavedReport(report) {
+  try {
+    await navigator.clipboard.writeText(report);
+    setCopyStatus("Saved report copied");
+  } catch {
+    setCopyStatus("Saved report copy failed");
+  }
+}
 
+function deleteSavedSession(id) {
+  setSavedSessions((current) => current.filter((session) => session.id !== id));
+
+  if (expandedSessionId === id) {
+    setExpandedSessionId(null);
+  }
+}
+
+function restoreSavedSession(session) {
+  setTicker(session.ticker || "QQQ");
+  setSessionSaved(false);
+  setCopyStatus("Restored saved session");
+
+  const entryMatch = session.report.match(/Entry Price:\s(.+)/);
+  const stopMatch = session.report.match(/Stop Price:\s(.+)/);
+  const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
+  const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
+  const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
+
+  const restoredEntry = entryMatch?.[1] === "Pending" ? "" : entryMatch?.[1] || "";
+  const restoredStop = stopMatch?.[1] === "Pending" ? "" : stopMatch?.[1] || "";
+  const restoredEntryReason =
+    entryReasonMatch?.[1] === "Pending" ? "" : entryReasonMatch?.[1] || "";
+  const restoredExitPlan =
+    exitPlanMatch?.[1] === "Pending" ? "" : exitPlanMatch?.[1] || "";
+  const restoredLesson =
+    lessonMatch?.[1] === "Pending" ? "" : lessonMatch?.[1] || "";
+
+  setEntryPrice(restoredEntry);
+  setStopPrice(restoredStop);
+  setEntryReason(restoredEntryReason);
+  setExitPlan(restoredExitPlan);
+  setLessonLogged(restoredLesson);
+}
   return (
     <main>
       <style>{`
@@ -543,22 +586,87 @@ Mode: Paper Execution Only
           <p style={{ lineHeight: "1.7" }}>No sessions saved yet.</p>
         ) : (
           <div style={{ display: "grid", gap: "16px" }}>
-            {savedSessions.map((session) => (
-              <div
-                key={session.id}
-                style={{
-                  border: "1px solid #eadfb3",
-                  borderRadius: "16px",
-                  padding: "18px",
-                  background: "#fffaf0",
-                }}
-              >
-                <strong>{session.ticker} · {session.decision} · Score {session.score}%</strong>
-                <p style={{ marginBottom: 0, lineHeight: "1.6" }}>
-                  Saved: {session.timestamp} · Risk ${session.riskDollars} · Trade Risk ${session.tradeRisk} · Size {session.size}
-                </p>
-              </div>
-            ))}
+{savedSessions.map((session) => (
+  <div
+    key={session.id}
+    style={{
+      border: "1px solid #eadfb3",
+      borderRadius: "16px",
+      padding: "18px",
+      background: "#fffaf0",
+    }}
+  >
+    <strong>
+      {session.ticker} · {session.decision} · Score {session.score}%
+    </strong>
+
+    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+      Saved: {session.timestamp} · Risk ${session.riskDollars} · Trade Risk ${session.tradeRisk} · Size {session.size}
+    </p>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+        gap: "10px",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() =>
+          setExpandedSessionId(
+            expandedSessionId === session.id ? null : session.id
+          )
+        }
+        style={secondaryButtonStyle}
+      >
+        VIEW FULL REPORT
+      </button>
+
+      <button
+        type="button"
+        onClick={() => copySavedReport(session.report)}
+        style={secondaryButtonStyle}
+      >
+        COPY SAVED REPORT
+      </button>
+
+      <button
+        type="button"
+        onClick={() => restoreSavedSession(session)}
+        style={secondaryButtonStyle}
+      >
+        RESTORE SESSION
+      </button>
+
+      <button
+        type="button"
+        onClick={() => deleteSavedSession(session.id)}
+        style={secondaryButtonStyle}
+      >
+        DELETE SESSION
+      </button>
+    </div>
+
+    {expandedSessionId === session.id && (
+      <pre
+        style={{
+          whiteSpace: "pre-wrap",
+          background: "#fffdf7",
+          border: "1px solid #eadfb3",
+          borderRadius: "14px",
+          padding: "18px",
+          lineHeight: "1.6",
+          fontSize: "14px",
+          overflowX: "auto",
+          marginTop: "16px",
+        }}
+      >
+        {session.report}
+      </pre>
+    )}
+  </div>
+))}
           </div>
         )}
       </section>
