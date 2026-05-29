@@ -225,6 +225,40 @@ Session Score: ${calculations.sessionScore}%
 Live Trading: Disabled
 Mode: Paper Execution Only
 `.trim();
+  const fullExportReport = `
+${reportText}
+
+${savedSessions.length > 0 ? `
+==============================
+SAVED SESSION HISTORY
+==============================
+
+${savedSessions
+  .map(
+    (session, index) => `
+SAVED SESSION #${index + 1}
+
+Ticker: ${session.ticker}
+Decision: ${session.decision}
+Score: ${session.score}%
+Saved: ${session.timestamp}
+
+Risk Per Trade: $${session.riskDollars}
+Trade Risk: $${session.tradeRisk}
+Suggested Size: ${session.size}
+
+${session.report}
+`
+  )
+  .join("\n------------------------------\n")}
+` : `
+==============================
+SAVED SESSION HISTORY
+==============================
+
+No saved sessions.
+`}
+`.trim();
 
   const panelStyle = {
     background: "#fffdf7",
@@ -348,15 +382,14 @@ if (!canSaveSession) {
   setCopyStatus("Session saved");
 }
 async function copyReport() {
-  try {
-    await navigator.clipboard.writeText(reportText);
+  try {await navigator.clipboard.writeText(fullExportReport);
     setCopyStatus("Copied");
   } catch {
     setCopyStatus("Copy failed");
   }
 }
   function downloadReport() {
-    const blob = new Blob([reportText], { type: "text/plain" });
+   const blob = new Blob([fullExportReport], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -634,7 +667,7 @@ function restoreSavedSession(session) {
             marginTop: "20px",
           }}
         >
-          {reportText}
+          {fullExportReport}
         </pre>
       </section>
 
