@@ -364,30 +364,23 @@ function deleteSavedSession(id) {
 }
 
 function restoreSavedSession(session) {
-  setTicker(session.ticker || "QQQ");
+  setTicker(session.ticker === "Pending" ? "QQQ" : session.ticker || "QQQ");
+  setAccountBalance(session.accountBalance || "2000");
+  setRiskPercent(session.riskPercent || "2");
+  setEntryPrice(session.entryPrice || "");
+  setStopPrice(session.stopPrice || "");
+
+  setVwapConfirmed(Boolean(session.vwapConfirmed));
+  setCloudConfirmed(Boolean(session.cloudConfirmed));
+  setVolumeConfirmed(Boolean(session.volumeConfirmed));
+  setMarketWindow(Boolean(session.marketWindow));
+
+  setEntryReason(session.entryReason || "");
+  setExitPlan(session.exitPlan || "");
+  setLessonLogged(session.lessonLogged || "");
+
   setSessionSaved(false);
   setCopyStatus("Restored saved session");
-
-  const entryMatch = session.report.match(/Entry Price:\s(.+)/);
-  const stopMatch = session.report.match(/Stop Price:\s(.+)/);
-  const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
-  const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
-  const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
-
-  const restoredEntry = entryMatch?.[1] === "Pending" ? "" : entryMatch?.[1] || "";
-  const restoredStop = stopMatch?.[1] === "Pending" ? "" : stopMatch?.[1] || "";
-  const restoredEntryReason =
-    entryReasonMatch?.[1] === "Pending" ? "" : entryReasonMatch?.[1] || "";
-  const restoredExitPlan =
-    exitPlanMatch?.[1] === "Pending" ? "" : exitPlanMatch?.[1] || "";
-  const restoredLesson =
-    lessonMatch?.[1] === "Pending" ? "" : lessonMatch?.[1] || "";
-
-  setEntryPrice(restoredEntry);
-  setStopPrice(restoredStop);
-  setEntryReason(restoredEntryReason);
-  setExitPlan(restoredExitPlan);
-  setLessonLogged(restoredLesson);
 }
   return (
     <main>
