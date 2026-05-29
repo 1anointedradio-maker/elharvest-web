@@ -438,7 +438,60 @@ No saved sessions.
     link.remove();
     window.URL.revokeObjectURL(url);
   }
+function downloadCsvLedger() {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return;
+  }
 
+  const headers = [
+    "Date",
+    "Ticker",
+    "Decision",
+    "Score",
+    "Risk Per Trade",
+    "Trade Risk",
+    "Suggested Size",
+    "Entry Price",
+    "Stop Price",
+    "Entry Reason",
+    "Exit Plan",
+    "Lesson Logged",
+  ];
+
+  const rows = savedSessions.map((session) => [
+    session.timestamp || "",
+    session.ticker || "",
+    session.decision || "",
+    `${session.score || 0}%`,
+    session.riskDollars || "",
+    session.tradeRisk || "",
+    session.size || "",
+    session.entryPrice || "",
+    session.stopPrice || "",
+    session.entryReason || "",
+    session.exitPlan || "",
+    session.lessonLogged || "",
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map((row) =>
+      row
+        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+        .join(",")
+    )
+    .join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "el-harvest-trade-ledger.csv";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
   async function copySavedReport(report) {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
       setCopyStatus("Saved report copy unavailable");
@@ -796,7 +849,7 @@ No saved sessions.
         <div style={badgeStyle("green")}>EXPORT REPORT</div>
         <h3 style={{ marginTop: 0, fontSize: "26px" }}>Paper Trade Log Summary</h3>
 
-        <div className="eh-grid-2">
+<div className="eh-grid-3">
           <button type="button" onClick={copyReport} style={buttonStyle}>
             COPY REPORT
           </button>
