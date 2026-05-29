@@ -576,10 +576,7 @@ function restoreSavedSession(session) {
 <StatBox label="Last Save Status" value={sessionSaved ? "Saved" : "Not Saved"} />
 <StatBox label="Saved History Count" value={savedSessions.length} />
           </div>
-          <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
-            RESET SESSION
-          </button>
-<button
+          <button
   type="button"
   onClick={saveSession}
   disabled={!canSaveSession}
@@ -603,6 +600,10 @@ function restoreSavedSession(session) {
     ? "Save Gate: Open — full paper trade setup confirmed."
     : "Save Gate: Locked — complete valid risk inputs, all 4 confirmations, and journal before saving."}
 </p>
+          <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
+            RESET SESSION
+          </button>
+
         </div>
       </section>
 
