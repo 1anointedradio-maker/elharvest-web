@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function Field({ label, value, onChange, placeholder, type = "text", inputStyle }) {
   return (
@@ -100,6 +100,24 @@ export default function Home() {
   const [sessionSaved, setSessionSaved] = useState(false);
   const [copyStatus, setCopyStatus] = useState("Not copied");
   const [savedSessions, setSavedSessions] = useState([]);
+  useEffect(() => {
+  const storedSessions = window.localStorage.getItem("elHarvestSavedSessions");
+
+  if (storedSessions) {
+    try {
+      setSavedSessions(JSON.parse(storedSessions));
+    } catch {
+      setSavedSessions([]);
+    }
+  }
+}, []);
+
+useEffect(() => {
+  window.localStorage.setItem(
+    "elHarvestSavedSessions",
+    JSON.stringify(savedSessions)
+  );
+}, [savedSessions]);
 
   const calculations = useMemo(() => {
     const balance = Number(accountBalance);
