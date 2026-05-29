@@ -99,26 +99,31 @@ export default function Home() {
   const [lessonLogged, setLessonLogged] = useState("");
   const [sessionSaved, setSessionSaved] = useState(false);
   const [copyStatus, setCopyStatus] = useState("Not copied");
-const [savedSessions, setSavedSessions] = useState([]);
-const [expandedSessionId, setExpandedSessionId] = useState(null);
+  const [savedSessions, setSavedSessions] = useState([]);
+  const [expandedSessionId, setExpandedSessionId] = useState(null);
+
   useEffect(() => {
-  const storedSessions = window.localStorage.getItem("elHarvestSavedSessions");
+    if (typeof window === "undefined") return;
 
-  if (storedSessions) {
-    try {
-      setSavedSessions(JSON.parse(storedSessions));
-    } catch {
-      setSavedSessions([]);
+    const storedSessions = window.localStorage.getItem("elHarvestSavedSessions");
+
+    if (storedSessions) {
+      try {
+        setSavedSessions(JSON.parse(storedSessions));
+      } catch {
+        setSavedSessions([]);
+      }
     }
-  }
-}, []);
+  }, []);
 
-useEffect(() => {
-  window.localStorage.setItem(
-    "elHarvestSavedSessions",
-    JSON.stringify(savedSessions)
-  );
-}, [savedSessions]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    window.localStorage.setItem(
+      "elHarvestSavedSessions",
+      JSON.stringify(savedSessions)
+    );
+  }, [savedSessions]);
 
   const calculations = useMemo(() => {
     const balance = Number(accountBalance);
@@ -136,7 +141,12 @@ useEffect(() => {
     const positionSize =
       riskDollars > 0 && tradeRisk > 0 ? Math.floor(riskDollars / tradeRisk) : 0;
 
-    const confirmations = [vwapConfirmed, cloudConfirmed, volumeConfirmed, marketWindow];
+    const confirmations = [
+      vwapConfirmed,
+      cloudConfirmed,
+      volumeConfirmed,
+      marketWindow,
+    ];
     const confirmedCount = confirmations.filter(Boolean).length;
 
     let decision = "FLAT";
@@ -161,12 +171,20 @@ useEffect(() => {
       reason = "Setup is confirmed for paper execution only.";
     }
 
-    const journalComplete = entryReason.trim() && exitPlan.trim() && lessonLogged.trim();
+    const journalComplete =
+      entryReason.trim() && exitPlan.trim() && lessonLogged.trim();
 
     let sessionScore = 0;
-    if (validBalance && validRisk && validEntry && validStop && tradeRisk > 0) sessionScore += 25;
+
+    if (validBalance && validRisk && validEntry && validStop && tradeRisk > 0) {
+      sessionScore += 25;
+    }
+
     sessionScore += confirmedCount * 12.5;
-    if (journalComplete) sessionScore += 25;
+
+    if (journalComplete) {
+      sessionScore += 25;
+    }
 
     return {
       balance,
@@ -225,10 +243,13 @@ Session Score: ${calculations.sessionScore}%
 Live Trading: Disabled
 Mode: Paper Execution Only
 `.trim();
+
   const fullExportReport = `
 ${reportText}
 
-${savedSessions.length > 0 ? `
+${
+  savedSessions.length > 0
+    ? `
 ==============================
 SAVED SESSION HISTORY
 ==============================
@@ -251,13 +272,15 @@ ${session.report}
 `
   )
   .join("\n------------------------------\n")}
-` : `
+`
+    : `
 ==============================
 SAVED SESSION HISTORY
 ==============================
 
 No saved sessions.
-`}
+`
+}
 `.trim();
 
   const panelStyle = {
@@ -285,7 +308,8 @@ No saved sessions.
     letterSpacing: "2px",
     padding: "8px 14px",
     borderRadius: "999px",
-    background: tone === "green" ? "#e7f7df" : tone === "red" ? "#f8dddd" : "#f3ead0",
+    background:
+      tone === "green" ? "#e7f7df" : tone === "red" ? "#f8dddd" : "#f3ead0",
     marginBottom: "18px",
   });
 
@@ -322,10 +346,12 @@ No saved sessions.
       : calculations.decision === "WAIT"
       ? "gold"
       : "red";
-const canSaveSession =
-  calculations.sessionScore === 100 &&
-  calculations.decision === "PAPER ONLY" &&
-  calculations.journalComplete;
+
+  const canSaveSession =
+    calculations.sessionScore === 100 &&
+    calculations.decision === "PAPER ONLY" &&
+    calculations.journalComplete;
+
   function resetSession() {
     setTicker("QQQ");
     setAccountBalance("2000");
@@ -343,62 +369,66 @@ const canSaveSession =
     setCopyStatus("Not copied");
   }
 
-function saveSession() {
-if (!canSaveSession) {
-    setCopyStatus("Save blocked: complete full paper trade setup first");
-    setSessionSaved(false);
-    return;
+  function saveSession() {
+    if (!canSaveSession) {
+      setCopyStatus("Save blocked: complete full paper trade setup first");
+      setSessionSaved(false);
+      return;
+    }
+
+    const timestamp = new Date().toLocaleString();
+
+    const newSession = {
+      id: `${Date.now()}`,
+      timestamp,
+      ticker: ticker || "Pending",
+      accountBalance,
+      riskPercent,
+      entryPrice,
+      stopPrice,
+      vwapConfirmed,
+      cloudConfirmed,
+      volumeConfirmed,
+      marketWindow,
+      entryReason,
+      exitPlan,
+      lessonLogged,
+      decision: calculations.decision,
+      permission: calculations.permission,
+      reason: calculations.reason,
+      score: calculations.sessionScore,
+      riskDollars: calculations.riskDollars.toFixed(2),
+      tradeRisk: calculations.tradeRisk.toFixed(2),
+      size: calculations.positionSize,
+      report: reportText,
+    };
+
+    setSavedSessions((current) => [newSession, ...current].slice(0, 5));
+    setSessionSaved(true);
+    setCopyStatus("Session saved");
   }
 
-  const timestamp = new Date().toLocaleString();
+  async function copyReport() {
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus("Copy unavailable");
+      return;
+    }
 
-  const newSession = {
-    id: `${Date.now()}`,
-    timestamp,
-    ticker: ticker || "Pending",
-    accountBalance,
-    riskPercent,
-    entryPrice,
-    stopPrice,
-    vwapConfirmed,
-    cloudConfirmed,
-    volumeConfirmed,
-    marketWindow,
-    entryReason,
-    exitPlan,
-    lessonLogged,
-    decision: calculations.decision,
-    permission: calculations.permission,
-    reason: calculations.reason,
-    score: calculations.sessionScore,
-    riskDollars: calculations.riskDollars.toFixed(2),
-    tradeRisk: calculations.tradeRisk.toFixed(2),
-    size: calculations.positionSize,
-    report: reportText,
-  };
-
-  setSavedSessions((current) => [newSession, ...current].slice(0, 5));
-  setSessionSaved(true);
-  setCopyStatus("Session saved");
-}
-async function copySavedReport(report) {
-  try {
-    await navigator.clipboard.writeText(report);
-    setCopyStatus("Saved report copied");
-  } catch {
-    setCopyStatus("Saved report copy failed");
+    try {
+      await navigator.clipboard.writeText(fullExportReport);
+      setCopyStatus("Copied");
+    } catch {
+      setCopyStatus("Copy failed");
+    }
   }
-}
 
-function deleteSavedSession(id) {
-  setSavedSessions((current) => current.filter((session) => session.id !== id));
+  function downloadReport() {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return;
+    }
 
-  if (expandedSessionId === id) {
-    setExpandedSessionId(null);
-  }
-}
-   const blob = new Blob([fullExportReport], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
+    const blob = new Blob([fullExportReport], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
@@ -406,80 +436,104 @@ function deleteSavedSession(id) {
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
-  }
-async function copySavedReport(report) {
-  try {
-    await navigator.clipboard.writeText(report);
-    setCopyStatus("Saved report copied");
-  } catch {
-    setCopyStatus("Saved report copy failed");
+    window.URL.revokeObjectURL(url);
   }
 
-function deleteSavedSession(id) {
-  setSavedSessions((current) => current.filter((session) => session.id !== id));
+  async function copySavedReport(report) {
+    if (typeof navigator === "undefined" || !navigator.clipboard) {
+      setCopyStatus("Saved report copy unavailable");
+      return;
+    }
 
-  if (expandedSessionId === id) {
-    setExpandedSessionId(null);
-  }
-}
-
-function restoreSavedSession(session) {
-  setTicker(session.ticker && session.ticker !== "Pending" ? session.ticker : "QQQ");
-
-  setAccountBalance(session.accountBalance || "2000");
-  setRiskPercent(session.riskPercent || "2");
-
-  let restoredEntry = session.entryPrice || "";
-  let restoredStop = session.stopPrice || "";
-  let restoredEntryReason = session.entryReason || "";
-  let restoredExitPlan = session.exitPlan || "";
-  let restoredLesson = session.lessonLogged || "";
-
-  if ((!restoredEntry || !restoredStop) && session.report) {
-    const entryMatch = session.report.match(/Entry Price:\s(.+)/);
-    const stopMatch = session.report.match(/Stop Price:\s(.+)/);
-    const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
-    const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
-    const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
-
-    restoredEntry =
-      entryMatch?.[1] && entryMatch[1] !== "Pending" ? entryMatch[1].trim() : "";
-
-    restoredStop =
-      stopMatch?.[1] && stopMatch[1] !== "Pending" ? stopMatch[1].trim() : "";
-
-    restoredEntryReason =
-      entryReasonMatch?.[1] && entryReasonMatch[1] !== "Pending"
-        ? entryReasonMatch[1].trim()
-        : "";
-
-    restoredExitPlan =
-      exitPlanMatch?.[1] && exitPlanMatch[1] !== "Pending"
-        ? exitPlanMatch[1].trim()
-        : "";
-
-    restoredLesson =
-      lessonMatch?.[1] && lessonMatch[1] !== "Pending"
-        ? lessonMatch[1].trim()
-        : "";
+    try {
+      await navigator.clipboard.writeText(report);
+      setCopyStatus("Saved report copied");
+    } catch {
+      setCopyStatus("Saved report copy failed");
+    }
   }
 
-  setEntryPrice(restoredEntry);
-  setStopPrice(restoredStop);
+  function deleteSavedSession(id) {
+    setSavedSessions((current) => current.filter((session) => session.id !== id));
 
-  setVwapConfirmed(Boolean(session.vwapConfirmed) || session.report?.includes("VWAP Confirmation: Confirmed"));
-  setCloudConfirmed(Boolean(session.cloudConfirmed) || session.report?.includes("Cloud Confirmation: Confirmed"));
-  setVolumeConfirmed(Boolean(session.volumeConfirmed) || session.report?.includes("Volume Confirmation: Confirmed"));
-  setMarketWindow(Boolean(session.marketWindow) || session.report?.includes("Market Window Approved: Confirmed"));
+    if (expandedSessionId === id) {
+      setExpandedSessionId(null);
+    }
+  }
 
-  setEntryReason(restoredEntryReason);
-  setExitPlan(restoredExitPlan);
-  setLessonLogged(restoredLesson);
+  function restoreSavedSession(session) {
+    setTicker(session.ticker && session.ticker !== "Pending" ? session.ticker : "QQQ");
 
-  setSessionSaved(false);
-  setCopyStatus("Restored saved session");
-}
+    setAccountBalance(session.accountBalance || "2000");
+    setRiskPercent(session.riskPercent || "2");
+
+    let restoredEntry = session.entryPrice || "";
+    let restoredStop = session.stopPrice || "";
+    let restoredEntryReason = session.entryReason || "";
+    let restoredExitPlan = session.exitPlan || "";
+    let restoredLesson = session.lessonLogged || "";
+
+    if ((!restoredEntry || !restoredStop) && session.report) {
+      const entryMatch = session.report.match(/Entry Price:\s(.+)/);
+      const stopMatch = session.report.match(/Stop Price:\s(.+)/);
+      const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
+      const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
+      const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
+
+      restoredEntry =
+        entryMatch?.[1] && entryMatch[1] !== "Pending"
+          ? entryMatch[1].trim()
+          : "";
+
+      restoredStop =
+        stopMatch?.[1] && stopMatch[1] !== "Pending"
+          ? stopMatch[1].trim()
+          : "";
+
+      restoredEntryReason =
+        entryReasonMatch?.[1] && entryReasonMatch[1] !== "Pending"
+          ? entryReasonMatch[1].trim()
+          : "";
+
+      restoredExitPlan =
+        exitPlanMatch?.[1] && exitPlanMatch[1] !== "Pending"
+          ? exitPlanMatch[1].trim()
+          : "";
+
+      restoredLesson =
+        lessonMatch?.[1] && lessonMatch[1] !== "Pending"
+          ? lessonMatch[1].trim()
+          : "";
+    }
+
+    setEntryPrice(restoredEntry);
+    setStopPrice(restoredStop);
+
+    setVwapConfirmed(
+      Boolean(session.vwapConfirmed) ||
+        session.report?.includes("VWAP Confirmation: Confirmed")
+    );
+    setCloudConfirmed(
+      Boolean(session.cloudConfirmed) ||
+        session.report?.includes("Cloud Confirmation: Confirmed")
+    );
+    setVolumeConfirmed(
+      Boolean(session.volumeConfirmed) ||
+        session.report?.includes("Volume Confirmation: Confirmed")
+    );
+    setMarketWindow(
+      Boolean(session.marketWindow) ||
+        session.report?.includes("Market Window Approved: Confirmed")
+    );
+
+    setEntryReason(restoredEntryReason);
+    setExitPlan(restoredExitPlan);
+    setLessonLogged(restoredLesson);
+
+    setSessionSaved(false);
+    setCopyStatus("Restored saved session");
+  }
+
   return (
     <main>
       <style>{`
@@ -509,9 +563,16 @@ function restoreSavedSession(session) {
           gap: 18px;
         }
 
+        .eh-grid-4 {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+
         @media (max-width: 900px) {
           .eh-grid-2,
-          .eh-grid-3 {
+          .eh-grid-3,
+          .eh-grid-4 {
             grid-template-columns: 1fr;
           }
 
@@ -541,17 +602,53 @@ function restoreSavedSession(session) {
           </h2>
 
           <div className="eh-grid-3" style={{ marginTop: "22px" }}>
-            <Field label="Ticker" value={ticker} onChange={setTicker} placeholder="QQQ" inputStyle={inputStyle} />
-            <Field label="Account Balance" value={accountBalance} onChange={setAccountBalance} placeholder="2000" type="number" inputStyle={inputStyle} />
-            <Field label="Risk %" value={riskPercent} onChange={setRiskPercent} placeholder="2" type="number" inputStyle={inputStyle} />
+            <Field
+              label="Ticker"
+              value={ticker}
+              onChange={setTicker}
+              placeholder="QQQ"
+              inputStyle={inputStyle}
+            />
+            <Field
+              label="Account Balance"
+              value={accountBalance}
+              onChange={setAccountBalance}
+              placeholder="2000"
+              type="number"
+              inputStyle={inputStyle}
+            />
+            <Field
+              label="Risk %"
+              value={riskPercent}
+              onChange={setRiskPercent}
+              placeholder="2"
+              type="number"
+              inputStyle={inputStyle}
+            />
           </div>
 
           <div className="eh-grid-2" style={{ marginTop: "18px" }}>
-            <Field label="Entry Price" value={entryPrice} onChange={setEntryPrice} placeholder="Example: 5.40" type="number" inputStyle={inputStyle} />
-            <Field label="Stop Price" value={stopPrice} onChange={setStopPrice} placeholder="Example: 4.90" type="number" inputStyle={inputStyle} />
+            <Field
+              label="Entry Price"
+              value={entryPrice}
+              onChange={setEntryPrice}
+              placeholder="Example: 5.40"
+              type="number"
+              inputStyle={inputStyle}
+            />
+            <Field
+              label="Stop Price"
+              value={stopPrice}
+              onChange={setStopPrice}
+              placeholder="Example: 4.90"
+              type="number"
+              inputStyle={inputStyle}
+            />
           </div>
 
-          <button style={buttonStyle}>EXECUTE PAPER TRADE</button>
+          <button type="button" style={buttonStyle}>
+            EXECUTE PAPER TRADE
+          </button>
         </div>
 
         <div style={panelStyle}>
@@ -574,10 +671,26 @@ function restoreSavedSession(session) {
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Setup Validation</h3>
 
           <div style={{ display: "grid", gap: "14px", marginTop: "20px" }}>
-            <ToggleCheck label="VWAP Confirmation" checked={vwapConfirmed} onChange={setVwapConfirmed} />
-            <ToggleCheck label="Cloud Confirmation" checked={cloudConfirmed} onChange={setCloudConfirmed} />
-            <ToggleCheck label="Volume Confirmation" checked={volumeConfirmed} onChange={setVolumeConfirmed} />
-            <ToggleCheck label="Market Window Approved" checked={marketWindow} onChange={setMarketWindow} />
+            <ToggleCheck
+              label="VWAP Confirmation"
+              checked={vwapConfirmed}
+              onChange={setVwapConfirmed}
+            />
+            <ToggleCheck
+              label="Cloud Confirmation"
+              checked={cloudConfirmed}
+              onChange={setCloudConfirmed}
+            />
+            <ToggleCheck
+              label="Volume Confirmation"
+              checked={volumeConfirmed}
+              onChange={setVolumeConfirmed}
+            />
+            <ToggleCheck
+              label="Market Window Approved"
+              checked={marketWindow}
+              onChange={setMarketWindow}
+            />
           </div>
         </div>
 
@@ -586,8 +699,14 @@ function restoreSavedSession(session) {
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Risk Calculation Engine</h3>
 
           <div className="eh-grid-2" style={{ marginTop: "22px" }}>
-            <StatBox label="Risk Per Trade" value={`$${calculations.riskDollars.toFixed(2)}`} />
-            <StatBox label="Trade Risk" value={`$${calculations.tradeRisk.toFixed(2)}`} />
+            <StatBox
+              label="Risk Per Trade"
+              value={`$${calculations.riskDollars.toFixed(2)}`}
+            />
+            <StatBox
+              label="Trade Risk"
+              value={`$${calculations.tradeRisk.toFixed(2)}`}
+            />
             <StatBox label="Suggested Size" value={calculations.positionSize} />
             <StatBox label="Risk Mode" value="Protected" />
           </div>
@@ -600,9 +719,27 @@ function restoreSavedSession(session) {
           <h3 style={{ marginTop: 0, fontSize: "26px" }}>Session Notes</h3>
 
           <div style={{ display: "grid", gap: "18px", marginTop: "20px" }}>
-            <TextAreaField label="Entry Reason" value={entryReason} onChange={setEntryReason} placeholder="Why is this setup valid?" inputStyle={inputStyle} />
-            <TextAreaField label="Exit Plan" value={exitPlan} onChange={setExitPlan} placeholder="What is the profit target, stop, and invalidation rule?" inputStyle={inputStyle} />
-            <TextAreaField label="Lesson Logged" value={lessonLogged} onChange={setLessonLogged} placeholder="What should be reviewed after the session?" inputStyle={inputStyle} />
+            <TextAreaField
+              label="Entry Reason"
+              value={entryReason}
+              onChange={setEntryReason}
+              placeholder="Why is this setup valid?"
+              inputStyle={inputStyle}
+            />
+            <TextAreaField
+              label="Exit Plan"
+              value={exitPlan}
+              onChange={setExitPlan}
+              placeholder="What is the profit target, stop, and invalidation rule?"
+              inputStyle={inputStyle}
+            />
+            <TextAreaField
+              label="Lesson Logged"
+              value={lessonLogged}
+              onChange={setLessonLogged}
+              placeholder="What should be reviewed after the session?"
+              inputStyle={inputStyle}
+            />
           </div>
         </div>
 
@@ -612,38 +749,46 @@ function restoreSavedSession(session) {
 
           <div className="eh-grid-2" style={{ marginTop: "22px" }}>
             <StatBox label="Session Score" value={`${calculations.sessionScore}%`} />
-<StatBox label="Journal Status" value={calculations.journalComplete ? "Complete" : "Pending"} />
-<StatBox label="Last Save Status" value={sessionSaved ? "Saved" : "Not Saved"} />
-<StatBox label="Saved History Count" value={savedSessions.length} />
+            <StatBox
+              label="Journal Status"
+              value={calculations.journalComplete ? "Complete" : "Pending"}
+            />
+            <StatBox
+              label="Last Save Status"
+              value={sessionSaved ? "Saved" : "Not Saved"}
+            />
+            <StatBox label="Saved History Count" value={savedSessions.length} />
           </div>
+
           <button
-  type="button"
-  onClick={saveSession}
-  disabled={!canSaveSession}
-  style={{
-    ...buttonStyle,
-    opacity: canSaveSession ? 1 : 0.45,
-    cursor: canSaveSession ? "pointer" : "not-allowed",
-  }}
->
-  {canSaveSession ? "SAVE SESSION" : "COMPLETE SETUP BEFORE SAVING"}
-</button>
+            type="button"
+            onClick={saveSession}
+            disabled={!canSaveSession}
+            style={{
+              ...buttonStyle,
+              opacity: canSaveSession ? 1 : 0.45,
+              cursor: canSaveSession ? "pointer" : "not-allowed",
+            }}
+          >
+            {canSaveSession ? "SAVE SESSION" : "COMPLETE SETUP BEFORE SAVING"}
+          </button>
+
           <p
-  style={{
-    marginTop: "12px",
-    marginBottom: 0,
-    fontWeight: "800",
-    lineHeight: "1.5",
-  }}
->
-  {canSaveSession
-    ? "Save Gate: Open — full paper trade setup confirmed."
-    : "Save Gate: Locked — complete valid risk inputs, all 4 confirmations, and journal before saving."}
-</p>
+            style={{
+              marginTop: "12px",
+              marginBottom: 0,
+              fontWeight: "800",
+              lineHeight: "1.5",
+            }}
+          >
+            {canSaveSession
+              ? "Save Gate: Open — full paper trade setup confirmed."
+              : "Save Gate: Locked — complete valid risk inputs, all 4 confirmations, and journal before saving."}
+          </p>
+
           <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
             RESET SESSION
           </button>
-
         </div>
       </section>
 
@@ -787,17 +932,17 @@ function restoreSavedSession(session) {
         )}
       </section>
 
-<footer
-  style={{
-    marginTop: "40px",
-    padding: "28px",
-    textAlign: "center",
-    borderTop: "1px solid #d9c77b",
-    letterSpacing: "1px",
-    fontWeight: "800",
-  }}
->
-  EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
+      <footer
+        style={{
+          marginTop: "40px",
+          padding: "28px",
+          textAlign: "center",
+          borderTop: "1px solid #d9c77b",
+          letterSpacing: "1px",
+          fontWeight: "800",
+        }}
+      >
+        EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
       </footer>
     </main>
   );
