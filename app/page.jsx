@@ -472,6 +472,17 @@ Mode: Paper Execution Only
           <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
             RESET SESSION
           </button>
+          <button
+  type="button"
+  onClick={() => {
+    setSavedSessions([]);
+    setSessionSaved(false);
+    setCopyStatus("Not copied");
+  }}
+  style={secondaryButtonStyle}
+>
+  CLEAR SAVED HISTORY
+</button>
         </div>
       </section>
 
@@ -485,7 +496,7 @@ Mode: Paper Execution Only
           </button>
 
           <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
-            DOWNLOAD REPORT
+            OPEN / DOWNLOAD TEXT REPORT
           </button>
         </div>
 
