@@ -702,7 +702,7 @@ function restoreSavedSession(session) {
         }
         style={secondaryButtonStyle}
       >
-        VIEW FULL REPORT
+        VIEW REPORT
       </button>
 
       <button
@@ -710,7 +710,7 @@ function restoreSavedSession(session) {
         onClick={() => copySavedReport(session.report)}
         style={secondaryButtonStyle}
       >
-        COPY SAVED REPORT
+        COPY REPORT
       </button>
 
       <button
@@ -718,7 +718,7 @@ function restoreSavedSession(session) {
         onClick={() => restoreSavedSession(session)}
         style={secondaryButtonStyle}
       >
-        RESTORE SESSION
+        RESTORE
       </button>
 
       <button
@@ -726,7 +726,7 @@ function restoreSavedSession(session) {
         onClick={() => deleteSavedSession(session.id)}
         style={secondaryButtonStyle}
       >
-        DELETE SESSION
+        DELETE
       </button>
     </div>
 
