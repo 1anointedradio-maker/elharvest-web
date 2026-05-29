@@ -288,7 +288,10 @@ Mode: Paper Execution Only
       : calculations.decision === "WAIT"
       ? "gold"
       : "red";
-
+const canSaveSession =
+  calculations.sessionScore === 100 &&
+  calculations.decision === "PAPER ONLY" &&
+  calculations.journalComplete;
   function resetSession() {
     setTicker("QQQ");
     setAccountBalance("2000");
@@ -307,7 +310,7 @@ Mode: Paper Execution Only
   }
 
 function saveSession() {
-  if (calculations.sessionScore < 100 || calculations.decision !== "PAPER ONLY") {
+if (!canSaveSession) {
     setCopyStatus("Save blocked: complete full paper trade setup first");
     setSessionSaved(false);
     return;
@@ -581,18 +584,30 @@ function restoreSavedSession(session) {
           <button type="button" onClick={resetSession} style={secondaryButtonStyle}>
             RESET SESSION
           </button>
-          <button
+<button
   type="button"
   onClick={saveSession}
+  disabled={!canSaveSession}
   style={{
     ...buttonStyle,
-    opacity: calculations.sessionScore === 100 && calculations.decision === "PAPER ONLY" ? 1 : 0.55,
+    opacity: canSaveSession ? 1 : 0.45,
+    cursor: canSaveSession ? "pointer" : "not-allowed",
   }}
 >
-  {calculations.sessionScore === 100 && calculations.decision === "PAPER ONLY"
-    ? "SAVE SESSION"
-    : "COMPLETE SETUP BEFORE SAVING"}
+  {canSaveSession ? "SAVE SESSION" : "COMPLETE SETUP BEFORE SAVING"}
 </button>
+          <p
+  style={{
+    marginTop: "12px",
+    marginBottom: 0,
+    fontWeight: "800",
+    lineHeight: "1.5",
+  }}
+>
+  {canSaveSession
+    ? "Save Gate: Open — full paper trade setup confirmed."
+    : "Save Gate: Locked — complete valid risk inputs, all 4 confirmations, and journal before saving."}
+</p>
         </div>
       </section>
 
