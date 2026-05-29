@@ -306,33 +306,44 @@ Mode: Paper Execution Only
     setCopyStatus("Not copied");
   }
 
-  function saveSession() {
-    const timestamp = new Date().toLocaleString();
-
-    const newSession = {
-      id: `${Date.now()}`,
-      timestamp,
-      ticker: ticker || "Pending",
-      decision: calculations.decision,
-      score: calculations.sessionScore,
-      riskDollars: calculations.riskDollars.toFixed(2),
-      tradeRisk: calculations.tradeRisk.toFixed(2),
-      size: calculations.positionSize,
-      report: reportText,
-    };
-
-    setSavedSessions((current) => [newSession, ...current].slice(0, 5));
-    setSessionSaved(true);
+function saveSession() {
+  if (calculations.sessionScore < 100 || calculations.decision !== "PAPER ONLY") {
+    setCopyStatus("Save blocked: complete full paper trade setup first");
+    setSessionSaved(false);
+    return;
   }
 
-  async function copyReport() {
-    try {
-      await navigator.clipboard.writeText(reportText);
-      setCopyStatus("Copied");
-    } catch {
-      setCopyStatus("Copy failed");
-    }
-  }
+  const timestamp = new Date().toLocaleString();
+
+  const newSession = {
+    id: `${Date.now()}`,
+    timestamp,
+    ticker: ticker || "Pending",
+    accountBalance,
+    riskPercent,
+    entryPrice,
+    stopPrice,
+    vwapConfirmed,
+    cloudConfirmed,
+    volumeConfirmed,
+    marketWindow,
+    entryReason,
+    exitPlan,
+    lessonLogged,
+    decision: calculations.decision,
+    permission: calculations.permission,
+    reason: calculations.reason,
+    score: calculations.sessionScore,
+    riskDollars: calculations.riskDollars.toFixed(2),
+    tradeRisk: calculations.tradeRisk.toFixed(2),
+    size: calculations.positionSize,
+    report: reportText,
+  };
+
+  setSavedSessions((current) => [newSession, ...current].slice(0, 5));
+  setSessionSaved(true);
+  setCopyStatus("Session saved");
+}
 
   function downloadReport() {
     const blob = new Blob([reportText], { type: "text/plain" });
@@ -565,14 +576,15 @@ function restoreSavedSession(session) {
           </button>
           <button
   type="button"
-  onClick={() => {
-    setSavedSessions([]);
-    setSessionSaved(false);
-    setCopyStatus("Not copied");
+  onClick={saveSession}
+  style={{
+    ...buttonStyle,
+    opacity: calculations.sessionScore === 100 && calculations.decision === "PAPER ONLY" ? 1 : 0.55,
   }}
-  style={secondaryButtonStyle}
 >
-  CLEAR SAVED HISTORY
+  {calculations.sessionScore === 100 && calculations.decision === "PAPER ONLY"
+    ? "SAVE SESSION"
+    : "COMPLETE SETUP BEFORE SAVING"}
 </button>
         </div>
       </section>
