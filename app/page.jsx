@@ -646,7 +646,7 @@ function restoreSavedSession(session) {
           <p style={{ lineHeight: "1.7" }}>No sessions saved yet.</p>
         ) : (
           <div style={{ display: "grid", gap: "16px" }}>
-{savedSessions.map((session) => (
+{savedSessions.map((session, index) => (
   <div
     key={session.id}
     style={{
