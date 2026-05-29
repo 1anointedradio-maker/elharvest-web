@@ -460,9 +460,9 @@ Mode: Paper Execution Only
 
           <div className="eh-grid-2" style={{ marginTop: "22px" }}>
             <StatBox label="Session Score" value={`${calculations.sessionScore}%`} />
-            <StatBox label="Journal Status" value={calculations.journalComplete ? "Complete" : "Pending"} />
-            <StatBox label="Session Saved" value={sessionSaved ? "Yes" : "No"} />
-            <StatBox label="Copy Status" value={copyStatus} />
+<StatBox label="Journal Status" value={calculations.journalComplete ? "Complete" : "Pending"} />
+<StatBox label="Last Save Status" value={sessionSaved ? "Saved" : "Not Saved"} />
+<StatBox label="Saved History Count" value={savedSessions.length} />
           </div>
 
           <button type="button" onClick={saveSession} style={buttonStyle}>
