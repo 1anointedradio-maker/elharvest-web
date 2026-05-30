@@ -552,8 +552,9 @@ const scoreMatch =
   !filterMinScore || Number(session.score || 0) >= minScore;
 
 return tickerMatch && outcomeMatch && decisionMatch && tagMatch && gradeMatch && scoreMatch;
-}, [
-  savedSessions,
+    });
+  }, [
+    savedSessions,
   filterTicker,
   filterOutcome,
   filterDecision,
