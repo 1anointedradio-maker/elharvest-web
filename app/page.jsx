@@ -585,6 +585,11 @@ Cloud Confirmation: ${cloudConfirmed ? "Confirmed" : "Pending"}
 Volume Confirmation: ${volumeConfirmed ? "Confirmed" : "Pending"}
 Market Window Approved: ${marketWindow ? "Confirmed" : "Pending"}
 
+Rule Violations:
+${calculations.violations.length > 0 ? calculations.violations.join("\n") : "None"}
+
+Entry Reason: ${entryReason || "Pending"}
+
 Entry Reason: ${entryReason || "Pending"}
 Exit Plan: ${exitPlan || "Pending"}
 Lesson Logged: ${lessonLogged || "Pending"}
@@ -597,6 +602,23 @@ Mode: Paper Execution Only
 
   const fullExportReport = `
 ${reportText}
+
+==============================
+DAILY REVIEW
+==============================
+Trades Today: ${dailyReview.tradesToday}
+Wins Today: ${dailyReview.winsToday}
+Losses Today: ${dailyReview.lossesToday}
+Daily P/L: $${dailyReview.dailyProfitLoss.toFixed(2)}
+Best Setup: ${dailyReview.bestSetup}
+Worst Setup: ${dailyReview.worstSetup}
+Lesson of Day: ${dailyReview.lessonOfDay}
+
+==============================
+LOCKOUT STATUS
+==============================
+Mode: ${lockoutStatus.mode}
+Message: ${lockoutStatus.message}
 
 ${
   savedSessions.length > 0
