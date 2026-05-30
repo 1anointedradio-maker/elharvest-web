@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function Field({ label, value, onChange, placeholder, type = "text", inputStyle }) {
   return (
@@ -14,6 +14,25 @@ function Field({ label, value, onChange, placeholder, type = "text", inputStyle 
         style={inputStyle}
         inputMode={type === "number" ? "decimal" : "text"}
       />
+    </label>
+  );
+}
+
+function SelectField({ label, value, onChange, options, inputStyle }) {
+  return (
+    <label style={{ display: "grid", gap: "8px", fontWeight: "800" }}>
+      {label}
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        style={inputStyle}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }
@@ -82,13 +101,47 @@ function StatBox({ label, value }) {
   );
 }
 
+function SummaryBar({ label, value, maxValue }) {
+  const safeMax = maxValue > 0 ? maxValue : 1;
+  const percent = Math.min(Math.max((Number(value) / safeMax) * 100, 0), 100);
+
+  return (
+    <div style={{ display: "grid", gap: "8px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "900" }}>
+        <span>{label}</span>
+        <span>{Number(value).toFixed(2)}</span>
+      </div>
+      <div
+        style={{
+          height: "14px",
+          borderRadius: "999px",
+          border: "1px solid #d9c77b",
+          background: "#fffaf0",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            width: `${percent}%`,
+            height: "100%",
+            background: "linear-gradient(90deg, #d9c77b, #9f6d16)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
+  const fileInputRef = useRef(null);
+
   const [ticker, setTicker] = useState("QQQ");
   const [accountBalance, setAccountBalance] = useState("2000");
   const [riskPercent, setRiskPercent] = useState("2");
   const [entryPrice, setEntryPrice] = useState("");
   const [stopPrice, setStopPrice] = useState("");
   const [exitPrice, setExitPrice] = useState("");
+  const [strategyTag, setStrategyTag] = useState("A+ Setup");
   const [outcomeNotes, setOutcomeNotes] = useState("");
 
   const [vwapConfirmed, setVwapConfirmed] = useState(false);
@@ -103,6 +156,22 @@ export default function Home() {
   const [copyStatus, setCopyStatus] = useState("Not copied");
   const [savedSessions, setSavedSessions] = useState([]);
   const [expandedSessionId, setExpandedSessionId] = useState(null);
+
+  const [filterTicker, setFilterTicker] = useState("");
+  const [filterOutcome, setFilterOutcome] = useState("All");
+  const [filterDecision, setFilterDecision] = useState("All");
+  const [filterTag, setFilterTag] = useState("All");
+  const [filterMinScore, setFilterMinScore] = useState("");
+
+  const strategyOptions = [
+    { value: "A+ Setup", label: "A+ Setup" },
+    { value: "B Setup", label: "B Setup" },
+    { value: "VWAP Bounce", label: "VWAP Bounce" },
+    { value: "Cloud Breakout", label: "Cloud Breakout" },
+    { value: "Market Open", label: "Market Open" },
+    { value: "Power Hour", label: "Power Hour" },
+    { value: "Exit Recovery", label: "Exit Recovery" },
+  ];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -243,10 +312,76 @@ export default function Home() {
     lessonLogged,
   ]);
 
+  const dashboardMetrics = useMemo(() => {
+    const totalTrades = savedSessions.length;
+
+    const wins = savedSessions.filter((session) => session.outcome === "Win").length;
+    const losses = savedSessions.filter((session) => session.outcome === "Loss").length;
+    const flats = savedSessions.filter((session) => session.outcome === "Flat").length;
+
+    const totalProfitLoss = savedSessions.reduce(
+      (sum, session) => sum + Number(session.profitLossDollars || 0),
+      0
+    );
+
+    const totalProfitLossPercent = savedSessions.reduce(
+      (sum, session) => sum + Number(session.profitLossPercent || 0),
+      0
+    );
+
+    const totalScore = savedSessions.reduce(
+      (sum, session) => sum + Number(session.score || 0),
+      0
+    );
+
+    const winRate = totalTrades > 0 ? (wins / totalTrades) * 100 : 0;
+    const averageProfitLossPercent =
+      totalTrades > 0 ? totalProfitLossPercent / totalTrades : 0;
+    const averageScore = totalTrades > 0 ? totalScore / totalTrades : 0;
+
+    return {
+      totalTrades,
+      wins,
+      losses,
+      flats,
+      winRate,
+      totalProfitLoss,
+      averageProfitLossPercent,
+      averageScore,
+    };
+  }, [savedSessions]);
+
+  const filteredSessions = useMemo(() => {
+    const minScore = Number(filterMinScore);
+
+    return savedSessions.filter((session) => {
+      const tickerMatch =
+        !filterTicker.trim() ||
+        String(session.ticker || "")
+          .toLowerCase()
+          .includes(filterTicker.trim().toLowerCase());
+
+      const outcomeMatch =
+        filterOutcome === "All" || String(session.outcome || "Pending") === filterOutcome;
+
+      const decisionMatch =
+        filterDecision === "All" || String(session.decision || "") === filterDecision;
+
+      const tagMatch =
+        filterTag === "All" || String(session.strategyTag || "") === filterTag;
+
+      const scoreMatch =
+        !filterMinScore || Number(session.score || 0) >= minScore;
+
+      return tickerMatch && outcomeMatch && decisionMatch && tagMatch && scoreMatch;
+    });
+  }, [savedSessions, filterTicker, filterOutcome, filterDecision, filterTag, filterMinScore]);
+
   const reportText = `
 EL HARVEST SESSION REPORT
 
 Ticker: ${ticker || "Pending"}
+Strategy Tag: ${strategyTag}
 Decision: ${calculations.decision}
 Permission: ${calculations.permission}
 Reason: ${calculations.reason}
@@ -295,6 +430,7 @@ ${savedSessions
 SAVED SESSION #${index + 1}
 
 Ticker: ${session.ticker}
+Strategy Tag: ${session.strategyTag || "Untagged"}
 Decision: ${session.decision}
 Score: ${session.score}%
 Saved: ${session.timestamp}
@@ -398,6 +534,7 @@ No saved sessions.
     setEntryPrice("");
     setStopPrice("");
     setExitPrice("");
+    setStrategyTag("A+ Setup");
     setOutcomeNotes("");
     setVwapConfirmed(false);
     setCloudConfirmed(false);
@@ -423,6 +560,7 @@ No saved sessions.
       id: `${Date.now()}`,
       timestamp,
       ticker: ticker || "Pending",
+      strategyTag,
       accountBalance,
       riskPercent,
       entryPrice,
@@ -449,7 +587,7 @@ No saved sessions.
       report: reportText,
     };
 
-    setSavedSessions((current) => [newSession, ...current].slice(0, 5));
+    setSavedSessions((current) => [newSession, ...current].slice(0, 50));
     setSessionSaved(true);
     setCopyStatus("Session saved");
   }
@@ -493,6 +631,7 @@ No saved sessions.
     const headers = [
       "Date",
       "Ticker",
+      "Strategy Tag",
       "Decision",
       "Score",
       "Risk Per Trade",
@@ -513,6 +652,7 @@ No saved sessions.
     const rows = savedSessions.map((session) => [
       session.timestamp || "",
       session.ticker || "",
+      session.strategyTag || "",
       session.decision || "",
       `${session.score || 0}%`,
       session.riskDollars || "",
@@ -550,6 +690,60 @@ No saved sessions.
     window.URL.revokeObjectURL(url);
   }
 
+  function exportJsonBackup() {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return;
+    }
+
+    const backup = {
+      app: "EL Harvest",
+      version: "Phase 18",
+      exportedAt: new Date().toISOString(),
+      savedSessions,
+    };
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "el-harvest-backup.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  function importJsonBackup(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        const importedSessions = Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed.savedSessions)
+          ? parsed.savedSessions
+          : [];
+
+        setSavedSessions(importedSessions);
+        setCopyStatus(`Imported ${importedSessions.length} saved sessions`);
+      } catch {
+        setCopyStatus("Import failed: invalid JSON backup");
+      }
+    };
+
+    reader.readAsText(file);
+    event.target.value = "";
+  }
+
   async function copySavedReport(report) {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
       setCopyStatus("Saved report copy unavailable");
@@ -576,6 +770,7 @@ No saved sessions.
     setTicker(session.ticker && session.ticker !== "Pending" ? session.ticker : "QQQ");
     setAccountBalance(session.accountBalance || "2000");
     setRiskPercent(session.riskPercent || "2");
+    setStrategyTag(session.strategyTag || "A+ Setup");
 
     let restoredEntry = session.entryPrice || "";
     let restoredStop = session.stopPrice || "";
@@ -727,11 +922,58 @@ No saved sessions.
         <div>
           <strong style={{ letterSpacing: "1.5px" }}>EL HARVEST COMMAND CENTER</strong>
           <div style={{ fontSize: "14px", marginTop: "6px", opacity: 0.8 }}>
-            Risk Calculator · Session Journal · Export Report · Saved History · P/L Tracker
+            Metrics · Filters · Tags · Charts · JSON Backup · P/L Tracker
           </div>
         </div>
 
         <div style={badgeStyle(decisionTone)}>{calculations.decision}</div>
+      </section>
+
+      <section style={{ ...panelStyle, marginTop: "24px", marginBottom: "32px" }}>
+        <div style={badgeStyle("green")}>PERFORMANCE DASHBOARD</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Saved Session Metrics</h3>
+
+        <div className="eh-grid-4" style={{ marginTop: "22px" }}>
+          <StatBox label="Total Trades" value={dashboardMetrics.totalTrades} />
+          <StatBox label="Wins" value={dashboardMetrics.wins} />
+          <StatBox label="Losses" value={dashboardMetrics.losses} />
+          <StatBox label="Flats" value={dashboardMetrics.flats} />
+          <StatBox
+            label="Win Rate"
+            value={`${dashboardMetrics.winRate.toFixed(2)}%`}
+          />
+          <StatBox
+            label="Total P/L"
+            value={`$${dashboardMetrics.totalProfitLoss.toFixed(2)}`}
+          />
+          <StatBox
+            label="Avg P/L %"
+            value={`${dashboardMetrics.averageProfitLossPercent.toFixed(2)}%`}
+          />
+          <StatBox
+            label="Avg Score"
+            value={`${dashboardMetrics.averageScore.toFixed(2)}%`}
+          />
+        </div>
+      </section>
+
+      <section style={{ ...panelStyle, marginBottom: "32px" }}>
+        <div style={badgeStyle("gold")}>PERFORMANCE BARS</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Visual Summary</h3>
+
+        <div style={{ display: "grid", gap: "18px", marginTop: "22px" }}>
+          <SummaryBar label="Win Rate" value={dashboardMetrics.winRate} maxValue={100} />
+          <SummaryBar
+            label="Average Score"
+            value={dashboardMetrics.averageScore}
+            maxValue={100}
+          />
+          <SummaryBar
+            label="Average P/L %"
+            value={Math.abs(dashboardMetrics.averageProfitLossPercent)}
+            maxValue={100}
+          />
+        </div>
       </section>
 
       <section className="eh-grid-2">
@@ -794,6 +1036,16 @@ No saved sessions.
             />
           </div>
 
+          <div style={{ marginTop: "18px" }}>
+            <SelectField
+              label="Strategy Tag"
+              value={strategyTag}
+              onChange={setStrategyTag}
+              options={strategyOptions}
+              inputStyle={inputStyle}
+            />
+          </div>
+
           <button type="button" style={buttonStyle}>
             EXECUTE PAPER TRADE
           </button>
@@ -805,6 +1057,7 @@ No saved sessions.
 
           <ul style={{ lineHeight: "1.9", paddingLeft: "24px", fontSize: "17px" }}>
             <li>Ticker: {ticker || "Pending"}</li>
+            <li>Tag: {strategyTag}</li>
             <li>Permission: {calculations.permission}</li>
             <li>Reason: {calculations.reason}</li>
             <li>Confirmations: {calculations.confirmedCount}/4</li>
@@ -974,6 +1227,28 @@ No saved sessions.
           </button>
         </div>
 
+        <div className="eh-grid-2" style={{ marginTop: "18px" }}>
+          <button type="button" onClick={exportJsonBackup} style={secondaryButtonStyle}>
+            EXPORT JSON BACKUP
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={secondaryButtonStyle}
+          >
+            IMPORT JSON BACKUP
+          </button>
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            onChange={importJsonBackup}
+            style={{ display: "none" }}
+          />
+        </div>
+
         <pre
           style={{
             whiteSpace: "pre-wrap",
@@ -992,14 +1267,78 @@ No saved sessions.
       </section>
 
       <section style={{ ...panelStyle, marginTop: "32px" }}>
-        <div style={badgeStyle("gold")}>SAVED HISTORY</div>
-        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Last Saved Sessions</h3>
+        <div style={badgeStyle("gold")}>TRADE FILTERS</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>Filter Saved Sessions</h3>
 
-        {savedSessions.length === 0 ? (
-          <p style={{ lineHeight: "1.7" }}>No sessions saved yet.</p>
+        <div className="eh-grid-4" style={{ marginTop: "22px" }}>
+          <Field
+            label="Ticker Filter"
+            value={filterTicker}
+            onChange={setFilterTicker}
+            placeholder="QQQ"
+            inputStyle={inputStyle}
+          />
+
+          <SelectField
+            label="Outcome Filter"
+            value={filterOutcome}
+            onChange={setFilterOutcome}
+            inputStyle={inputStyle}
+            options={[
+              { value: "All", label: "All" },
+              { value: "Win", label: "Win" },
+              { value: "Loss", label: "Loss" },
+              { value: "Flat", label: "Flat" },
+              { value: "Pending", label: "Pending" },
+            ]}
+          />
+
+          <SelectField
+            label="Decision Filter"
+            value={filterDecision}
+            onChange={setFilterDecision}
+            inputStyle={inputStyle}
+            options={[
+              { value: "All", label: "All" },
+              { value: "PAPER ONLY", label: "Paper Only" },
+              { value: "WAIT", label: "Wait" },
+              { value: "FLAT", label: "Flat" },
+            ]}
+          />
+
+          <SelectField
+            label="Tag Filter"
+            value={filterTag}
+            onChange={setFilterTag}
+            inputStyle={inputStyle}
+            options={[
+              { value: "All", label: "All" },
+              ...strategyOptions,
+            ]}
+          />
+
+          <Field
+            label="Minimum Score"
+            value={filterMinScore}
+            onChange={setFilterMinScore}
+            placeholder="Example: 80"
+            type="number"
+            inputStyle={inputStyle}
+          />
+        </div>
+      </section>
+
+      <section style={{ ...panelStyle, marginTop: "32px" }}>
+        <div style={badgeStyle("gold")}>SAVED HISTORY</div>
+        <h3 style={{ marginTop: 0, fontSize: "26px" }}>
+          Last Saved Sessions ({filteredSessions.length} shown)
+        </h3>
+
+        {filteredSessions.length === 0 ? (
+          <p style={{ lineHeight: "1.7" }}>No sessions match the current filters.</p>
         ) : (
           <div style={{ display: "grid", gap: "16px" }}>
-            {savedSessions.map((session, index) => (
+            {filteredSessions.map((session, index) => (
               <div
                 key={session.id}
                 style={{
@@ -1033,6 +1372,7 @@ No saved sessions.
 
                   <div style={{ lineHeight: "1.7", fontSize: "15px" }}>
                     <div>Saved: {session.timestamp}</div>
+                    <div>Strategy Tag: {session.strategyTag || "Untagged"}</div>
                     <div>Risk Per Trade: ${session.riskDollars}</div>
                     <div>Trade Risk: ${session.tradeRisk}</div>
                     <div>Suggested Size: {session.size}</div>
