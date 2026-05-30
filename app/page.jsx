@@ -112,8 +112,8 @@ function SummaryBar({ label, value, maxValue }) {
           display: "flex",
           justifyContent: "space-between",
           fontWeight: "900",
-        }
-      >
+}}
+>
         <span>{label}</span>
         <span>{Number(value).toFixed(2)}</span>
       </div>
