@@ -1665,7 +1665,7 @@ No saved sessions.
           fontWeight: "800",
         }}
       >
-        EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
+        EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
     </footer>
  </main>
   );
