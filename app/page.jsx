@@ -1669,4 +1669,3 @@ No saved sessions.
     </main>
   );
 }
-}
