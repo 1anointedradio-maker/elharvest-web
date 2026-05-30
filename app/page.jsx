@@ -461,7 +461,7 @@ return {
       averageProfitLossPercent,
       averageScore,
     };
-  }}, [savedSessions]);
+  }, [savedSessions]);
 
 const dailyReview = useMemo(() => {
   const today = new Date().toDateString();
