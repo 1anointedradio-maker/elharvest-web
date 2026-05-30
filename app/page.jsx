@@ -1665,7 +1665,7 @@ No saved sessions.
         }}
       >
         EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
-      </footer>
-      </main>
-  );
-}
+1668 |     </footer>
+1669 |   </main>
+1670 | );
+1671 | }
