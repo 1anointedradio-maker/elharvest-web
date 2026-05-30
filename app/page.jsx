@@ -1666,6 +1666,7 @@ No saved sessions.
       >
         EL Harvest — Sow the Seed. Keep the Faith. Trust the Process. Reap the Harvest.
       </footer>
-    </main>
+      </main>
   );
+}
 }
