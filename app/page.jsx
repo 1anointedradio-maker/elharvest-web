@@ -119,6 +119,81 @@ function SummaryBar({ label, value, maxValue }) {
           background: "#fffaf0",
           overflow: "hidden",
         }}
+        function getRuleViolations({
+  confirmedCount,
+  journalComplete,
+  tradeRisk,
+  riskDollars,
+  balance,
+  validExit,
+  riskRewardRatio,
+  lessonLogged,
+}) {
+  const violations = [];
+
+  if (confirmedCount < 4) {
+    violations.push("Missing confirmation");
+  }
+
+  if (!journalComplete) {
+    violations.push("Incomplete journal");
+  }
+
+  if (!validExit) {
+    violations.push("No exit price logged");
+  }
+
+  if (riskRewardRatio > 0 && riskRewardRatio < 1) {
+    violations.push("Weak risk/reward");
+  }
+
+  if (tradeRisk <= 0) {
+    violations.push("Invalid trade risk");
+  }
+
+  if (balance > 0 && riskDollars / balance > 0.03) {
+    violations.push("Over-risked trade");
+  }
+
+  if (!lessonLogged.trim()) {
+    violations.push("No lesson logged");
+  }
+
+  return violations;
+}
+
+function getTradeGrade({ score, riskRewardRatio, outcome, violations }) {
+  const majorViolationCount = violations.filter((violation) =>
+    violation.includes("Missing") ||
+    violation.includes("No exit") ||
+    violation.includes("Incomplete")
+  ).length;
+
+  if (score < 80 || majorViolationCount >= 2) return "Invalid";
+
+  if (
+    score >= 100 &&
+    riskRewardRatio >= 1.5 &&
+    outcome === "Win" &&
+    violations.length === 0
+  ) {
+    return "A+";
+  }
+
+  if (score >= 100 && riskRewardRatio >= 1.0 && violations.length <= 1) {
+    return "A";
+  }
+
+  if (score >= 90 && riskRewardRatio >= 0.75) {
+    return "B";
+  }
+
+  if (score >= 80) {
+    return "C";
+  }
+
+  return "Invalid";
+}
       >
         <div
           style={{
@@ -161,6 +236,7 @@ export default function Home() {
   const [filterOutcome, setFilterOutcome] = useState("All");
   const [filterDecision, setFilterDecision] = useState("All");
   const [filterTag, setFilterTag] = useState("All");
+  const [filterGrade, setFilterGrade] = useState("All");
   const [filterMinScore, setFilterMinScore] = useState("");
 
   const strategyOptions = [
@@ -213,7 +289,12 @@ export default function Home() {
     const riskDollars = validBalance && validRisk ? balance * (risk / 100) : 0;
 
     const positionSize =
-      riskDollars > 0 && tradeRisk > 0 ? Math.floor(riskDollars / tradeRisk) : 0;
+    riskDollars > 0 && tradeRisk > 0 ? Math.floor(riskDollars / tradeRisk) : 0;
+
+    const rewardPerUnit = validEntry && validExit ? exit - entry : 0;
+    
+    const riskRewardRatio =
+    tradeRisk > 0 && rewardPerUnit > 0 ? rewardPerUnit / tradeRisk : 0;
 
     const profitLossDollars =
       validEntry && validExit && positionSize > 0
@@ -280,23 +361,47 @@ export default function Home() {
       sessionScore += 25;
     }
 
-    return {
-      balance,
-      risk,
-      tradeRisk,
-      riskDollars,
-      positionSize,
-      validExit,
-      profitLossDollars,
-      profitLossPercent,
-      outcome,
-      confirmedCount,
-      decision,
-      permission,
-      reason,
-      journalComplete,
-      sessionScore: Math.min(Math.round(sessionScore), 100),
-    };
+    const roundedScore = Math.min(Math.round(sessionScore), 100);
+
+const violations = getRuleViolations({
+  confirmedCount,
+  journalComplete,
+  tradeRisk,
+  riskDollars,
+  balance,
+  validExit,
+  riskRewardRatio,
+  lessonLogged,
+});
+
+const tradeGrade = getTradeGrade({
+  score: roundedScore,
+  riskRewardRatio,
+  outcome,
+  violations,
+});
+
+return {
+  balance,
+  risk,
+  tradeRisk,
+  riskDollars,
+  positionSize,
+  rewardPerUnit,
+  riskRewardRatio,
+  validExit,
+  profitLossDollars,
+  profitLossPercent,
+  outcome,
+  confirmedCount,
+  decision,
+  permission,
+  reason,
+  journalComplete,
+  violations,
+  tradeGrade,
+  sessionScore: roundedScore,
+};
   }, [
     accountBalance,
     riskPercent,
@@ -349,9 +454,72 @@ export default function Home() {
       averageProfitLossPercent,
       averageScore,
     };
-  }, [savedSessions]);
+  }}, [savedSessions]);
 
-  const filteredSessions = useMemo(() => {
+const dailyReview = useMemo(() => {
+  const today = new Date().toDateString();
+
+  const todaySessions = savedSessions.filter((session) => {
+    const savedDate = new Date(session.timestamp);
+    return !Number.isNaN(savedDate.getTime()) && savedDate.toDateString() === today;
+  });
+
+  const sortedByProfit = [...todaySessions].sort(
+    (a, b) => Number(b.profitLossDollars || 0) - Number(a.profitLossDollars || 0)
+  );
+
+  return {
+    tradesToday: todaySessions.length,
+    winsToday: todaySessions.filter((session) => session.outcome === "Win").length,
+    lossesToday: todaySessions.filter((session) => session.outcome === "Loss").length,
+    dailyProfitLoss: todaySessions.reduce(
+      (sum, session) => sum + Number(session.profitLossDollars || 0),
+      0
+    ),
+    bestSetup: sortedByProfit[0]?.strategyTag || "Pending",
+    worstSetup: sortedByProfit[sortedByProfit.length - 1]?.strategyTag || "Pending",
+    lessonOfDay:
+      todaySessions.find((session) => session.lessonLogged)?.lessonLogged || "Pending",
+  };
+}, [savedSessions]);
+
+const lockoutStatus = useMemo(() => {
+  const recent = savedSessions.slice(0, 3);
+
+  const recentLosses = recent.filter((session) => session.outcome === "Loss").length;
+  const recentInvalid = recent.filter((session) => session.tradeGrade === "Invalid").length;
+
+  const recentAverageScore =
+    recent.length > 0
+      ? recent.reduce((sum, session) => sum + Number(session.score || 0), 0) /
+        recent.length
+      : 100;
+
+  if (recentLosses >= 2 || recentInvalid >= 2 || recentAverageScore < 75) {
+    return {
+      mode: "LOCKOUT WARNING",
+      message:
+        "Stop trading. Review only. Paper execution remains locked until discipline improves.",
+      tone: "red",
+    };
+  }
+
+  if (recentLosses === 1 || recentAverageScore < 90) {
+    return {
+      mode: "CAUTION",
+      message: "Reduce aggression. Take only confirmed A+ or A setups.",
+      tone: "gold",
+    };
+  }
+
+  return {
+    mode: "CLEAR",
+    message: "No lockout warning active. Continue paper-only discipline.",
+    tone: "green",
+  };
+}, [savedSessions]);
+
+const filteredSessions = useMemo(() => {
     const minScore = Number(filterMinScore);
 
     return savedSessions.filter((session) => {
@@ -367,15 +535,25 @@ export default function Home() {
       const decisionMatch =
         filterDecision === "All" || String(session.decision || "") === filterDecision;
 
-      const tagMatch =
-        filterTag === "All" || String(session.strategyTag || "") === filterTag;
+  const tagMatch =
+  filterTag === "All" || String(session.strategyTag || "") === filterTag;
 
-      const scoreMatch =
-        !filterMinScore || Number(session.score || 0) >= minScore;
+const gradeMatch =
+  filterGrade === "All" || String(session.tradeGrade || "") === filterGrade;
 
-      return tickerMatch && outcomeMatch && decisionMatch && tagMatch && scoreMatch;
-    });
-  }, [savedSessions, filterTicker, filterOutcome, filterDecision, filterTag, filterMinScore]);
+const scoreMatch =
+  !filterMinScore || Number(session.score || 0) >= minScore;
+
+return tickerMatch && outcomeMatch && decisionMatch && tagMatch && gradeMatch && scoreMatch;
+}, [
+  savedSessions,
+  filterTicker,
+  filterOutcome,
+  filterDecision,
+  filterTag,
+  filterGrade,
+  filterMinScore,
+]);
 
   const reportText = `
 EL HARVEST SESSION REPORT
@@ -383,6 +561,7 @@ EL HARVEST SESSION REPORT
 Ticker: ${ticker || "Pending"}
 Strategy Tag: ${strategyTag}
 Decision: ${calculations.decision}
+Trade Grade: ${calculations.tradeGrade}
 Permission: ${calculations.permission}
 Reason: ${calculations.reason}
 
@@ -393,6 +572,8 @@ Entry Price: ${entryPrice || "Pending"}
 Stop Price: ${stopPrice || "Pending"}
 Exit Price: ${exitPrice || "Pending"}
 Trade Risk: $${calculations.tradeRisk.toFixed(2)}
+Reward Per Unit: $${calculations.rewardPerUnit.toFixed(2)}
+Risk/Reward Ratio: ${calculations.riskRewardRatio.toFixed(2)}
 Suggested Size: ${calculations.positionSize}
 P/L Dollars: $${calculations.profitLossDollars.toFixed(2)}
 P/L Percent: ${calculations.profitLossPercent.toFixed(2)}%
