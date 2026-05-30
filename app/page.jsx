@@ -107,10 +107,17 @@ function SummaryBar({ label, value, maxValue }) {
 
   return (
     <div style={{ display: "grid", gap: "8px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", fontWeight: "900" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          fontWeight: "900",
+        }}
+      >
         <span>{label}</span>
         <span>{Number(value).toFixed(2)}</span>
       </div>
+
       <div
         style={{
           height: "14px",
@@ -119,7 +126,20 @@ function SummaryBar({ label, value, maxValue }) {
           background: "#fffaf0",
           overflow: "hidden",
         }}
-        function getRuleViolations({
+      >
+        <div
+          style={{
+            width: `${percent}%`,
+            height: "100%",
+            background: "linear-gradient(90deg, #d9c77b, #9f6d16)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function getRuleViolations({
   confirmedCount,
   journalComplete,
   tradeRisk,
@@ -194,19 +214,6 @@ function getTradeGrade({ score, riskRewardRatio, outcome, violations }) {
 
   return "Invalid";
 }
-      >
-        <div
-          style={{
-            width: `${percent}%`,
-            height: "100%",
-            background: "linear-gradient(90deg, #d9c77b, #9f6d16)",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
   const fileInputRef = useRef(null);
 
