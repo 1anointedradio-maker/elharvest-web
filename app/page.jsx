@@ -88,6 +88,8 @@ export default function Home() {
   const [riskPercent, setRiskPercent] = useState("2");
   const [entryPrice, setEntryPrice] = useState("");
   const [stopPrice, setStopPrice] = useState("");
+  const [exitPrice, setExitPrice] = useState("");
+  const [outcomeNotes, setOutcomeNotes] = useState("");
 
   const [vwapConfirmed, setVwapConfirmed] = useState(false);
   const [cloudConfirmed, setCloudConfirmed] = useState(false);
@@ -130,16 +132,38 @@ export default function Home() {
     const risk = Number(riskPercent);
     const entry = Number(entryPrice);
     const stop = Number(stopPrice);
+    const exit = Number(exitPrice);
 
     const validBalance = balance > 0;
     const validRisk = risk > 0;
     const validEntry = entry > 0;
     const validStop = stop > 0;
+    const validExit = exit > 0;
 
     const tradeRisk = Math.abs(entry - stop);
     const riskDollars = validBalance && validRisk ? balance * (risk / 100) : 0;
+
     const positionSize =
       riskDollars > 0 && tradeRisk > 0 ? Math.floor(riskDollars / tradeRisk) : 0;
+
+    const profitLossDollars =
+      validEntry && validExit && positionSize > 0
+        ? (exit - entry) * positionSize
+        : 0;
+
+    const profitLossPercent =
+      validEntry && validExit && entry > 0
+        ? ((exit - entry) / entry) * 100
+        : 0;
+
+    const outcome =
+      !validExit
+        ? "Pending"
+        : profitLossDollars > 0
+        ? "Win"
+        : profitLossDollars < 0
+        ? "Loss"
+        : "Flat";
 
     const confirmations = [
       vwapConfirmed,
@@ -147,6 +171,7 @@ export default function Home() {
       volumeConfirmed,
       marketWindow,
     ];
+
     const confirmedCount = confirmations.filter(Boolean).length;
 
     let decision = "FLAT";
@@ -192,6 +217,10 @@ export default function Home() {
       tradeRisk,
       riskDollars,
       positionSize,
+      validExit,
+      profitLossDollars,
+      profitLossPercent,
+      outcome,
       confirmedCount,
       decision,
       permission,
@@ -204,6 +233,7 @@ export default function Home() {
     riskPercent,
     entryPrice,
     stopPrice,
+    exitPrice,
     vwapConfirmed,
     cloudConfirmed,
     volumeConfirmed,
@@ -226,8 +256,12 @@ Risk Percentage: ${calculations.risk || 0}%
 Risk Per Trade: $${calculations.riskDollars.toFixed(2)}
 Entry Price: ${entryPrice || "Pending"}
 Stop Price: ${stopPrice || "Pending"}
+Exit Price: ${exitPrice || "Pending"}
 Trade Risk: $${calculations.tradeRisk.toFixed(2)}
 Suggested Size: ${calculations.positionSize}
+P/L Dollars: $${calculations.profitLossDollars.toFixed(2)}
+P/L Percent: ${calculations.profitLossPercent.toFixed(2)}%
+Outcome: ${calculations.outcome}
 
 Confirmations: ${calculations.confirmedCount}/4
 VWAP Confirmation: ${vwapConfirmed ? "Confirmed" : "Pending"}
@@ -238,6 +272,7 @@ Market Window Approved: ${marketWindow ? "Confirmed" : "Pending"}
 Entry Reason: ${entryReason || "Pending"}
 Exit Plan: ${exitPlan || "Pending"}
 Lesson Logged: ${lessonLogged || "Pending"}
+Outcome Notes: ${outcomeNotes || "Pending"}
 
 Session Score: ${calculations.sessionScore}%
 Live Trading: Disabled
@@ -267,6 +302,10 @@ Saved: ${session.timestamp}
 Risk Per Trade: $${session.riskDollars}
 Trade Risk: $${session.tradeRisk}
 Suggested Size: ${session.size}
+Exit Price: ${session.exitPrice || "Pending"}
+P/L Dollars: $${session.profitLossDollars || "0.00"}
+P/L Percent: ${session.profitLossPercent || "0.00"}%
+Outcome: ${session.outcome || "Pending"}
 
 ${session.report}
 `
@@ -358,6 +397,8 @@ No saved sessions.
     setRiskPercent("2");
     setEntryPrice("");
     setStopPrice("");
+    setExitPrice("");
+    setOutcomeNotes("");
     setVwapConfirmed(false);
     setCloudConfirmed(false);
     setVolumeConfirmed(false);
@@ -386,6 +427,7 @@ No saved sessions.
       riskPercent,
       entryPrice,
       stopPrice,
+      exitPrice,
       vwapConfirmed,
       cloudConfirmed,
       volumeConfirmed,
@@ -393,6 +435,7 @@ No saved sessions.
       entryReason,
       exitPlan,
       lessonLogged,
+      outcomeNotes,
       decision: calculations.decision,
       permission: calculations.permission,
       reason: calculations.reason,
@@ -400,6 +443,9 @@ No saved sessions.
       riskDollars: calculations.riskDollars.toFixed(2),
       tradeRisk: calculations.tradeRisk.toFixed(2),
       size: calculations.positionSize,
+      profitLossDollars: calculations.profitLossDollars.toFixed(2),
+      profitLossPercent: calculations.profitLossPercent.toFixed(2),
+      outcome: calculations.outcome,
       report: reportText,
     };
 
@@ -438,60 +484,72 @@ No saved sessions.
     link.remove();
     window.URL.revokeObjectURL(url);
   }
-function downloadCsvLedger() {
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return;
+
+  function downloadCsvLedger() {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return;
+    }
+
+    const headers = [
+      "Date",
+      "Ticker",
+      "Decision",
+      "Score",
+      "Risk Per Trade",
+      "Trade Risk",
+      "Suggested Size",
+      "Entry Price",
+      "Stop Price",
+      "Exit Price",
+      "P/L Dollars",
+      "P/L Percent",
+      "Outcome",
+      "Entry Reason",
+      "Exit Plan",
+      "Lesson Logged",
+      "Outcome Notes",
+    ];
+
+    const rows = savedSessions.map((session) => [
+      session.timestamp || "",
+      session.ticker || "",
+      session.decision || "",
+      `${session.score || 0}%`,
+      session.riskDollars || "",
+      session.tradeRisk || "",
+      session.size || "",
+      session.entryPrice || "",
+      session.stopPrice || "",
+      session.exitPrice || "",
+      session.profitLossDollars || "",
+      session.profitLossPercent || "",
+      session.outcome || "",
+      session.entryReason || "",
+      session.exitPlan || "",
+      session.lessonLogged || "",
+      session.outcomeNotes || "",
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) =>
+        row
+          .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+          .join(",")
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "el-harvest-trade-ledger.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
-  const headers = [
-    "Date",
-    "Ticker",
-    "Decision",
-    "Score",
-    "Risk Per Trade",
-    "Trade Risk",
-    "Suggested Size",
-    "Entry Price",
-    "Stop Price",
-    "Entry Reason",
-    "Exit Plan",
-    "Lesson Logged",
-  ];
-
-  const rows = savedSessions.map((session) => [
-    session.timestamp || "",
-    session.ticker || "",
-    session.decision || "",
-    `${session.score || 0}%`,
-    session.riskDollars || "",
-    session.tradeRisk || "",
-    session.size || "",
-    session.entryPrice || "",
-    session.stopPrice || "",
-    session.entryReason || "",
-    session.exitPlan || "",
-    session.lessonLogged || "",
-  ]);
-
-  const csvContent = [headers, ...rows]
-    .map((row) =>
-      row
-        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-        .join(",")
-    )
-    .join("\n");
-
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "el-harvest-trade-ledger.csv";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
-}
   async function copySavedReport(report) {
     if (typeof navigator === "undefined" || !navigator.clipboard) {
       setCopyStatus("Saved report copy unavailable");
@@ -516,51 +574,79 @@ function downloadCsvLedger() {
 
   function restoreSavedSession(session) {
     setTicker(session.ticker && session.ticker !== "Pending" ? session.ticker : "QQQ");
-
     setAccountBalance(session.accountBalance || "2000");
     setRiskPercent(session.riskPercent || "2");
 
     let restoredEntry = session.entryPrice || "";
     let restoredStop = session.stopPrice || "";
+    let restoredExit = session.exitPrice || "";
     let restoredEntryReason = session.entryReason || "";
     let restoredExitPlan = session.exitPlan || "";
     let restoredLesson = session.lessonLogged || "";
+    let restoredOutcomeNotes = session.outcomeNotes || "";
 
-    if ((!restoredEntry || !restoredStop) && session.report) {
+    if (session.report) {
       const entryMatch = session.report.match(/Entry Price:\s(.+)/);
       const stopMatch = session.report.match(/Stop Price:\s(.+)/);
+      const exitMatch = session.report.match(/Exit Price:\s(.+)/);
       const entryReasonMatch = session.report.match(/Entry Reason:\s(.+)/);
       const exitPlanMatch = session.report.match(/Exit Plan:\s(.+)/);
       const lessonMatch = session.report.match(/Lesson Logged:\s(.+)/);
+      const outcomeNotesMatch = session.report.match(/Outcome Notes:\s(.+)/);
 
-      restoredEntry =
-        entryMatch?.[1] && entryMatch[1] !== "Pending"
-          ? entryMatch[1].trim()
-          : "";
+      if (!restoredEntry) {
+        restoredEntry =
+          entryMatch?.[1] && entryMatch[1] !== "Pending"
+            ? entryMatch[1].trim()
+            : "";
+      }
 
-      restoredStop =
-        stopMatch?.[1] && stopMatch[1] !== "Pending"
-          ? stopMatch[1].trim()
-          : "";
+      if (!restoredStop) {
+        restoredStop =
+          stopMatch?.[1] && stopMatch[1] !== "Pending"
+            ? stopMatch[1].trim()
+            : "";
+      }
 
-      restoredEntryReason =
-        entryReasonMatch?.[1] && entryReasonMatch[1] !== "Pending"
-          ? entryReasonMatch[1].trim()
-          : "";
+      if (!restoredExit) {
+        restoredExit =
+          exitMatch?.[1] && exitMatch[1] !== "Pending"
+            ? exitMatch[1].trim()
+            : "";
+      }
 
-      restoredExitPlan =
-        exitPlanMatch?.[1] && exitPlanMatch[1] !== "Pending"
-          ? exitPlanMatch[1].trim()
-          : "";
+      if (!restoredEntryReason) {
+        restoredEntryReason =
+          entryReasonMatch?.[1] && entryReasonMatch[1] !== "Pending"
+            ? entryReasonMatch[1].trim()
+            : "";
+      }
 
-      restoredLesson =
-        lessonMatch?.[1] && lessonMatch[1] !== "Pending"
-          ? lessonMatch[1].trim()
-          : "";
+      if (!restoredExitPlan) {
+        restoredExitPlan =
+          exitPlanMatch?.[1] && exitPlanMatch[1] !== "Pending"
+            ? exitPlanMatch[1].trim()
+            : "";
+      }
+
+      if (!restoredLesson) {
+        restoredLesson =
+          lessonMatch?.[1] && lessonMatch[1] !== "Pending"
+            ? lessonMatch[1].trim()
+            : "";
+      }
+
+      if (!restoredOutcomeNotes) {
+        restoredOutcomeNotes =
+          outcomeNotesMatch?.[1] && outcomeNotesMatch[1] !== "Pending"
+            ? outcomeNotesMatch[1].trim()
+            : "";
+      }
     }
 
     setEntryPrice(restoredEntry);
     setStopPrice(restoredStop);
+    setExitPrice(restoredExit);
 
     setVwapConfirmed(
       Boolean(session.vwapConfirmed) ||
@@ -582,6 +668,7 @@ function downloadCsvLedger() {
     setEntryReason(restoredEntryReason);
     setExitPlan(restoredExitPlan);
     setLessonLogged(restoredLesson);
+    setOutcomeNotes(restoredOutcomeNotes);
 
     setSessionSaved(false);
     setCopyStatus("Restored saved session");
@@ -640,7 +727,7 @@ function downloadCsvLedger() {
         <div>
           <strong style={{ letterSpacing: "1.5px" }}>EL HARVEST COMMAND CENTER</strong>
           <div style={{ fontSize: "14px", marginTop: "6px", opacity: 0.8 }}>
-            Risk Calculator · Session Journal · Export Report · Saved History
+            Risk Calculator · Session Journal · Export Report · Saved History · P/L Tracker
           </div>
         </div>
 
@@ -680,7 +767,7 @@ function downloadCsvLedger() {
             />
           </div>
 
-          <div className="eh-grid-2" style={{ marginTop: "18px" }}>
+          <div className="eh-grid-3" style={{ marginTop: "18px" }}>
             <Field
               label="Entry Price"
               value={entryPrice}
@@ -694,6 +781,14 @@ function downloadCsvLedger() {
               value={stopPrice}
               onChange={setStopPrice}
               placeholder="Example: 4.90"
+              type="number"
+              inputStyle={inputStyle}
+            />
+            <Field
+              label="Exit Price"
+              value={exitPrice}
+              onChange={setExitPrice}
+              placeholder="Example: 6.10"
               type="number"
               inputStyle={inputStyle}
             />
@@ -713,6 +808,7 @@ function downloadCsvLedger() {
             <li>Permission: {calculations.permission}</li>
             <li>Reason: {calculations.reason}</li>
             <li>Confirmations: {calculations.confirmedCount}/4</li>
+            <li>Outcome: {calculations.outcome}</li>
             <li>Live Trading: Disabled</li>
           </ul>
         </div>
@@ -761,7 +857,15 @@ function downloadCsvLedger() {
               value={`$${calculations.tradeRisk.toFixed(2)}`}
             />
             <StatBox label="Suggested Size" value={calculations.positionSize} />
-            <StatBox label="Risk Mode" value="Protected" />
+            <StatBox
+              label="P/L Dollars"
+              value={`$${calculations.profitLossDollars.toFixed(2)}`}
+            />
+            <StatBox
+              label="P/L Percent"
+              value={`${calculations.profitLossPercent.toFixed(2)}%`}
+            />
+            <StatBox label="Outcome" value={calculations.outcome} />
           </div>
         </div>
       </section>
@@ -791,6 +895,13 @@ function downloadCsvLedger() {
               value={lessonLogged}
               onChange={setLessonLogged}
               placeholder="What should be reviewed after the session?"
+              inputStyle={inputStyle}
+            />
+            <TextAreaField
+              label="Outcome Notes"
+              value={outcomeNotes}
+              onChange={setOutcomeNotes}
+              placeholder="What happened after the trade?"
               inputStyle={inputStyle}
             />
           </div>
@@ -849,19 +960,20 @@ function downloadCsvLedger() {
         <div style={badgeStyle("green")}>EXPORT REPORT</div>
         <h3 style={{ marginTop: 0, fontSize: "26px" }}>Paper Trade Log Summary</h3>
 
-<div className="eh-grid-3">
-  <button type="button" onClick={copyReport} style={buttonStyle}>
-    COPY REPORT
-  </button>
+        <div className="eh-grid-3">
+          <button type="button" onClick={copyReport} style={buttonStyle}>
+            COPY REPORT
+          </button>
 
-  <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
-    OPEN / DOWNLOAD TEXT REPORT
-  </button>
+          <button type="button" onClick={downloadReport} style={secondaryButtonStyle}>
+            OPEN / DOWNLOAD TEXT REPORT
+          </button>
 
-  <button type="button" onClick={downloadCsvLedger} style={secondaryButtonStyle}>
-    DOWNLOAD CSV LEDGER
-  </button>
-</div>
+          <button type="button" onClick={downloadCsvLedger} style={secondaryButtonStyle}>
+            DOWNLOAD CSV LEDGER
+          </button>
+        </div>
+
         <pre
           style={{
             whiteSpace: "pre-wrap",
@@ -924,6 +1036,10 @@ function downloadCsvLedger() {
                     <div>Risk Per Trade: ${session.riskDollars}</div>
                     <div>Trade Risk: ${session.tradeRisk}</div>
                     <div>Suggested Size: {session.size}</div>
+                    <div>Exit Price: {session.exitPrice || "Pending"}</div>
+                    <div>P/L Dollars: ${session.profitLossDollars || "0.00"}</div>
+                    <div>P/L Percent: {session.profitLossPercent || "0.00"}%</div>
+                    <div>Outcome: {session.outcome || "Pending"}</div>
                   </div>
                 </div>
 
