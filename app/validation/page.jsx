@@ -40,34 +40,51 @@ export default function ValidationPage() {
     <main style={styles.page}>
       <section style={styles.shell}>
         <header style={styles.hero}>
-          <div style={styles.badge}>EL HARVEST</div>
+          <div style={styles.brandPill}>EL HARVEST</div>
+
           <h1 style={styles.title}>Trade Validation</h1>
+
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
         </header>
 
         <section style={styles.panel}>
-          <h2 style={styles.sectionTitle}>Rule Confirmation</h2>
+          <div style={styles.panelHeader}>
+            <p style={styles.kicker}>01</p>
+            <h2 style={styles.sectionTitle}>Rule Confirmation</h2>
+          </div>
 
-          <div style={styles.grid}>
+          <div style={styles.ruleGrid}>
             {rulesList.map(([key, label]) => {
               const active = rules[key];
 
               return (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => toggleRule(key)}
                   style={{
                     ...styles.ruleCard,
                     borderColor: active ? "#2E8B57" : "#C8A24A",
-                    background: active ? "#E8F7EC" : "#FFF8E8",
+                    background: active
+                      ? "linear-gradient(135deg, #E8F7EC, #FFFFFF)"
+                      : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
                     boxShadow: active
-                      ? "0 0 18px rgba(46, 139, 87, 0.35)"
-                      : "none",
+                      ? "0 0 22px rgba(46, 139, 87, 0.28)"
+                      : "0 8px 18px rgba(0, 0, 0, 0.06)",
                   }}
                 >
-                  <span style={styles.check}>{active ? "✓" : "○"}</span>
+                  <span
+                    style={{
+                      ...styles.checkIcon,
+                      background: active ? "#2E8B57" : "#C8A24A",
+                      color: "#fff",
+                    }}
+                  >
+                    {active ? "✓" : "+"}
+                  </span>
+
                   <span>{label}</span>
                 </button>
               );
@@ -76,34 +93,47 @@ export default function ValidationPage() {
         </section>
 
         <section style={styles.panel}>
-          <h2 style={styles.sectionTitle}>Trade Direction</h2>
+          <div style={styles.panelHeader}>
+            <p style={styles.kicker}>02</p>
+            <h2 style={styles.sectionTitle}>Trade Direction</h2>
+          </div>
 
           <div style={styles.directionGrid}>
             <button
+              type="button"
               onClick={() => setDirection("CALL")}
               style={{
                 ...styles.directionButton,
                 background:
                   direction === "CALL"
-                    ? "linear-gradient(135deg, #2E8B57, #1F6B43)"
-                    : "#FFF8E8",
+                    ? "linear-gradient(135deg, #2E8B57, #155C36)"
+                    : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
                 color: direction === "CALL" ? "#fff" : "#111",
                 borderColor: direction === "CALL" ? "#2E8B57" : "#C8A24A",
+                boxShadow:
+                  direction === "CALL"
+                    ? "0 0 24px rgba(46, 139, 87, 0.35)"
+                    : "0 8px 18px rgba(0, 0, 0, 0.06)",
               }}
             >
               CALL
             </button>
 
             <button
+              type="button"
               onClick={() => setDirection("PUT")}
               style={{
                 ...styles.directionButton,
                 background:
                   direction === "PUT"
-                    ? "linear-gradient(135deg, #B22222, #7A1717)"
-                    : "#FFF8E8",
+                    ? "linear-gradient(135deg, #B22222, #731515)"
+                    : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
                 color: direction === "PUT" ? "#fff" : "#111",
                 borderColor: direction === "PUT" ? "#B22222" : "#C8A24A",
+                boxShadow:
+                  direction === "PUT"
+                    ? "0 0 24px rgba(178, 34, 34, 0.35)"
+                    : "0 8px 18px rgba(0, 0, 0, 0.06)",
               }}
             >
               PUT
@@ -122,12 +152,23 @@ export default function ValidationPage() {
         >
           <p style={styles.scoreLabel}>EL HARVEST SCORE</p>
 
-          <div style={styles.score}>{score}%</div>
+          <div style={styles.scoreNumber}>{score}%</div>
 
-          <div style={styles.metrics}>
-            <p><strong>Direction:</strong> {direction || "Not Selected"}</p>
-            <p><strong>Grade:</strong> {grade}</p>
-            <p><strong>Validated At:</strong> {timestamp}</p>
+          <div style={styles.metricGrid}>
+            <div style={styles.metricCard}>
+              <span style={styles.metricLabel}>Direction</span>
+              <strong>{direction || "Not Selected"}</strong>
+            </div>
+
+            <div style={styles.metricCard}>
+              <span style={styles.metricLabel}>Grade</span>
+              <strong>{grade}</strong>
+            </div>
+
+            <div style={styles.metricCard}>
+              <span style={styles.metricLabel}>Rules Passed</span>
+              <strong>{completed}/4</strong>
+            </div>
           </div>
 
           <h2
@@ -138,9 +179,13 @@ export default function ValidationPage() {
           >
             {validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}
           </h2>
+
+          <p style={styles.timestamp}>Validated At: {timestamp}</p>
         </section>
 
-        <a href="/" style={styles.back}>← Back to Home</a>
+        <a href="/" style={styles.backButton}>
+          ← Back to Home
+        </a>
       </section>
     </main>
   );
@@ -149,21 +194,22 @@ export default function ValidationPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "linear-gradient(180deg, #111 0%, #2A2418 45%, #F7EFE2 45%)",
+    background:
+      "linear-gradient(180deg, #111111 0%, #1D1A14 42%, #F7EFE2 42%, #F7EFE2 100%)",
     color: "#111",
     fontFamily: "Arial, sans-serif",
     padding: "28px",
   },
   shell: {
-    maxWidth: "760px",
+    maxWidth: "820px",
     margin: "0 auto",
   },
   hero: {
     textAlign: "center",
     color: "#F7EFE2",
-    padding: "34px 10px 26px",
+    padding: "38px 10px 30px",
   },
-  badge: {
+  brandPill: {
     display: "inline-block",
     padding: "8px 18px",
     border: "1px solid #C8A24A",
@@ -171,15 +217,17 @@ const styles = {
     color: "#C8A24A",
     fontWeight: "900",
     letterSpacing: "2px",
-    marginBottom: "16px",
+    marginBottom: "18px",
   },
   title: {
-    fontSize: "42px",
-    margin: "0 0 12px",
+    fontSize: "44px",
+    lineHeight: "1.05",
+    margin: "0 0 14px",
+    fontWeight: "900",
   },
   mantra: {
     margin: "0 auto",
-    maxWidth: "560px",
+    maxWidth: "620px",
     color: "#E8D7A8",
     fontWeight: "700",
     lineHeight: "1.6",
@@ -188,15 +236,32 @@ const styles = {
     marginTop: "22px",
     padding: "24px",
     border: "1px solid #C8A24A",
-    borderRadius: "22px",
+    borderRadius: "24px",
     background: "#FFFDF7",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.12)",
+    boxShadow: "0 16px 34px rgba(0,0,0,0.14)",
+  },
+  panelHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "18px",
+  },
+  kicker: {
+    margin: 0,
+    padding: "6px 10px",
+    borderRadius: "999px",
+    background: "#111",
+    color: "#C8A24A",
+    fontSize: "12px",
+    fontWeight: "900",
+    letterSpacing: "1px",
   },
   sectionTitle: {
-    margin: "0 0 18px",
-    fontSize: "22px",
+    margin: 0,
+    fontSize: "23px",
+    fontWeight: "900",
   },
-  grid: {
+  ruleGrid: {
     display: "grid",
     gap: "14px",
   },
@@ -207,15 +272,22 @@ const styles = {
     gap: "14px",
     padding: "18px",
     border: "2px solid",
-    borderRadius: "16px",
+    borderRadius: "18px",
     fontSize: "18px",
     fontWeight: "900",
     cursor: "pointer",
     textAlign: "left",
+    color: "#111",
   },
-  check: {
-    fontSize: "24px",
+  checkIcon: {
+    width: "30px",
+    height: "30px",
+    borderRadius: "999px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontWeight: "900",
+    flexShrink: 0,
   },
   directionGrid: {
     display: "grid",
@@ -223,21 +295,21 @@ const styles = {
     gap: "14px",
   },
   directionButton: {
-    padding: "20px",
+    padding: "22px",
     border: "2px solid",
-    borderRadius: "16px",
-    fontSize: "22px",
+    borderRadius: "18px",
+    fontSize: "24px",
     fontWeight: "900",
     cursor: "pointer",
-    letterSpacing: "1px",
+    letterSpacing: "1.5px",
   },
   scorePanel: {
     marginTop: "22px",
-    padding: "28px",
+    padding: "30px",
     border: "3px solid",
-    borderRadius: "24px",
+    borderRadius: "26px",
     textAlign: "center",
-    boxShadow: "0 14px 34px rgba(0,0,0,0.14)",
+    boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
   },
   scoreLabel: {
     margin: 0,
@@ -245,21 +317,43 @@ const styles = {
     fontWeight: "900",
     letterSpacing: "2px",
   },
-  score: {
-    fontSize: "64px",
+  scoreNumber: {
+    fontSize: "68px",
     fontWeight: "900",
-    margin: "10px 0",
+    margin: "10px 0 18px",
   },
-  metrics: {
-    lineHeight: "1.8",
-    fontSize: "16px",
+  metricGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "12px",
+    marginTop: "16px",
+  },
+  metricCard: {
+    padding: "14px",
+    border: "1px solid rgba(0,0,0,0.12)",
+    borderRadius: "16px",
+    background: "rgba(255,255,255,0.75)",
+    display: "grid",
+    gap: "6px",
+  },
+  metricLabel: {
+    color: "#6B5B2A",
+    fontSize: "12px",
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
   },
   result: {
-    margin: "18px 0 0",
-    fontSize: "30px",
+    margin: "24px 0 8px",
+    fontSize: "32px",
     fontWeight: "900",
   },
-  back: {
+  timestamp: {
+    margin: 0,
+    color: "#444",
+    fontSize: "14px",
+  },
+  backButton: {
     display: "inline-block",
     marginTop: "24px",
     color: "#111",
