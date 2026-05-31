@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function BrokerPage() {
   const [paperTrades, setPaperTrades] = useState([]);
@@ -8,22 +9,53 @@ export default function BrokerPage() {
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
-    const savedPaperTrades = localStorage.getItem("elharvest_paper_trades");
-    const savedJournal = localStorage.getItem("elharvest_journal");
-
-    if (savedPaperTrades) {
-      setPaperTrades(JSON.parse(savedPaperTrades));
-    }
-
-    if (savedJournal) {
-      const journal = JSON.parse(savedJournal);
-      if (journal.length > 0) {
-        setLatestTrade(journal[0]);
-      }
-    }
+    loadPaperTrades();
+    loadLatestJournalTrade();
   }, []);
 
-  const openPaperMode = () => {
+  const loadPaperTrades = async () => {
+    const { data, error } = await supabase
+      .from("paper_trades")
+      .select("*")
+      .order("opened_at", { ascending: false });
+
+    if (error) {
+      setStatusMessage("Supabase paper ledger load failed. Using local backup if available.");
+
+      const savedPaperTrades = localStorage.getItem("elharvest_paper_trades");
+      if (savedPaperTrades) setPaperTrades(JSON.parse(savedPaperTrades));
+
+      return;
+    }
+
+    setPaperTrades(data || []);
+  };
+
+  const loadLatestJournalTrade = async () => {
+    const { data, error } = await supabase
+      .from("journal_trades")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      setStatusMessage("Could not load latest Supabase journal trade.");
+
+      const savedJournal = localStorage.getItem("elharvest_journal");
+      if (savedJournal) {
+        const journal = JSON.parse(savedJournal);
+        if (journal.length > 0) setLatestTrade(journal[0]);
+      }
+
+      return;
+    }
+
+    if (data && data.length > 0) {
+      setLatestTrade(data[0]);
+    }
+  };
+
+  const openPaperMode = async () => {
     if (!latestTrade) {
       setStatusMessage(
         "No journal trade found. Validate a trade, execute paper, then save it in the journal first."
@@ -32,7 +64,7 @@ export default function BrokerPage() {
     }
 
     const alreadyOpened = paperTrades.some(
-      (trade) => trade.sourceJournalId === latestTrade.id
+      (trade) => trade.source_journal_id === latestTrade.id
     );
 
     if (alreadyOpened) {
@@ -41,8 +73,7 @@ export default function BrokerPage() {
     }
 
     const paperTrade = {
-      id: Date.now(),
-      sourceJournalId: latestTrade.id,
+      source_journal_id: latestTrade.id,
       ticker: latestTrade.ticker || "UNKNOWN",
       direction: latestTrade.direction || "CALL / PUT",
       entry: latestTrade.entry || "Pending",
@@ -50,16 +81,36 @@ export default function BrokerPage() {
       score: latestTrade.score || "0",
       grade: latestTrade.grade || "F",
       status: "Paper Trade Opened",
-      openedAt: new Date().toLocaleString(),
       notes: latestTrade.notes || "Imported from EL Harvest Journal.",
     };
 
-    const next = [paperTrade, ...paperTrades];
+    const { data, error } = await supabase
+      .from("paper_trades")
+      .insert([paperTrade])
+      .select();
+
+    if (error) {
+      setStatusMessage("Supabase paper trade save failed. Saved locally as backup.");
+
+      const fallbackRecord = {
+        ...paperTrade,
+        id: Date.now(),
+        opened_at: new Date().toLocaleString(),
+      };
+
+      const next = [fallbackRecord, ...paperTrades];
+      setPaperTrades(next);
+      localStorage.setItem("elharvest_paper_trades", JSON.stringify(next));
+
+      return;
+    }
+
+    const savedRecord = data?.[0];
+    const next = savedRecord ? [savedRecord, ...paperTrades] : paperTrades;
 
     setPaperTrades(next);
     localStorage.setItem("elharvest_paper_trades", JSON.stringify(next));
-
-    setStatusMessage("Paper trade opened and added to the Broker Hub ledger.");
+    setStatusMessage("Paper trade opened and saved to Supabase ledger.");
   };
 
   const brokers = [
@@ -212,14 +263,22 @@ export default function BrokerPage() {
                   <strong>
                     {trade.ticker} — {trade.direction}
                   </strong>
+
                   <span>Status: {trade.status}</span>
+
                   <span>
                     Entry: {trade.entry} | Exit: {trade.exit}
                   </span>
+
                   <span>
                     Score: {trade.score}% | Grade: {trade.grade}
                   </span>
-                  <small>{trade.openedAt}</small>
+
+                  <small>
+                    {trade.opened_at
+                      ? new Date(trade.opened_at).toLocaleString()
+                      : "No timestamp"}
+                  </small>
                 </div>
               ))}
             </div>
@@ -231,9 +290,9 @@ export default function BrokerPage() {
 
           <div style={styles.checklist}>
             <span>✅ Validation Engine</span>
-            <span>✅ Trade Journal</span>
+            <span>✅ Supabase Journal</span>
+            <span>✅ Supabase Paper Ledger</span>
             <span>✅ Broker Hub</span>
-            <span>✅ Paper Trade Ledger</span>
             <span>⬜ Authentication Layer</span>
             <span>⬜ Risk Controls</span>
             <span>⬜ Paper Trading API</span>
