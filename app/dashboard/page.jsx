@@ -15,7 +15,8 @@ export default function DashboardPage() {
   }, []);
 
   const latestTrade = journal[0];
-  const avgScore =
+
+  const averageScore =
     journal.length > 0
       ? Math.round(
           journal.reduce((sum, trade) => sum + Number(trade.score || 0), 0) /
@@ -23,18 +24,62 @@ export default function DashboardPage() {
         )
       : 0;
 
+  const completedPaperTrades = paperTrades.filter(
+    (trade) =>
+      trade.exit &&
+      trade.exit !== "Open" &&
+      trade.exit !== "Pending" &&
+      trade.entry &&
+      trade.entry !== "Pending"
+  );
+
+  const winningTrades = completedPaperTrades.filter(
+    (trade) => Number(trade.exit) > Number(trade.entry)
+  ).length;
+
+  const losingTrades = completedPaperTrades.filter(
+    (trade) => Number(trade.exit) < Number(trade.entry)
+  ).length;
+
+  const totalCompleted = completedPaperTrades.length;
+
+  const winRate =
+    totalCompleted > 0 ? Math.round((winningTrades / totalCompleted) * 100) : 0;
+
+  const lossRate =
+    totalCompleted > 0 ? Math.round((losingTrades / totalCompleted) * 100) : 0;
+
+  const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
+
   const harvestGrade =
-    avgScore >= 90 ? "A+" :
-    avgScore >= 75 ? "B" :
-    avgScore >= 50 ? "C" :
-    avgScore >= 25 ? "D" :
-    "F";
+    averageScore >= 90
+      ? "A+"
+      : averageScore >= 75
+      ? "B"
+      : averageScore >= 50
+      ? "C"
+      : averageScore >= 25
+      ? "D"
+      : "F";
+
+  const metrics = [
+    ["Win Rate", `${winRate}%`],
+    ["Loss Rate", `${lossRate}%`],
+    ["Average Validation Score", `${averageScore}%`],
+    ["A+ Setups", aPlusSetups],
+    ["Total Paper Trades", paperTrades.length],
+    ["Journal Trades", journal.length],
+  ];
 
   return (
     <main style={styles.page}>
       <section style={styles.shell}>
         <header style={styles.header}>
-          <img src="/el-harvest-logo.png" alt="EL Harvest Logo" style={styles.logo} />
+          <img
+            src="/el-harvest-logo.png"
+            alt="EL Harvest Logo"
+            style={styles.logo}
+          />
 
           <h1 style={styles.title}>Dashboard</h1>
 
@@ -45,41 +90,53 @@ export default function DashboardPage() {
 
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
-          <div style={styles.score}>{avgScore}%</div>
+          <div style={styles.score}>{averageScore}%</div>
           <h2 style={styles.grade}>Grade {harvestGrade}</h2>
         </section>
 
-        <section style={styles.grid}>
-          <div style={styles.card}>
-            <span>Total Journal Trades</span>
-            <strong>{journal.length}</strong>
-          </div>
+        <section style={styles.metricGrid}>
+          {metrics.map(([label, value]) => (
+            <div key={label} style={styles.metricCard}>
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </section>
 
-          <div style={styles.card}>
-            <span>Paper Trades Opened</span>
-            <strong>{paperTrades.length}</strong>
-          </div>
+        <section style={styles.card}>
+          <h2 style={styles.sectionTitle}>Latest Trade</h2>
 
-          <div style={styles.card}>
-            <span>Current Discipline Grade</span>
-            <strong>{harvestGrade}</strong>
-          </div>
-
-          <div style={styles.card}>
-            <span>Last Trade</span>
-            <strong>
-              {latestTrade
-                ? `${latestTrade.ticker || "UNKNOWN"} — ${latestTrade.direction}`
-                : "None"}
-            </strong>
-          </div>
+          {latestTrade ? (
+            <div style={styles.latestTrade}>
+              <strong>
+                {latestTrade.ticker || "UNKNOWN"} — {latestTrade.direction}
+              </strong>
+              <span>Score: {latestTrade.score || "0"}%</span>
+              <span>Grade: {latestTrade.grade || "F"}</span>
+              <span>Entry: {latestTrade.entry || "-"}</span>
+              <span>Exit: {latestTrade.exit || "-"}</span>
+            </div>
+          ) : (
+            <p style={styles.empty}>No journal trades yet.</p>
+          )}
         </section>
 
         <section style={styles.navCard}>
-          <a href="/validation" style={styles.button}>Start Validation</a>
-          <a href="/journal" style={styles.button}>Open Journal</a>
-          <a href="/broker" style={styles.button}>Open Broker Hub</a>
-          <a href="/" style={styles.secondary}>← Back Home</a>
+          <a href="/validation" style={styles.button}>
+            Start Validation
+          </a>
+
+          <a href="/journal" style={styles.button}>
+            Open Journal
+          </a>
+
+          <a href="/broker" style={styles.button}>
+            Open Broker Hub
+          </a>
+
+          <a href="/" style={styles.secondary}>
+            ← Back Home
+          </a>
         </section>
       </section>
     </main>
@@ -145,12 +202,12 @@ const styles = {
     fontSize: "30px",
     margin: 0,
   },
-  grid: {
+  metricGrid: {
     display: "grid",
     gap: "18px",
     marginTop: "22px",
   },
-  card: {
+  metricCard: {
     padding: "22px",
     border: "1px solid #D6B45A",
     borderRadius: "24px",
@@ -158,6 +215,30 @@ const styles = {
     boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
     display: "grid",
     gap: "8px",
+  },
+  card: {
+    marginTop: "22px",
+    padding: "24px",
+    border: "1px solid #D6B45A",
+    borderRadius: "28px",
+    background: "#FFFFFF",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
+  },
+  sectionTitle: {
+    marginTop: 0,
+    fontSize: "24px",
+    fontWeight: "900",
+  },
+  latestTrade: {
+    display: "grid",
+    gap: "8px",
+    padding: "16px",
+    borderRadius: "18px",
+    background: "#F8F4EA",
+    border: "1px solid rgba(168,117,23,0.25)",
+  },
+  empty: {
+    color: "#6B7280",
   },
   navCard: {
     marginTop: "22px",
