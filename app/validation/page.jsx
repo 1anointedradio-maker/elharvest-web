@@ -39,19 +39,18 @@ export default function ValidationPage() {
   return (
     <main style={styles.page}>
       <section style={styles.shell}>
-        <header style={styles.hero}>
-          <div style={styles.brandPill}>EL HARVEST</div>
-
+        <header style={styles.header}>
+          <div style={styles.logoMark}>EL</div>
+          <p style={styles.brand}>EL HARVEST</p>
           <h1 style={styles.title}>Trade Validation</h1>
-
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
         </header>
 
-        <section style={styles.panel}>
-          <div style={styles.panelHeader}>
-            <p style={styles.kicker}>01</p>
+        <section style={styles.card}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.step}>01</span>
             <h2 style={styles.sectionTitle}>Rule Confirmation</h2>
           </div>
 
@@ -66,25 +65,21 @@ export default function ValidationPage() {
                   onClick={() => toggleRule(key)}
                   style={{
                     ...styles.ruleCard,
-                    borderColor: active ? "#2E8B57" : "#C8A24A",
-                    background: active
-                      ? "linear-gradient(135deg, #E8F7EC, #FFFFFF)"
-                      : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
+                    borderColor: active ? "#2F8F46" : "#D6B45A",
+                    background: active ? "#EEF8F1" : "#FFFFFF",
                     boxShadow: active
-                      ? "0 0 22px rgba(46, 139, 87, 0.28)"
-                      : "0 8px 18px rgba(0, 0, 0, 0.06)",
+                      ? "0 14px 28px rgba(47, 143, 70, 0.18)"
+                      : "0 10px 24px rgba(109, 40, 217, 0.08)",
                   }}
                 >
                   <span
                     style={{
-                      ...styles.checkIcon,
-                      background: active ? "#2E8B57" : "#C8A24A",
-                      color: "#fff",
+                      ...styles.ruleIcon,
+                      background: active ? "#2F8F46" : "#D6B45A",
                     }}
                   >
                     {active ? "✓" : "+"}
                   </span>
-
                   <span>{label}</span>
                 </button>
               );
@@ -92,9 +87,9 @@ export default function ValidationPage() {
           </div>
         </section>
 
-        <section style={styles.panel}>
-          <div style={styles.panelHeader}>
-            <p style={styles.kicker}>02</p>
+        <section style={styles.card}>
+          <div style={styles.sectionHeader}>
+            <span style={styles.step}>02</span>
             <h2 style={styles.sectionTitle}>Trade Direction</h2>
           </div>
 
@@ -104,16 +99,9 @@ export default function ValidationPage() {
               onClick={() => setDirection("CALL")}
               style={{
                 ...styles.directionButton,
-                background:
-                  direction === "CALL"
-                    ? "linear-gradient(135deg, #2E8B57, #155C36)"
-                    : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
-                color: direction === "CALL" ? "#fff" : "#111",
-                borderColor: direction === "CALL" ? "#2E8B57" : "#C8A24A",
-                boxShadow:
-                  direction === "CALL"
-                    ? "0 0 24px rgba(46, 139, 87, 0.35)"
-                    : "0 8px 18px rgba(0, 0, 0, 0.06)",
+                background: direction === "CALL" ? "#2F8F46" : "#FFFFFF",
+                color: direction === "CALL" ? "#FFFFFF" : "#1F1F1F",
+                borderColor: direction === "CALL" ? "#2F8F46" : "#D6B45A",
               }}
             >
               CALL
@@ -124,16 +112,9 @@ export default function ValidationPage() {
               onClick={() => setDirection("PUT")}
               style={{
                 ...styles.directionButton,
-                background:
-                  direction === "PUT"
-                    ? "linear-gradient(135deg, #B22222, #731515)"
-                    : "linear-gradient(135deg, #FFF8E8, #FFFFFF)",
-                color: direction === "PUT" ? "#fff" : "#111",
-                borderColor: direction === "PUT" ? "#B22222" : "#C8A24A",
-                boxShadow:
-                  direction === "PUT"
-                    ? "0 0 24px rgba(178, 34, 34, 0.35)"
-                    : "0 8px 18px rgba(0, 0, 0, 0.06)",
+                background: direction === "PUT" ? "#B84A3A" : "#FFFFFF",
+                color: direction === "PUT" ? "#FFFFFF" : "#1F1F1F",
+                borderColor: direction === "PUT" ? "#B84A3A" : "#D6B45A",
               }}
             >
               PUT
@@ -143,30 +124,27 @@ export default function ValidationPage() {
 
         <section
           style={{
-            ...styles.scorePanel,
-            borderColor: validated ? "#2E8B57" : "#B22222",
-            background: validated
-              ? "linear-gradient(135deg, #E8F7EC, #FFFFFF)"
-              : "linear-gradient(135deg, #FDECEC, #FFFFFF)",
+            ...styles.scoreCard,
+            borderColor: validated ? "#2F8F46" : "#B84A3A",
+            background: validated ? "#EEF8F1" : "#FFF2EF",
           }}
         >
           <p style={styles.scoreLabel}>EL HARVEST SCORE</p>
+          <div style={styles.score}>{score}%</div>
 
-          <div style={styles.scoreNumber}>{score}%</div>
-
-          <div style={styles.metricGrid}>
-            <div style={styles.metricCard}>
-              <span style={styles.metricLabel}>Direction</span>
+          <div style={styles.metrics}>
+            <div style={styles.metric}>
+              <span>Direction</span>
               <strong>{direction || "Not Selected"}</strong>
             </div>
 
-            <div style={styles.metricCard}>
-              <span style={styles.metricLabel}>Grade</span>
+            <div style={styles.metric}>
+              <span>Grade</span>
               <strong>{grade}</strong>
             </div>
 
-            <div style={styles.metricCard}>
-              <span style={styles.metricLabel}>Rules Passed</span>
+            <div style={styles.metric}>
+              <span>Rules Passed</span>
               <strong>{completed}/4</strong>
             </div>
           </div>
@@ -174,7 +152,7 @@ export default function ValidationPage() {
           <h2
             style={{
               ...styles.result,
-              color: validated ? "#2E8B57" : "#B22222",
+              color: validated ? "#2F8F46" : "#B84A3A",
             }}
           >
             {validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}
@@ -183,9 +161,7 @@ export default function ValidationPage() {
           <p style={styles.timestamp}>Validated At: {timestamp}</p>
         </section>
 
-        <a href="/" style={styles.backButton}>
-          ← Back to Home
-        </a>
+        <a href="/" style={styles.back}>← Back to Home</a>
       </section>
     </main>
   );
@@ -194,9 +170,8 @@ export default function ValidationPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background:
-      "linear-gradient(180deg, #111111 0%, #1D1A14 42%, #F7EFE2 42%, #F7EFE2 100%)",
-    color: "#111",
+    background: "#F8F4EA",
+    color: "#1F1F1F",
     fontFamily: "Arial, sans-serif",
     padding: "28px",
   },
@@ -204,57 +179,62 @@ const styles = {
     maxWidth: "820px",
     margin: "0 auto",
   },
-  hero: {
+  header: {
     textAlign: "center",
-    color: "#F7EFE2",
-    padding: "38px 10px 30px",
+    padding: "22px 10px 28px",
   },
-  brandPill: {
-    display: "inline-block",
-    padding: "8px 18px",
-    border: "1px solid #C8A24A",
-    borderRadius: "999px",
-    color: "#C8A24A",
+  logoMark: {
+    width: "76px",
+    height: "76px",
+    margin: "0 auto 10px",
+    borderRadius: "50%",
+    background: "linear-gradient(135deg, #E6C66A, #A87517)",
+    color: "#FFFFFF",
+    display: "grid",
+    placeItems: "center",
+    fontWeight: "900",
+    fontSize: "26px",
+    boxShadow: "0 18px 38px rgba(109, 40, 217, 0.12)",
+  },
+  brand: {
+    margin: 0,
+    color: "#A87517",
     fontWeight: "900",
     letterSpacing: "2px",
-    marginBottom: "18px",
   },
   title: {
     fontSize: "44px",
-    lineHeight: "1.05",
-    margin: "0 0 14px",
+    margin: "8px 0 10px",
     fontWeight: "900",
   },
   mantra: {
     margin: "0 auto",
     maxWidth: "620px",
-    color: "#E8D7A8",
+    color: "#6B5B2A",
     fontWeight: "700",
     lineHeight: "1.6",
   },
-  panel: {
+  card: {
     marginTop: "22px",
     padding: "24px",
-    border: "1px solid #C8A24A",
-    borderRadius: "24px",
-    background: "#FFFDF7",
-    boxShadow: "0 16px 34px rgba(0,0,0,0.14)",
+    border: "1px solid #D6B45A",
+    borderRadius: "26px",
+    background: "#FFFFFF",
+    boxShadow: "0 18px 38px rgba(109, 40, 217, 0.08)",
   },
-  panelHeader: {
+  sectionHeader: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
     marginBottom: "18px",
   },
-  kicker: {
-    margin: 0,
+  step: {
     padding: "6px 10px",
     borderRadius: "999px",
-    background: "#111",
-    color: "#C8A24A",
-    fontSize: "12px",
+    background: "#F1E3B5",
+    color: "#8A6416",
     fontWeight: "900",
-    letterSpacing: "1px",
+    fontSize: "12px",
   },
   sectionTitle: {
     margin: 0,
@@ -277,12 +257,13 @@ const styles = {
     fontWeight: "900",
     cursor: "pointer",
     textAlign: "left",
-    color: "#111",
+    color: "#1F1F1F",
   },
-  checkIcon: {
+  ruleIcon: {
     width: "30px",
     height: "30px",
     borderRadius: "999px",
+    color: "#FFFFFF",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
@@ -301,47 +282,40 @@ const styles = {
     fontSize: "24px",
     fontWeight: "900",
     cursor: "pointer",
-    letterSpacing: "1.5px",
+    letterSpacing: "1px",
+    boxShadow: "0 12px 24px rgba(109, 40, 217, 0.08)",
   },
-  scorePanel: {
+  scoreCard: {
     marginTop: "22px",
     padding: "30px",
     border: "3px solid",
-    borderRadius: "26px",
+    borderRadius: "28px",
     textAlign: "center",
-    boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
+    boxShadow: "0 20px 42px rgba(109, 40, 217, 0.10)",
   },
   scoreLabel: {
     margin: 0,
-    color: "#6B5B2A",
+    color: "#8A6416",
     fontWeight: "900",
     letterSpacing: "2px",
   },
-  scoreNumber: {
+  score: {
     fontSize: "68px",
     fontWeight: "900",
     margin: "10px 0 18px",
   },
-  metricGrid: {
+  metrics: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
     gap: "12px",
-    marginTop: "16px",
   },
-  metricCard: {
+  metric: {
     padding: "14px",
-    border: "1px solid rgba(0,0,0,0.12)",
     borderRadius: "16px",
-    background: "rgba(255,255,255,0.75)",
+    background: "#FFFFFF",
+    border: "1px solid rgba(168, 117, 23, 0.24)",
     display: "grid",
     gap: "6px",
-  },
-  metricLabel: {
-    color: "#6B5B2A",
-    fontSize: "12px",
-    fontWeight: "900",
-    textTransform: "uppercase",
-    letterSpacing: "1px",
   },
   result: {
     margin: "24px 0 8px",
@@ -350,13 +324,13 @@ const styles = {
   },
   timestamp: {
     margin: 0,
-    color: "#444",
+    color: "#6B7280",
     fontSize: "14px",
   },
-  backButton: {
+  back: {
     display: "inline-block",
     marginTop: "24px",
-    color: "#111",
+    color: "#8A6416",
     fontWeight: "900",
     textDecoration: "none",
   },
