@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function JournalPage() {
   const [trades, setTrades] = useState([]);
+  const [statusMessage, setStatusMessage] = useState("");
+
   const [form, setForm] = useState({
     ticker: "",
     direction: "CALL",
@@ -15,12 +18,9 @@ export default function JournalPage() {
   });
 
   useEffect(() => {
-    const savedTrades = localStorage.getItem("elharvest_journal");
-    const ticket = localStorage.getItem("elharvest_trade_ticket");
+    loadTrades();
 
-    if (savedTrades) {
-      setTrades(JSON.parse(savedTrades));
-    }
+    const ticket = localStorage.getItem("elharvest_trade_ticket");
 
     if (ticket) {
       const data = JSON.parse(ticket);
@@ -37,18 +37,64 @@ export default function JournalPage() {
     }
   }, []);
 
-  const saveTrade = () => {
+  const loadTrades = async () => {
+    const { data, error } = await supabase
+      .from("journal_trades")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setStatusMessage("Supabase load failed. Using local browser data if available.");
+
+      const savedTrades = localStorage.getItem("elharvest_journal");
+      if (savedTrades) setTrades(JSON.parse(savedTrades));
+
+      return;
+    }
+
+    setTrades(data || []);
+  };
+
+  const saveTrade = async () => {
     const record = {
-      ...form,
-      id: Date.now(),
-      createdAt: new Date().toLocaleString(),
+      ticker: form.ticker,
+      direction: form.direction,
+      entry: form.entry,
+      exit: form.exit,
+      score: form.score,
+      grade: form.grade,
+      notes: form.notes,
     };
 
-    const next = [record, ...trades];
+    const { data, error } = await supabase
+      .from("journal_trades")
+      .insert([record])
+      .select();
+
+    if (error) {
+      setStatusMessage("Supabase save failed. Saved to local browser storage.");
+
+      const fallbackRecord = {
+        ...record,
+        id: Date.now(),
+        created_at: new Date().toLocaleString(),
+      };
+
+      const next = [fallbackRecord, ...trades];
+      setTrades(next);
+      localStorage.setItem("elharvest_journal", JSON.stringify(next));
+      return;
+    }
+
+    const savedRecord = data?.[0];
+
+    const next = savedRecord ? [savedRecord, ...trades] : trades;
 
     setTrades(next);
     localStorage.setItem("elharvest_journal", JSON.stringify(next));
     localStorage.removeItem("elharvest_trade_ticket");
+
+    setStatusMessage("Trade saved to Supabase journal.");
 
     setForm({
       ticker: "",
@@ -77,6 +123,10 @@ export default function JournalPage() {
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
         </header>
+
+        {statusMessage && (
+          <section style={styles.statusMessage}>{statusMessage}</section>
+        )}
 
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>New Trade Record</h2>
@@ -160,7 +210,11 @@ export default function JournalPage() {
                     Score: {trade.score || "0"}% | Grade: {trade.grade || "F"}
                   </span>
 
-                  <small>{trade.createdAt}</small>
+                  <small>
+                    {trade.created_at
+                      ? new Date(trade.created_at).toLocaleString()
+                      : "No timestamp"}
+                  </small>
 
                   <p>{trade.notes}</p>
                 </div>
@@ -216,6 +270,16 @@ const styles = {
     color: "#6B5B2A",
     fontWeight: "700",
     lineHeight: "1.6",
+  },
+  statusMessage: {
+    marginBottom: "22px",
+    padding: "18px",
+    borderRadius: "18px",
+    background: "#EEF8F1",
+    border: "1px solid #2F8F46",
+    color: "#2F8F46",
+    fontWeight: "900",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
   card: {
     marginTop: "22px",
