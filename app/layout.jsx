@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "EL HARVEST CORE",
-  description: "Internal Governance + Replay Engine",
+  title: "EL HARVEST",
+  description: "Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.",
 };
 
 export default function RootLayout({ children }) {
@@ -23,18 +23,17 @@ export default function RootLayout({ children }) {
         >
           <header style={{ marginBottom: "32px" }}>
             <img
-              src="/el-harvest-logo.png.PNG"
-              alt="El Harvest Logo"
-              style={{ width: "190px", height: "auto", marginBottom: "28px" }}
-            />
-            <h1 style={{ margin: 0, letterSpacing: "3px" }}>
-              EL HARVEST CORE
-            </h1>
+  src="/el-harvest-logo.png"
+  alt="EL Harvest Logo"
+  style={{ width: "190px", height: "auto", marginBottom: "28px" }}
+/>
 
-            <p style={{ fontSize: "18px", marginTop: "12px" }}>
-              Internal Governance + Replay Engine
-            </p>
+<h1>EL HARVEST</h1>
 
+<p>Sow the Seed.</p>
+<p>Keep the Faith.</p>
+<p>Trust the Process.</p>
+<p>Reap with EL Harvest.</p>
             <hr style={{ marginTop: "28px", borderColor: "#c8b46a" }} />
           </header>
 
