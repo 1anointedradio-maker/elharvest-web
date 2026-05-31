@@ -1,105 +1,27 @@
-"use client";
-
-import { useState } from "react";
-
-export default function ValidationPage() {
-  const [rules, setRules] = useState({
-    vwap: false,
-    cloud: false,
-    volume: false,
-    window: false,
-  });
-
-  const [direction, setDirection] = useState("");
-
-  const completed = Object.values(rules).filter(Boolean).length;
-  const score = Math.round((completed / 4) * 100);
-  const validated = completed === 4 && direction !== "";
-
-  const grade =
-    validated ? "A+" :
-    score >= 75 ? "B" :
-    score >= 50 ? "C" :
-    "F";
-
-  const timestamp = new Date().toLocaleString();
-
-  const toggle = (key) => {
-    setRules((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const items = [
-    ["vwap", "VWAP Confirmed"],
-    ["cloud", "Cloud Confirmed"],
-    ["volume", "Volume Confirmed"],
-    ["window", "Trading Window Confirmed"],
-  ];
-
+export default function HomePage() {
   return (
     <main style={styles.page}>
-      <section style={styles.card}>
-        <h1 style={styles.title}>EL Harvest Validation</h1>
+      <section style={styles.shell}>
+        <header style={styles.header}>
+          <img src="/el-harvest-logo.png" alt="EL Harvest Logo" style={styles.logo} />
 
-        <p style={styles.mantra}>
-          Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
-        </p>
+          <h1 style={styles.title}>EL HARVEST</h1>
 
-        <div style={styles.box}>
-          <h2 style={styles.sectionTitle}>Rule Confirmation</h2>
+          <p style={styles.mantra}>
+            Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
+          </p>
+        </header>
 
-          {items.map(([key, label]) => (
-            <label key={key} style={styles.row}>
-              <input
-                type="checkbox"
-                checked={rules[key]}
-                onChange={() => toggle(key)}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
-        </div>
+        <section style={styles.card}>
+          <h2 style={styles.sectionTitle}>Beta Control Center</h2>
 
-        <div style={styles.box}>
-          <h2 style={styles.sectionTitle}>Trade Direction</h2>
-
-          <label style={styles.row}>
-            <input
-              type="radio"
-              name="direction"
-              value="CALL"
-              checked={direction === "CALL"}
-              onChange={() => setDirection("CALL")}
-            />
-            <span>CALL</span>
-          </label>
-
-          <label style={styles.row}>
-            <input
-              type="radio"
-              name="direction"
-              value="PUT"
-              checked={direction === "PUT"}
-              onChange={() => setDirection("PUT")}
-            />
-            <span>PUT</span>
-          </label>
-        </div>
-
-        <div
-          style={{
-            ...styles.status,
-            borderColor: validated ? "#2f8f46" : "#9b1c1c",
-            background: validated ? "#e8f7ec" : "#fdecec",
-          }}
-        >
-          <h2>{validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}</h2>
-          <p>Direction: {direction || "Not Selected"}</p>
-          <p>Discipline Score: {score}%</p>
-          <p>Grade: {grade}</p>
-          <p style={styles.timestamp}>Validated At: {timestamp}</p>
-        </div>
-
-        <a href="/" style={styles.back}>Back</a>
+          <div style={styles.grid}>
+            <a href="/dashboard" style={styles.button}>Open Dashboard</a>
+            <a href="/validation" style={styles.button}>Start Validation</a>
+            <a href="/journal" style={styles.button}>Open Trade Journal</a>
+            <a href="/broker" style={styles.button}>Open Broker Hub</a>
+          </div>
+        </section>
       </section>
     </main>
   );
@@ -108,59 +30,67 @@ export default function ValidationPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f7efe2",
-    color: "#111",
+    background: "#F8F4EA",
+    color: "#1F1F1F",
     fontFamily: "Arial, sans-serif",
     padding: "28px",
   },
-  card: {
-    maxWidth: "680px",
+  shell: {
+    maxWidth: "900px",
     margin: "0 auto",
   },
-  title: {
-    fontSize: "38px",
+  header: {
+    textAlign: "center",
+    padding: "28px 10px",
+  },
+  logo: {
+    width: "160px",
+    maxWidth: "55%",
+    height: "auto",
     marginBottom: "10px",
   },
-  mantra: {
-    color: "#6b5b2a",
-    fontWeight: "700",
-    lineHeight: "1.5",
+  title: {
+    margin: 0,
+    color: "#8A6416",
+    fontSize: "48px",
+    fontWeight: "900",
+    letterSpacing: "2px",
   },
-  box: {
-    marginTop: "28px",
-    padding: "24px",
-    border: "1px solid #c8a24a",
-    borderRadius: "18px",
-    background: "#fffaf0",
-    display: "grid",
-    gap: "18px",
+  mantra: {
+    margin: "14px auto 0",
+    maxWidth: "640px",
+    color: "#6B5B2A",
+    fontWeight: "700",
+    lineHeight: "1.6",
+  },
+  card: {
+    marginTop: "24px",
+    padding: "28px",
+    border: "1px solid #D6B45A",
+    borderRadius: "28px",
+    background: "#FFFFFF",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
   sectionTitle: {
-    margin: 0,
-    fontSize: "22px",
-  },
-  row: {
-    display: "flex",
-    gap: "12px",
-    alignItems: "center",
-    fontSize: "20px",
-    fontWeight: "700",
-  },
-  status: {
-    marginTop: "28px",
-    padding: "24px",
-    border: "2px solid",
-    borderRadius: "18px",
+    marginTop: 0,
+    fontSize: "26px",
+    fontWeight: "900",
     textAlign: "center",
   },
-  timestamp: {
-    fontSize: "14px",
-    color: "#444",
+  grid: {
+    display: "grid",
+    gap: "16px",
   },
-  back: {
-    display: "inline-block",
-    marginTop: "24px",
-    color: "#111",
-    fontWeight: "700",
+  button: {
+    display: "block",
+    padding: "18px",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, #E6C66A, #A87517)",
+    color: "#FFFFFF",
+    textAlign: "center",
+    textDecoration: "none",
+    fontSize: "18px",
+    fontWeight: "900",
+    letterSpacing: "1px",
   },
 };
