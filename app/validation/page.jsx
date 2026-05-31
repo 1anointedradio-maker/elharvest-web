@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function ValidationPage() {
   const [rules, setRules] = useState({
@@ -18,12 +18,12 @@ export default function ValidationPage() {
 
   const grade =
     validated ? "A+" :
-    score === 75 ? "B" :
-    score === 50 ? "C" :
-    score === 25 ? "D" :
+    score >= 75 ? "B" :
+    score >= 50 ? "C" :
+    score >= 25 ? "D" :
     "F";
 
-  const timestamp = new Date().toLocaleString();
+  const timestamp = useMemo(() => new Date().toLocaleString(), []);
 
   const rulesList = [
     ["vwap", "VWAP Confirmed"],
@@ -40,128 +40,154 @@ export default function ValidationPage() {
     <main style={styles.page}>
       <section style={styles.shell}>
         <header style={styles.header}>
-          <div style={styles.logoMark}>EL</div>
-          <p style={styles.brand}>EL HARVEST</p>
-          <h1 style={styles.title}>Trade Validation</h1>
+          <img
+            src="/el-harvest-logo.png"
+            alt="EL Harvest Logo"
+            style={styles.logo}
+          />
+
+          <h1 style={styles.brand}>EL HARVEST</h1>
+
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
         </header>
 
-        <section style={styles.card}>
-          <div style={styles.sectionHeader}>
-            <span style={styles.step}>01</span>
-            <h2 style={styles.sectionTitle}>Rule Confirmation</h2>
-          </div>
+        <section style={styles.dashboard}>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={styles.step}>01</span>
+              <h2 style={styles.cardTitle}>Rule Confirmation</h2>
+            </div>
 
-          <div style={styles.ruleGrid}>
-            {rulesList.map(([key, label]) => {
-              const active = rules[key];
+            <div style={styles.ruleList}>
+              {rulesList.map(([key, label]) => {
+                const active = rules[key];
 
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => toggleRule(key)}
-                  style={{
-                    ...styles.ruleCard,
-                    borderColor: active ? "#2F8F46" : "#D6B45A",
-                    background: active ? "#EEF8F1" : "#FFFFFF",
-                    boxShadow: active
-                      ? "0 14px 28px rgba(47, 143, 70, 0.18)"
-                      : "0 10px 24px rgba(109, 40, 217, 0.08)",
-                  }}
-                >
-                  <span
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleRule(key)}
                     style={{
-                      ...styles.ruleIcon,
-                      background: active ? "#2F8F46" : "#D6B45A",
+                      ...styles.ruleButton,
+                      borderColor: active ? "#2F8F46" : "#D6B45A",
+                      background: active ? "#EEF8F1" : "#FFFFFF",
                     }}
                   >
-                    {active ? "✓" : "+"}
-                  </span>
-                  <span>{label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section style={styles.card}>
-          <div style={styles.sectionHeader}>
-            <span style={styles.step}>02</span>
-            <h2 style={styles.sectionTitle}>Trade Direction</h2>
-          </div>
-
-          <div style={styles.directionGrid}>
-            <button
-              type="button"
-              onClick={() => setDirection("CALL")}
-              style={{
-                ...styles.directionButton,
-                background: direction === "CALL" ? "#2F8F46" : "#FFFFFF",
-                color: direction === "CALL" ? "#FFFFFF" : "#1F1F1F",
-                borderColor: direction === "CALL" ? "#2F8F46" : "#D6B45A",
-              }}
-            >
-              CALL
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setDirection("PUT")}
-              style={{
-                ...styles.directionButton,
-                background: direction === "PUT" ? "#B84A3A" : "#FFFFFF",
-                color: direction === "PUT" ? "#FFFFFF" : "#1F1F1F",
-                borderColor: direction === "PUT" ? "#B84A3A" : "#D6B45A",
-              }}
-            >
-              PUT
-            </button>
-          </div>
-        </section>
-
-        <section
-          style={{
-            ...styles.scoreCard,
-            borderColor: validated ? "#2F8F46" : "#B84A3A",
-            background: validated ? "#EEF8F1" : "#FFF2EF",
-          }}
-        >
-          <p style={styles.scoreLabel}>EL HARVEST SCORE</p>
-          <div style={styles.score}>{score}%</div>
-
-          <div style={styles.metrics}>
-            <div style={styles.metric}>
-              <span>Direction</span>
-              <strong>{direction || "Not Selected"}</strong>
-            </div>
-
-            <div style={styles.metric}>
-              <span>Grade</span>
-              <strong>{grade}</strong>
-            </div>
-
-            <div style={styles.metric}>
-              <span>Rules Passed</span>
-              <strong>{completed}/4</strong>
+                    <span
+                      style={{
+                        ...styles.ruleIcon,
+                        background: active ? "#2F8F46" : "#D6B45A",
+                      }}
+                    >
+                      {active ? "✓" : "+"}
+                    </span>
+                    <span>{label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <h2
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={styles.step}>02</span>
+              <h2 style={styles.cardTitle}>Trade Direction</h2>
+            </div>
+
+            <div style={styles.directionGrid}>
+              <button
+                type="button"
+                onClick={() => setDirection("CALL")}
+                style={{
+                  ...styles.directionButton,
+                  background: direction === "CALL" ? "#2F8F46" : "#FFFFFF",
+                  color: direction === "CALL" ? "#FFFFFF" : "#1F1F1F",
+                  borderColor: direction === "CALL" ? "#2F8F46" : "#D6B45A",
+                }}
+              >
+                CALL
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDirection("PUT")}
+                style={{
+                  ...styles.directionButton,
+                  background: direction === "PUT" ? "#B84A3A" : "#FFFFFF",
+                  color: direction === "PUT" ? "#FFFFFF" : "#1F1F1F",
+                  borderColor: direction === "PUT" ? "#B84A3A" : "#D6B45A",
+                }}
+              >
+                PUT
+              </button>
+            </div>
+          </div>
+
+          <section
             style={{
-              ...styles.result,
-              color: validated ? "#2F8F46" : "#B84A3A",
+              ...styles.scoreCard,
+              borderColor: validated ? "#2F8F46" : "#B84A3A",
             }}
           >
-            {validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}
-          </h2>
+            <p style={styles.scoreLabel}>EL HARVEST SCORE</p>
 
-          <p style={styles.timestamp}>Validated At: {timestamp}</p>
+            <div
+              style={{
+                ...styles.gauge,
+                borderColor: validated ? "#2F8F46" : "#D6B45A",
+              }}
+            >
+              <strong>{score}%</strong>
+              <span>Grade {grade}</span>
+            </div>
+
+            <div style={styles.metrics}>
+              <div style={styles.metric}>
+                <span>Direction</span>
+                <strong>{direction || "Not Selected"}</strong>
+              </div>
+
+              <div style={styles.metric}>
+                <span>Rules Passed</span>
+                <strong>{completed}/4</strong>
+              </div>
+
+              <div style={styles.metric}>
+                <span>Status</span>
+                <strong>{validated ? "Validated" : "Blocked"}</strong>
+              </div>
+            </div>
+
+            <h2
+              style={{
+                ...styles.result,
+                color: validated ? "#2F8F46" : "#B84A3A",
+              }}
+            >
+              {validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}
+            </h2>
+
+            <button
+              type="button"
+              disabled={!validated}
+              style={{
+                ...styles.executeButton,
+                opacity: validated ? 1 : 0.45,
+                cursor: validated ? "pointer" : "not-allowed",
+              }}
+            >
+              EXECUTE PAPER
+            </button>
+
+            <p style={styles.timestamp}>Validated At: {timestamp}</p>
+          </section>
         </section>
 
-        <a href="/" style={styles.back}>← Back to Home</a>
+        <a href="/" style={styles.back}>
+          ← Back to Home
+        </a>
       </section>
     </main>
   );
@@ -176,76 +202,68 @@ const styles = {
     padding: "28px",
   },
   shell: {
-    maxWidth: "820px",
+    maxWidth: "900px",
     margin: "0 auto",
   },
   header: {
     textAlign: "center",
-    padding: "22px 10px 28px",
+    padding: "18px 10px 26px",
   },
-  logoMark: {
-    width: "76px",
-    height: "76px",
-    margin: "0 auto 10px",
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #E6C66A, #A87517)",
-    color: "#FFFFFF",
-    display: "grid",
-    placeItems: "center",
-    fontWeight: "900",
-    fontSize: "26px",
-    boxShadow: "0 18px 38px rgba(109, 40, 217, 0.12)",
+  logo: {
+    width: "150px",
+    maxWidth: "55%",
+    height: "auto",
+    marginBottom: "8px",
   },
   brand: {
     margin: 0,
-    color: "#A87517",
-    fontWeight: "900",
+    color: "#8A6416",
+    fontSize: "42px",
     letterSpacing: "2px",
-  },
-  title: {
-    fontSize: "44px",
-    margin: "8px 0 10px",
     fontWeight: "900",
   },
   mantra: {
-    margin: "0 auto",
-    maxWidth: "620px",
+    margin: "12px auto 0",
+    maxWidth: "640px",
     color: "#6B5B2A",
     fontWeight: "700",
     lineHeight: "1.6",
   },
+  dashboard: {
+    display: "grid",
+    gap: "22px",
+  },
   card: {
-    marginTop: "22px",
     padding: "24px",
     border: "1px solid #D6B45A",
-    borderRadius: "26px",
+    borderRadius: "28px",
     background: "#FFFFFF",
-    boxShadow: "0 18px 38px rgba(109, 40, 217, 0.08)",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
-  sectionHeader: {
+  cardHeader: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
     marginBottom: "18px",
   },
   step: {
-    padding: "6px 10px",
+    padding: "7px 11px",
     borderRadius: "999px",
     background: "#F1E3B5",
     color: "#8A6416",
     fontWeight: "900",
     fontSize: "12px",
   },
-  sectionTitle: {
+  cardTitle: {
     margin: 0,
-    fontSize: "23px",
+    fontSize: "24px",
     fontWeight: "900",
   },
-  ruleGrid: {
+  ruleList: {
     display: "grid",
     gap: "14px",
   },
-  ruleCard: {
+  ruleButton: {
     width: "100%",
     display: "flex",
     alignItems: "center",
@@ -253,22 +271,22 @@ const styles = {
     padding: "18px",
     border: "2px solid",
     borderRadius: "18px",
-    fontSize: "18px",
+    fontSize: "19px",
     fontWeight: "900",
-    cursor: "pointer",
-    textAlign: "left",
     color: "#1F1F1F",
+    textAlign: "left",
+    cursor: "pointer",
+    boxShadow: "0 10px 24px rgba(109, 40, 217, 0.07)",
   },
   ruleIcon: {
-    width: "30px",
-    height: "30px",
+    width: "32px",
+    height: "32px",
     borderRadius: "999px",
     color: "#FFFFFF",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     fontWeight: "900",
-    flexShrink: 0,
   },
   directionGrid: {
     display: "grid",
@@ -276,22 +294,22 @@ const styles = {
     gap: "14px",
   },
   directionButton: {
-    padding: "22px",
+    padding: "24px",
     border: "2px solid",
-    borderRadius: "18px",
+    borderRadius: "20px",
     fontSize: "24px",
     fontWeight: "900",
-    cursor: "pointer",
     letterSpacing: "1px",
-    boxShadow: "0 12px 24px rgba(109, 40, 217, 0.08)",
+    cursor: "pointer",
+    boxShadow: "0 12px 26px rgba(109, 40, 217, 0.08)",
   },
   scoreCard: {
-    marginTop: "22px",
     padding: "30px",
     border: "3px solid",
-    borderRadius: "28px",
+    borderRadius: "30px",
+    background: "#FFFFFF",
     textAlign: "center",
-    boxShadow: "0 20px 42px rgba(109, 40, 217, 0.10)",
+    boxShadow: "0 22px 48px rgba(109, 40, 217, 0.10)",
   },
   scoreLabel: {
     margin: 0,
@@ -299,10 +317,15 @@ const styles = {
     fontWeight: "900",
     letterSpacing: "2px",
   },
-  score: {
-    fontSize: "68px",
-    fontWeight: "900",
-    margin: "10px 0 18px",
+  gauge: {
+    width: "190px",
+    height: "190px",
+    margin: "22px auto",
+    borderRadius: "50%",
+    border: "18px solid",
+    display: "grid",
+    placeItems: "center",
+    background: "#F8F4EA",
   },
   metrics: {
     display: "grid",
@@ -312,18 +335,29 @@ const styles = {
   metric: {
     padding: "14px",
     borderRadius: "16px",
-    background: "#FFFFFF",
-    border: "1px solid rgba(168, 117, 23, 0.24)",
+    background: "#F8F4EA",
+    border: "1px solid rgba(168,117,23,0.25)",
     display: "grid",
     gap: "6px",
   },
   result: {
-    margin: "24px 0 8px",
+    margin: "24px 0 14px",
     fontSize: "32px",
     fontWeight: "900",
   },
+  executeButton: {
+    width: "100%",
+    padding: "18px",
+    border: "none",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, #E6C66A, #A87517)",
+    color: "#FFFFFF",
+    fontSize: "20px",
+    fontWeight: "900",
+    letterSpacing: "1px",
+  },
   timestamp: {
-    margin: 0,
+    marginTop: "16px",
     color: "#6B7280",
     fontSize: "14px",
   },
