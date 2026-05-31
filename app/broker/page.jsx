@@ -1,6 +1,3 @@
-Paste this into:
-
-app/broker/page.jsx
 export default function BrokerPage() {
   const brokers = [
     {
