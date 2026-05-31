@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function BrokerPage() {
   const [paperTrades, setPaperTrades] = useState([]);
   const [latestTrade, setLatestTrade] = useState(null);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     const savedPaperTrades = localStorage.getItem("elharvest_paper_trades");
@@ -24,12 +25,24 @@ export default function BrokerPage() {
 
   const openPaperMode = () => {
     if (!latestTrade) {
-      alert("No journal trade found. Validate a trade, execute paper, then save it in the journal first.");
+      setStatusMessage(
+        "No journal trade found. Validate a trade, execute paper, then save it in the journal first."
+      );
+      return;
+    }
+
+    const alreadyOpened = paperTrades.some(
+      (trade) => trade.sourceJournalId === latestTrade.id
+    );
+
+    if (alreadyOpened) {
+      setStatusMessage("This journal trade is already open in Paper Mode.");
       return;
     }
 
     const paperTrade = {
       id: Date.now(),
+      sourceJournalId: latestTrade.id,
       ticker: latestTrade.ticker || "UNKNOWN",
       direction: latestTrade.direction || "CALL / PUT",
       entry: latestTrade.entry || "Pending",
@@ -42,9 +55,11 @@ export default function BrokerPage() {
     };
 
     const next = [paperTrade, ...paperTrades];
+
     setPaperTrades(next);
     localStorage.setItem("elharvest_paper_trades", JSON.stringify(next));
-    alert("Paper trade opened and added to the Broker Hub ledger.");
+
+    setStatusMessage("Paper trade opened and added to the Broker Hub ledger.");
   };
 
   const brokers = [
@@ -82,8 +97,14 @@ export default function BrokerPage() {
     <main style={styles.page}>
       <section style={styles.shell}>
         <header style={styles.header}>
-          <img src="/el-harvest-logo.png" alt="EL Harvest Logo" style={styles.logo} />
+          <img
+            src="/el-harvest-logo.png"
+            alt="EL Harvest Logo"
+            style={styles.logo}
+          />
+
           <h1 style={styles.title}>Broker Hub</h1>
+
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
@@ -92,22 +113,41 @@ export default function BrokerPage() {
         <section style={styles.warning}>
           <strong>Beta Protection Mode</strong>
           <p>
-            EL Harvest is currently configured for validation, journaling, and paper-trade planning only.
-            Live broker execution is disabled until risk controls, authentication, and compliance layers are complete.
+            EL Harvest is currently configured for validation, journaling, and
+            paper-trade planning only. Live broker execution is disabled until
+            risk controls, authentication, and compliance layers are complete.
           </p>
         </section>
+
+        {statusMessage && (
+          <section style={styles.statusMessage}>
+            {statusMessage}
+          </section>
+        )}
 
         <section style={styles.ticket}>
           <h2 style={styles.brokerName}>Latest Journal Ticket</h2>
 
           {latestTrade ? (
             <div style={styles.ticketGrid}>
-              <span><strong>Ticker:</strong> {latestTrade.ticker || "UNKNOWN"}</span>
-              <span><strong>Direction:</strong> {latestTrade.direction}</span>
-              <span><strong>Entry:</strong> {latestTrade.entry || "Pending"}</span>
-              <span><strong>Exit:</strong> {latestTrade.exit || "Open"}</span>
-              <span><strong>Score:</strong> {latestTrade.score || "0"}%</span>
-              <span><strong>Grade:</strong> {latestTrade.grade || "F"}</span>
+              <span>
+                <strong>Ticker:</strong> {latestTrade.ticker || "UNKNOWN"}
+              </span>
+              <span>
+                <strong>Direction:</strong> {latestTrade.direction}
+              </span>
+              <span>
+                <strong>Entry:</strong> {latestTrade.entry || "Pending"}
+              </span>
+              <span>
+                <strong>Exit:</strong> {latestTrade.exit || "Open"}
+              </span>
+              <span>
+                <strong>Score:</strong> {latestTrade.score || "0"}%
+              </span>
+              <span>
+                <strong>Grade:</strong> {latestTrade.grade || "F"}
+              </span>
             </div>
           ) : (
             <p style={styles.note}>No journal trade found yet.</p>
@@ -128,6 +168,7 @@ export default function BrokerPage() {
               >
                 <div style={styles.cardTop}>
                   <h2 style={styles.brokerName}>{broker.name}</h2>
+
                   <span
                     style={{
                       ...styles.badge,
@@ -168,10 +209,16 @@ export default function BrokerPage() {
             <div style={styles.ledger}>
               {paperTrades.map((trade) => (
                 <div key={trade.id} style={styles.ledgerItem}>
-                  <strong>{trade.ticker} — {trade.direction}</strong>
+                  <strong>
+                    {trade.ticker} — {trade.direction}
+                  </strong>
                   <span>Status: {trade.status}</span>
-                  <span>Entry: {trade.entry} | Exit: {trade.exit}</span>
-                  <span>Score: {trade.score}% | Grade: {trade.grade}</span>
+                  <span>
+                    Entry: {trade.entry} | Exit: {trade.exit}
+                  </span>
+                  <span>
+                    Score: {trade.score}% | Grade: {trade.grade}
+                  </span>
                   <small>{trade.openedAt}</small>
                 </div>
               ))}
@@ -194,7 +241,9 @@ export default function BrokerPage() {
           </div>
         </section>
 
-        <a href="/journal" style={styles.back}>← Back to Journal</a>
+        <a href="/journal" style={styles.back}>
+          ← Back to Journal
+        </a>
       </section>
     </main>
   );
@@ -243,6 +292,16 @@ const styles = {
     border: "1px solid #D6B45A",
     boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
     marginBottom: "22px",
+  },
+  statusMessage: {
+    marginBottom: "22px",
+    padding: "18px",
+    borderRadius: "18px",
+    background: "#EEF8F1",
+    border: "1px solid #2F8F46",
+    color: "#2F8F46",
+    fontWeight: "900",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
   ticket: {
     padding: "24px",
