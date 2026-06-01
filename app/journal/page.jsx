@@ -57,7 +57,8 @@ export default function JournalPage() {
 
   const saveTrade = async () => {
     const record = {
-      ticker: form.ticker,
+  trader: "AK Martin",
+  ticker: form.ticker,
       direction: form.direction,
       entry: form.entry,
       exit: form.exit,
