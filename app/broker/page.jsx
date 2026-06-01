@@ -69,11 +69,9 @@ export default function BrokerPage() {
 
     if (alreadyOpened) {
       setStatusMessage("This journal trade is already open in Paper Mode.");
-      return;
-    }
-
-    const paperTrade = {
-      source_journal_id: latestTrade.id,
+      const paperTrade = {
+  trader: "AK Martin",
+  source_journal_id: latestTrade.id,
       ticker: latestTrade.ticker || "UNKNOWN",
       direction: latestTrade.direction || "CALL / PUT",
       entry: latestTrade.entry || "Pending",
