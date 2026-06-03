@@ -1,55 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function DashboardPage() {
   const [journal, setJournal] = useState([]);
   const [paperTrades, setPaperTrades] = useState([]);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
-    const savedJournal = localStorage.getItem("elharvest_journal");
-    const savedPaperTrades = localStorage.getItem("elharvest_paper_trades");
-
-    if (savedJournal) setJournal(JSON.parse(savedJournal));
-    if (savedPaperTrades) setPaperTrades(JSON.parse(savedPaperTrades));
+    loadDashboardData();
   }, []);
 
-  const latestTrade = journal[0];
+  const loadDashboardData = async () => {
+    const journalResult = await supabase
+      .from("journal_trades")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  const averageScore =
-    journal.length > 0
-      ? Math.round(
-          journal.reduce((sum, trade) => sum + Number(trade.score || 0), 0) /
-            journal.length
-        )
-      : 0;
+    const paperResult = await supabase
+      .from("paper_trades")
+      .select("*")
+      .order("opened_at", { ascending: false });
 
-  const completedPaperTrades = paperTrades.filter(
-    (trade) =>
-      trade.exit &&
-      trade.exit !== "Open" &&
-      trade.exit !== "Pending" &&
-      trade.entry &&
-      trade.entry !== "Pending"
-  );
+    if (journalResult.error || paperResult.error) {
+      setStatusMessage("Supabase analytics load failed. Check database connection.");
+      return;
+    }
 
-  const winningTrades = completedPaperTrades.filter(
+    setJournal(journalResult.data || []);
+    setPaperTrades(paperResult.data || []);
+  };
+
+  const totalTrades = journal.length;
+
+  const winningTrades = journal.filter(
     (trade) => Number(trade.exit) > Number(trade.entry)
   ).length;
 
-  const losingTrades = completedPaperTrades.filter(
+  const losingTrades = journal.filter(
     (trade) => Number(trade.exit) < Number(trade.entry)
   ).length;
 
-  const totalCompleted = completedPaperTrades.length;
-
   const winRate =
-    totalCompleted > 0 ? Math.round((winningTrades / totalCompleted) * 100) : 0;
+    totalTrades > 0 ? Math.round((winningTrades / totalTrades) * 100) : 0;
 
   const lossRate =
-    totalCompleted > 0 ? Math.round((losingTrades / totalCompleted) * 100) : 0;
+    totalTrades > 0 ? Math.round((losingTrades / totalTrades) * 100) : 0;
+
+  const averageScore =
+    totalTrades > 0
+      ? Math.round(
+          journal.reduce((sum, trade) => sum + Number(trade.score || 0), 0) /
+            totalTrades
+        )
+      : 0;
 
   const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
+
+  const latestTrade = journal[0];
 
   const harvestGrade =
     averageScore >= 90
@@ -63,12 +72,14 @@ export default function DashboardPage() {
       : "F";
 
   const metrics = [
+    ["Total Trades", totalTrades],
+    ["Winning Trades", winningTrades],
+    ["Losing Trades", losingTrades],
     ["Win Rate", `${winRate}%`],
     ["Loss Rate", `${lossRate}%`],
     ["Average Validation Score", `${averageScore}%`],
     ["A+ Setups", aPlusSetups],
     ["Total Paper Trades", paperTrades.length],
-    ["Journal Trades", journal.length],
   ];
 
   return (
@@ -87,6 +98,10 @@ export default function DashboardPage() {
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
         </header>
+
+        {statusMessage && (
+          <section style={styles.statusMessage}>{statusMessage}</section>
+        )}
 
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
@@ -111,13 +126,18 @@ export default function DashboardPage() {
               <strong>
                 {latestTrade.ticker || "UNKNOWN"} — {latestTrade.direction}
               </strong>
-              <span>Score: {latestTrade.score || "0"}%</span>
-              <span>Grade: {latestTrade.grade || "F"}</span>
               <span>Entry: {latestTrade.entry || "-"}</span>
               <span>Exit: {latestTrade.exit || "-"}</span>
+              <span>Score: {latestTrade.score || "0"}%</span>
+              <span>Grade: {latestTrade.grade || "F"}</span>
+              <small>
+                {latestTrade.created_at
+                  ? new Date(latestTrade.created_at).toLocaleString()
+                  : "No timestamp"}
+              </small>
             </div>
           ) : (
-            <p style={styles.empty}>No journal trades yet.</p>
+            <p style={styles.empty}>No trades saved yet.</p>
           )}
         </section>
 
@@ -170,6 +190,7 @@ const styles = {
     color: "#8A6416",
     fontSize: "42px",
     fontWeight: "900",
+    letterSpacing: "1px",
   },
   mantra: {
     margin: "12px auto 0",
@@ -177,6 +198,15 @@ const styles = {
     color: "#6B5B2A",
     fontWeight: "700",
     lineHeight: "1.6",
+  },
+  statusMessage: {
+    marginBottom: "22px",
+    padding: "18px",
+    borderRadius: "18px",
+    background: "#FFF7E0",
+    border: "1px solid #D6B45A",
+    color: "#8A6416",
+    fontWeight: "900",
   },
   scoreCard: {
     padding: "30px",
@@ -255,6 +285,7 @@ const styles = {
     textDecoration: "none",
     fontSize: "18px",
     fontWeight: "900",
+    letterSpacing: "1px",
   },
   secondary: {
     color: "#8A6416",
