@@ -59,7 +59,21 @@ export default function DashboardPage() {
   const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
 
   const latestTrade = journal[0];
+  const latestScore = Number(latestTrade?.score || 0);
 
+const verdict =
+  latestScore >= 100
+    ? "TRADE"
+    : latestScore >= 75
+    ? "CAUTION"
+    : "NO TRADE";
+
+const verdictColor =
+  verdict === "TRADE"
+    ? "#2F8F46"
+    : verdict === "CAUTION"
+    ? "#D6B45A"
+    : "#B84A3A";
   const harvestGrade =
     averageScore >= 90
       ? "A+"
