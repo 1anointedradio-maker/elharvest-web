@@ -7,21 +7,29 @@ export default function ValidationPage() {
     vwap: false,
     cloud: false,
     volume: false,
-    window: false,
+    time: false,
   });
 
   const [direction, setDirection] = useState("");
 
   const completed = Object.values(rules).filter(Boolean).length;
   const score = Math.round((completed / 4) * 100);
-  const validated = completed === 4 && direction !== "";
 
   const grade =
-    validated ? "A+" :
-    score >= 75 ? "B" :
-    score >= 50 ? "C" :
-    score >= 25 ? "D" :
-    "F";
+    completed === 4
+      ? "A+"
+      : completed === 3
+      ? "B"
+      : completed === 2
+      ? "C"
+      : completed === 1
+      ? "D"
+      : "F";
+
+  const verdict =
+    completed === 4 ? "TRADE" : completed === 3 ? "CAUTION" : "NO TRADE";
+
+  const validated = completed === 4 && direction !== "";
 
   const timestamp = useMemo(() => new Date().toLocaleString(), []);
 
@@ -29,7 +37,7 @@ export default function ValidationPage() {
     ["vwap", "VWAP Confirmed"],
     ["cloud", "Cloud Confirmed"],
     ["volume", "Volume Confirmed"],
-    ["window", "Trading Window Confirmed"],
+    ["time", "Time Confirmed"],
   ];
 
   const toggleRule = (key) => {
@@ -37,13 +45,18 @@ export default function ValidationPage() {
   };
 
   const executePaperTrade = () => {
-    if (!validated) return;
+    if (!direction) return;
 
     const tradeTicket = {
       direction,
-      score,
+      score: `${score}%`,
       grade,
+      verdict,
       rulesPassed: `${completed}/4`,
+      vwap_confirmed: rules.vwap,
+      cloud_confirmed: rules.cloud,
+      volume_confirmed: rules.volume,
+      time_confirmed: rules.time,
       timestamp,
       status: "Paper Trade Ticket Created",
     };
@@ -51,6 +64,13 @@ export default function ValidationPage() {
     localStorage.setItem("elharvest_trade_ticket", JSON.stringify(tradeTicket));
     window.location.href = "/journal";
   };
+
+  const verdictColor =
+    verdict === "TRADE"
+      ? "#2F8F46"
+      : verdict === "CAUTION"
+      ? "#D6B45A"
+      : "#B84A3A";
 
   return (
     <main style={styles.page}>
@@ -85,7 +105,12 @@ export default function ValidationPage() {
                       background: active ? "#EEF8F1" : "#FFFFFF",
                     }}
                   >
-                    <span style={{ ...styles.ruleIcon, background: active ? "#2F8F46" : "#D6B45A" }}>
+                    <span
+                      style={{
+                        ...styles.ruleIcon,
+                        background: active ? "#2F8F46" : "#D6B45A",
+                      }}
+                    >
                       {active ? "✓" : "+"}
                     </span>
                     <span>{label}</span>
@@ -130,13 +155,19 @@ export default function ValidationPage() {
             </div>
           </div>
 
-          <section style={{ ...styles.scoreCard, borderColor: validated ? "#2F8F46" : "#B84A3A" }}>
-            <p style={styles.scoreLabel}>EL HARVEST SCORE</p>
+          <section style={{ ...styles.scoreCard, borderColor: verdictColor }}>
+            <p style={{ ...styles.scoreLabel, color: verdictColor }}>
+              EL HARVEST VERDICT
+            </p>
 
-            <div style={{ ...styles.gauge, borderColor: validated ? "#2F8F46" : "#D6B45A" }}>
+            <div style={{ ...styles.gauge, borderColor: verdictColor }}>
               <strong>{score}%</strong>
               <span>Grade {grade}</span>
             </div>
+
+            <h2 style={{ ...styles.result, color: verdictColor }}>
+              {verdict}
+            </h2>
 
             <div style={styles.metrics}>
               <div style={styles.metric}>
@@ -151,61 +182,209 @@ export default function ValidationPage() {
 
               <div style={styles.metric}>
                 <span>Status</span>
-                <strong>{validated ? "Validated" : "Blocked"}</strong>
+                <strong>{validated ? "Validated" : verdict}</strong>
               </div>
             </div>
 
-            <h2 style={{ ...styles.result, color: validated ? "#2F8F46" : "#B84A3A" }}>
-              {validated ? "TRADE VALIDATED" : "TRADE BLOCKED"}
-            </h2>
-
             <button
               type="button"
-              disabled={!validated}
+              disabled={!direction}
               onClick={executePaperTrade}
               style={{
                 ...styles.executeButton,
-                opacity: validated ? 1 : 0.45,
-                cursor: validated ? "pointer" : "not-allowed",
+                opacity: direction ? 1 : 0.45,
+                cursor: direction ? "pointer" : "not-allowed",
               }}
             >
-              EXECUTE PAPER
+              SEND TO JOURNAL
             </button>
 
             <p style={styles.timestamp}>Validated At: {timestamp}</p>
           </section>
         </section>
 
-        <a href="/journal" style={styles.back}>Go to Journal →</a>
+        <a href="/journal" style={styles.back}>
+          Go to Journal →
+        </a>
       </section>
     </main>
   );
 }
 
 const styles = {
-  page: { minHeight: "100vh", background: "#F8F4EA", color: "#1F1F1F", fontFamily: "Arial, sans-serif", padding: "28px" },
-  shell: { maxWidth: "900px", margin: "0 auto" },
-  header: { textAlign: "center", padding: "18px 10px 26px" },
-  logo: { width: "150px", maxWidth: "55%", height: "auto", marginBottom: "8px" },
-  brand: { margin: 0, color: "#8A6416", fontSize: "42px", letterSpacing: "2px", fontWeight: "900" },
-  mantra: { margin: "12px auto 0", maxWidth: "640px", color: "#6B5B2A", fontWeight: "700", lineHeight: "1.6" },
-  dashboard: { display: "grid", gap: "22px" },
-  card: { padding: "24px", border: "1px solid #D6B45A", borderRadius: "28px", background: "#FFFFFF", boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)" },
-  cardHeader: { display: "flex", alignItems: "center", gap: "12px", marginBottom: "18px" },
-  step: { padding: "7px 11px", borderRadius: "999px", background: "#F1E3B5", color: "#8A6416", fontWeight: "900", fontSize: "12px" },
-  cardTitle: { margin: 0, fontSize: "24px", fontWeight: "900" },
-  ruleList: { display: "grid", gap: "14px" },
-  ruleButton: { width: "100%", display: "flex", alignItems: "center", gap: "14px", padding: "18px", border: "2px solid", borderRadius: "18px", fontSize: "19px", fontWeight: "900", color: "#1F1F1F", textAlign: "left", cursor: "pointer", boxShadow: "0 10px 24px rgba(109, 40, 217, 0.07)" },
-  ruleIcon: { width: "32px", height: "32px", borderRadius: "999px", color: "#FFFFFF", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: "900" },
-  directionGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" },
-  directionButton: { padding: "24px", border: "2px solid", borderRadius: "20px", fontSize: "24px", fontWeight: "900", letterSpacing: "1px", cursor: "pointer", boxShadow: "0 12px 26px rgba(109, 40, 217, 0.08)" },
-  scoreCard: { padding: "30px", border: "3px solid", borderRadius: "30px", background: "#FFFFFF", textAlign: "center", boxShadow: "0 22px 48px rgba(109, 40, 217, 0.10)" },
-  scoreLabel: { margin: 0, color: "#8A6416", fontWeight: "900", letterSpacing: "2px" },
-  gauge: { width: "190px", height: "190px", margin: "22px auto", borderRadius: "50%", border: "18px solid", display: "grid", placeItems: "center", background: "#F8F4EA" },
-  metrics: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" },
-  metric: { padding: "14px", borderRadius: "16px", background: "#F8F4EA", border: "1px solid rgba(168,117,23,0.25)", display: "grid", gap: "6px" },
-  result: { margin: "24px 0 14px", fontSize: "32px", fontWeight: "900" },
-  executeButton: { width: "100%", padding: "18px", border: "none", borderRadius: "18px", background: "linear-gradient(135deg, #E6C66A, #A87517)", color: "#FFFFFF", fontSize: "20px", fontWeight: "900", letterSpacing: "1px" },
-  timestamp: { marginTop: "16px", color: "#6B7280", fontSize: "14px" },
-  back: { display: "inline-block", marginTop: "24px", color: "#8A6416", fontWeight: "900", textDecoration: "none" },
+  page: {
+    minHeight: "100vh",
+    background: "#F8F4EA",
+    color: "#1F1F1F",
+    fontFamily: "Arial, sans-serif",
+    padding: "28px",
+  },
+  shell: {
+    maxWidth: "900px",
+    margin: "0 auto",
+  },
+  header: {
+    textAlign: "center",
+    padding: "18px 10px 26px",
+  },
+  logo: {
+    width: "150px",
+    maxWidth: "55%",
+    height: "auto",
+    marginBottom: "8px",
+  },
+  brand: {
+    margin: 0,
+    color: "#8A6416",
+    fontSize: "42px",
+    letterSpacing: "2px",
+    fontWeight: "900",
+  },
+  mantra: {
+    margin: "12px auto 0",
+    maxWidth: "640px",
+    color: "#6B5B2A",
+    fontWeight: "700",
+    lineHeight: "1.6",
+  },
+  dashboard: {
+    display: "grid",
+    gap: "22px",
+  },
+  card: {
+    padding: "24px",
+    border: "1px solid #D6B45A",
+    borderRadius: "28px",
+    background: "#FFFFFF",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.10)",
+  },
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "18px",
+  },
+  step: {
+    padding: "7px 11px",
+    borderRadius: "999px",
+    background: "#F1E3B5",
+    color: "#8A6416",
+    fontWeight: "900",
+    fontSize: "12px",
+  },
+  cardTitle: {
+    margin: 0,
+    fontSize: "24px",
+    fontWeight: "900",
+  },
+  ruleList: {
+    display: "grid",
+    gap: "14px",
+  },
+  ruleButton: {
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    padding: "18px",
+    border: "2px solid",
+    borderRadius: "18px",
+    fontSize: "19px",
+    fontWeight: "900",
+    color: "#1F1F1F",
+    textAlign: "left",
+    cursor: "pointer",
+    boxShadow: "0 10px 24px rgba(109, 40, 217, 0.07)",
+  },
+  ruleIcon: {
+    width: "32px",
+    height: "32px",
+    borderRadius: "999px",
+    color: "#FFFFFF",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "900",
+  },
+  directionGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "14px",
+  },
+  directionButton: {
+    padding: "24px",
+    border: "2px solid",
+    borderRadius: "20px",
+    fontSize: "24px",
+    fontWeight: "900",
+    letterSpacing: "1px",
+    cursor: "pointer",
+    boxShadow: "0 12px 26px rgba(109, 40, 217, 0.08)",
+  },
+  scoreCard: {
+    padding: "30px",
+    border: "3px solid",
+    borderRadius: "30px",
+    background: "#FFFFFF",
+    textAlign: "center",
+    boxShadow: "0 22px 48px rgba(109, 40, 217, 0.12)",
+  },
+  scoreLabel: {
+    margin: 0,
+    fontWeight: "900",
+    letterSpacing: "2px",
+  },
+  gauge: {
+    width: "190px",
+    height: "190px",
+    margin: "22px auto",
+    borderRadius: "50%",
+    border: "18px solid",
+    display: "grid",
+    placeItems: "center",
+    background: "#F8F4EA",
+  },
+  metrics: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "12px",
+    marginTop: "18px",
+  },
+  metric: {
+    padding: "14px",
+    borderRadius: "16px",
+    background: "#F8F4EA",
+    border: "1px solid rgba(168,117,23,0.25)",
+    display: "grid",
+    gap: "6px",
+  },
+  result: {
+    margin: "24px 0 14px",
+    fontSize: "32px",
+    fontWeight: "900",
+  },
+  executeButton: {
+    width: "100%",
+    marginTop: "18px",
+    padding: "18px",
+    border: "none",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, #E6C66A, #A87517)",
+    color: "#FFFFFF",
+    fontSize: "20px",
+    fontWeight: "900",
+    letterSpacing: "1px",
+  },
+  timestamp: {
+    marginTop: "16px",
+    color: "#6B7280",
+    fontSize: "14px",
+  },
+  back: {
+    display: "inline-block",
+    marginTop: "24px",
+    color: "#8A6416",
+    fontWeight: "900",
+    textDecoration: "none",
+  },
 };
