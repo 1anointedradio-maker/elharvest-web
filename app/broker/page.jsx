@@ -20,11 +20,7 @@ export default function BrokerPage() {
       .order("opened_at", { ascending: false });
 
     if (error) {
-      setStatusMessage("Supabase paper ledger load failed. Using local backup if available.");
-
-      const savedPaperTrades = localStorage.getItem("elharvest_paper_trades");
-      if (savedPaperTrades) setPaperTrades(JSON.parse(savedPaperTrades));
-
+      setStatusMessage("Supabase paper ledger load failed.");
       return;
     }
 
@@ -40,13 +36,6 @@ export default function BrokerPage() {
 
     if (error) {
       setStatusMessage("Could not load latest Supabase journal trade.");
-
-      const savedJournal = localStorage.getItem("elharvest_journal");
-      if (savedJournal) {
-        const journal = JSON.parse(savedJournal);
-        if (journal.length > 0) setLatestTrade(journal[0]);
-      }
-
       return;
     }
 
@@ -69,9 +58,12 @@ export default function BrokerPage() {
 
     if (alreadyOpened) {
       setStatusMessage("This journal trade is already open in Paper Mode.");
-      const paperTrade = {
-  trader: "AK Martin",
-  source_journal_id: latestTrade.id,
+      return;
+    }
+
+    const paperTrade = {
+      trader: "AK Martin",
+      source_journal_id: latestTrade.id,
       ticker: latestTrade.ticker || "UNKNOWN",
       direction: latestTrade.direction || "CALL / PUT",
       entry: latestTrade.entry || "Pending",
@@ -88,26 +80,15 @@ export default function BrokerPage() {
       .select();
 
     if (error) {
-      setStatusMessage("Supabase paper trade save failed. Saved locally as backup.");
-
-      const fallbackRecord = {
-        ...paperTrade,
-        id: Date.now(),
-        opened_at: new Date().toLocaleString(),
-      };
-
-      const next = [fallbackRecord, ...paperTrades];
-      setPaperTrades(next);
-      localStorage.setItem("elharvest_paper_trades", JSON.stringify(next));
-
+      setStatusMessage("Supabase paper trade save failed.");
       return;
     }
 
     const savedRecord = data?.[0];
-    const next = savedRecord ? [savedRecord, ...paperTrades] : paperTrades;
+    if (savedRecord) {
+      setPaperTrades([savedRecord, ...paperTrades]);
+    }
 
-    setPaperTrades(next);
-    localStorage.setItem("elharvest_paper_trades", JSON.stringify(next));
     setStatusMessage("Paper trade opened and saved to Supabase ledger.");
   };
 
@@ -162,16 +143,14 @@ export default function BrokerPage() {
         <section style={styles.warning}>
           <strong>Beta Protection Mode</strong>
           <p>
-            EL Harvest is currently configured for validation, journaling, and
-            paper-trade planning only. Live broker execution is disabled until
-            risk controls, authentication, and compliance layers are complete.
+            EL Harvest is configured for validation, journaling, and paper-trade
+            planning only. Live broker execution is disabled until risk controls,
+            authentication, and compliance layers are complete.
           </p>
         </section>
 
         {statusMessage && (
-          <section style={styles.statusMessage}>
-            {statusMessage}
-          </section>
+          <section style={styles.statusMessage}>{statusMessage}</section>
         )}
 
         <section style={styles.ticket}>
@@ -179,24 +158,12 @@ export default function BrokerPage() {
 
           {latestTrade ? (
             <div style={styles.ticketGrid}>
-              <span>
-                <strong>Ticker:</strong> {latestTrade.ticker || "UNKNOWN"}
-              </span>
-              <span>
-                <strong>Direction:</strong> {latestTrade.direction}
-              </span>
-              <span>
-                <strong>Entry:</strong> {latestTrade.entry || "Pending"}
-              </span>
-              <span>
-                <strong>Exit:</strong> {latestTrade.exit || "Open"}
-              </span>
-              <span>
-                <strong>Score:</strong> {latestTrade.score || "0"}%
-              </span>
-              <span>
-                <strong>Grade:</strong> {latestTrade.grade || "F"}
-              </span>
+              <span><strong>Ticker:</strong> {latestTrade.ticker || "UNKNOWN"}</span>
+              <span><strong>Direction:</strong> {latestTrade.direction}</span>
+              <span><strong>Entry:</strong> {latestTrade.entry || "Pending"}</span>
+              <span><strong>Exit:</strong> {latestTrade.exit || "Open"}</span>
+              <span><strong>Score:</strong> {latestTrade.score || "0"}%</span>
+              <span><strong>Grade:</strong> {latestTrade.grade || "F"}</span>
             </div>
           ) : (
             <p style={styles.note}>No journal trade found yet.</p>
@@ -258,20 +225,10 @@ export default function BrokerPage() {
             <div style={styles.ledger}>
               {paperTrades.map((trade) => (
                 <div key={trade.id} style={styles.ledgerItem}>
-                  <strong>
-                    {trade.ticker} — {trade.direction}
-                  </strong>
-
+                  <strong>{trade.ticker} — {trade.direction}</strong>
                   <span>Status: {trade.status}</span>
-
-                  <span>
-                    Entry: {trade.entry} | Exit: {trade.exit}
-                  </span>
-
-                  <span>
-                    Score: {trade.score}% | Grade: {trade.grade}
-                  </span>
-
+                  <span>Entry: {trade.entry} | Exit: {trade.exit}</span>
+                  <span>Score: {trade.score}% | Grade: {trade.grade}</span>
                   <small>
                     {trade.opened_at
                       ? new Date(trade.opened_at).toLocaleString()
@@ -358,7 +315,6 @@ const styles = {
     border: "1px solid #2F8F46",
     color: "#2F8F46",
     fontWeight: "900",
-    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
   ticket: {
     padding: "24px",
@@ -450,7 +406,5 @@ const styles = {
     color: "#8A6416",
     fontWeight: "900",
     textDecoration: "none",
-    },
+  },
 };
-
-}
