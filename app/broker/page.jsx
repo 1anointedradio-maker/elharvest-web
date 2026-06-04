@@ -450,5 +450,7 @@ const styles = {
     color: "#8A6416",
     fontWeight: "900",
     textDecoration: "none",
-  },
+    },
 };
+
+}
