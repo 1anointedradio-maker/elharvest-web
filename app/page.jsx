@@ -14,7 +14,8 @@ export default function HomePage() {
 
         <section style={styles.card}>
           <h2 style={styles.sectionTitle}>Beta Control Center</h2>
-
+<a href="/login" style={styles.button}>Login</a>
+<a href="/register" style={styles.button}>Create Account</a>
           <div style={styles.grid}>
             <a href="/dashboard" style={styles.button}>Open Dashboard</a>
             <a href="/validation" style={styles.button}>Start Validation</a>
