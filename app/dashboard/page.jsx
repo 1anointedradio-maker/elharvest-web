@@ -157,6 +157,19 @@ const verdictColor =
   >
     Score: {latestScore}% | Grade: {latestTrade?.grade || "N/A"}
   </p>
+  <div
+  style={{
+    marginTop: "16px",
+    display: "grid",
+    gap: "6px",
+    fontWeight: "800",
+  }}
+>
+  <span>✓ VWAP</span>
+  <span>✓ Cloud</span>
+  <span>✓ Volume</span>
+  <span>✓ Time</span>
+</div>
 </section>
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
