@@ -80,7 +80,8 @@ export default function DashboardPage() {
   const latestScore = Number(latestTrade?.score || 0);
 
   const verdict =
-    latestScore >= 100 ? "TRADE" : latestScore >= 75 ? "CAUTION" : "NO TRADE";
+  latestTrade?.verdict ||
+  (latestScore >= 100 ? "TRADE" : latestScore >= 75 ? "CAUTION" : "NO TRADE");
 
   const verdictColor =
     verdict === "TRADE"
@@ -190,12 +191,11 @@ export default function DashboardPage() {
           </p>
 
           <div style={styles.ruleList}>
-            <span>✓ VWAP</span>
-            <span>✓ Cloud</span>
-            <span>✓ Volume</span>
-            <span>✓ Time</span>
-          </div>
-        </section>
+  <span>{latestTrade?.vwap_confirmed ? "✓" : "✕"} VWAP</span>
+  <span>{latestTrade?.cloud_confirmed ? "✓" : "✕"} Cloud</span>
+  <span>{latestTrade?.volume_confirmed ? "✓" : "✕"} Volume</span>
+  <span>{latestTrade?.time_confirmed ? "✓" : "✕"} Time</span>
+</div>
 
         <section style={styles.twoGrid}>
           <div style={styles.infoCard}>
