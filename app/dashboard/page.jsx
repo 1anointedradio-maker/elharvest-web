@@ -55,7 +55,16 @@ export default function DashboardPage() {
             totalTrades
         )
       : 0;
-
+const disciplineGrade =
+  winRate >= 70 && averageScore >= 90
+    ? "A+"
+    : winRate >= 60
+    ? "A"
+    : winRate >= 50
+    ? "B"
+    : winRate >= 40
+    ? "C"
+    : "D";
   const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
 
   const latestTrade = journal[0];
@@ -171,6 +180,48 @@ const verdictColor =
   <span>✓ Time</span>
 </div>
 </section>
+  <section
+  style={{
+    padding: "20px",
+    borderRadius: "24px",
+    background: "#FFFFFF",
+    border: "2px solid #D6B45A",
+    marginBottom: "20px",
+    textAlign: "center",
+  }}
+>
+  <p
+    style={{
+      margin: 0,
+      fontSize: "14px",
+      fontWeight: "900",
+      letterSpacing: "2px",
+      color: "#8A6416",
+    }}
+  >
+    DISCIPLINE GRADE
+  </p>
+
+  <h1
+    style={{
+      margin: "12px 0",
+      fontSize: "52px",
+      color: "#8A6416",
+      fontWeight: "900",
+    }}
+  >
+    {disciplineGrade}
+  </h1>
+
+  <p
+    style={{
+      margin: 0,
+      fontWeight: "700",
+    }}
+  >
+    Based on Win Rate and Harvest Score
+  </p>
+</section>      
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
           <div style={styles.score}>{averageScore}%</div>
