@@ -11,25 +11,27 @@ export default function ValidationPage() {
   });
 
   const [direction, setDirection] = useState("");
+  const [accountSize, setAccountSize] = useState("");
+  const [riskPercent, setRiskPercent] = useState("2");
 
   const completed = Object.values(rules).filter(Boolean).length;
   const score = Math.round((completed / 4) * 100);
 
+  const numericAccountSize = Number(accountSize || 0);
+  const numericRiskPercent = Number(riskPercent || 0);
+  const maxRisk = numericAccountSize * (numericRiskPercent / 100);
+
   const grade =
-    completed === 4
-      ? "A+"
-      : completed === 3
-      ? "B"
-      : completed === 2
-      ? "C"
-      : completed === 1
-      ? "D"
-      : "F";
+    completed === 4 ? "A+" :
+    completed === 3 ? "B" :
+    completed === 2 ? "C" :
+    completed === 1 ? "D" :
+    "F";
 
   const verdict =
-    completed === 4 ? "TRADE" : completed === 3 ? "CAUTION" : "NO TRADE";
-
-  const validated = completed === 4 && direction !== "";
+    completed === 4 ? "TRADE" :
+    completed === 3 ? "CAUTION" :
+    "NO TRADE";
 
   const timestamp = useMemo(() => new Date().toLocaleString(), []);
 
@@ -57,6 +59,9 @@ export default function ValidationPage() {
       cloud_confirmed: rules.cloud,
       volume_confirmed: rules.volume,
       time_confirmed: rules.time,
+      account_size: numericAccountSize,
+      risk_percent: numericRiskPercent,
+      max_risk: maxRisk,
       timestamp,
       status: "Paper Trade Ticket Created",
     };
@@ -66,11 +71,9 @@ export default function ValidationPage() {
   };
 
   const verdictColor =
-    verdict === "TRADE"
-      ? "#2F8F46"
-      : verdict === "CAUTION"
-      ? "#D6B45A"
-      : "#B84A3A";
+    verdict === "TRADE" ? "#2F8F46" :
+    verdict === "CAUTION" ? "#D6B45A" :
+    "#B84A3A";
 
   return (
     <main style={styles.page}>
@@ -155,6 +158,36 @@ export default function ValidationPage() {
             </div>
           </div>
 
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={styles.step}>03</span>
+              <h2 style={styles.cardTitle}>Risk Engine</h2>
+            </div>
+
+            <div style={styles.riskGrid}>
+              <input
+                style={styles.input}
+                placeholder="Account Size"
+                inputMode="decimal"
+                value={accountSize}
+                onChange={(e) => setAccountSize(e.target.value)}
+              />
+
+              <input
+                style={styles.input}
+                placeholder="Risk %"
+                inputMode="decimal"
+                value={riskPercent}
+                onChange={(e) => setRiskPercent(e.target.value)}
+              />
+            </div>
+
+            <section style={styles.riskBox}>
+              <span>Max Dollar Risk</span>
+              <strong>${maxRisk.toFixed(2)}</strong>
+            </section>
+          </div>
+
           <section style={{ ...styles.scoreCard, borderColor: verdictColor }}>
             <p style={{ ...styles.scoreLabel, color: verdictColor }}>
               EL HARVEST VERDICT
@@ -181,8 +214,8 @@ export default function ValidationPage() {
               </div>
 
               <div style={styles.metric}>
-                <span>Status</span>
-                <strong>{validated ? "Validated" : verdict}</strong>
+                <span>Max Risk</span>
+                <strong>${maxRisk.toFixed(2)}</strong>
               </div>
             </div>
 
@@ -320,6 +353,28 @@ const styles = {
     letterSpacing: "1px",
     cursor: "pointer",
     boxShadow: "0 12px 26px rgba(109, 40, 217, 0.08)",
+  },
+  riskGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "14px",
+  },
+  input: {
+    padding: "16px",
+    borderRadius: "14px",
+    border: "1px solid #D6B45A",
+    fontSize: "16px",
+    background: "#FFFFFF",
+  },
+  riskBox: {
+    marginTop: "16px",
+    padding: "18px",
+    borderRadius: "18px",
+    background: "#EEF8F1",
+    border: "1px solid #2F8F46",
+    display: "grid",
+    gap: "8px",
+    textAlign: "center",
   },
   scoreCard: {
     padding: "30px",
