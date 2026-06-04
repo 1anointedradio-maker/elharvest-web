@@ -85,26 +85,7 @@ for (const trade of journal) {
     break;
   }
 }
-  let currentStreak = 0;
-let streakType = "NONE";
 
-for (const trade of journal) {
-  const score = Number(trade.score || 0);
-
-  if (currentStreak === 0) {
-    streakType = score >= 75 ? "WIN" : "LOSS";
-    currentStreak = 1;
-    continue;
-  }
-
-  if (streakType === "WIN" && score >= 75) {
-    currentStreak++;
-  } else if (streakType === "LOSS" && score < 75) {
-    currentStreak++;
-  } else {
-    break;
-  }
-}
   <section
   style={{
     padding: "20px",
