@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabaseClient";
 export default function JournalPage() {
   const [trades, setTrades] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [user, setUser] = useState(null);
 
   const [form, setForm] = useState({
     ticker: "",
@@ -18,7 +19,17 @@ export default function JournalPage() {
   });
 
   useEffect(() => {
-    loadTrades();
+    initializeJournal();
+  }, []);
+
+  const initializeJournal = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setUser(user || null);
+
+    await loadTrades(user);
 
     const ticket = localStorage.getItem("elharvest_trade_ticket");
 
@@ -35,13 +46,21 @@ export default function JournalPage() {
         }. Status timestamp: ${data.timestamp || "N/A"}.`,
       }));
     }
-  }, []);
+  };
 
-  const loadTrades = async () => {
-    const { data, error } = await supabase
+  const loadTrades = async (currentUser) => {
+    let query = supabase
       .from("journal_trades")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (currentUser?.id) {
+      query = query.eq("user_id", currentUser.id);
+    } else {
+      query = query.eq("trader", "AK Martin");
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       setStatusMessage("Supabase load failed. Using local browser data if available.");
@@ -57,8 +76,9 @@ export default function JournalPage() {
 
   const saveTrade = async () => {
     const record = {
-  trader: "AK Martin",
-  ticker: form.ticker,
+      user_id: user?.id || null,
+      trader: user?.email || "AK Martin",
+      ticker: form.ticker,
       direction: form.direction,
       entry: form.entry,
       exit: form.exit,
@@ -88,14 +108,17 @@ export default function JournalPage() {
     }
 
     const savedRecord = data?.[0];
-
     const next = savedRecord ? [savedRecord, ...trades] : trades;
 
     setTrades(next);
     localStorage.setItem("elharvest_journal", JSON.stringify(next));
     localStorage.removeItem("elharvest_trade_ticket");
 
-    setStatusMessage("Trade saved to Supabase journal.");
+    setStatusMessage(
+      user?.email
+        ? `Trade saved to Supabase for ${user.email}.`
+        : "Trade saved to Supabase beta journal."
+    );
 
     setForm({
       ticker: "",
@@ -106,6 +129,11 @@ export default function JournalPage() {
       grade: "",
       notes: "",
     });
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
   };
 
   return (
@@ -123,6 +151,20 @@ export default function JournalPage() {
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
+
+          <div style={styles.sessionBox}>
+            <strong>{user?.email ? `Logged in: ${user.email}` : "Beta Mode: AK Martin"}</strong>
+
+            {user?.email ? (
+              <button style={styles.logoutButton} onClick={logout}>
+                LOGOUT
+              </button>
+            ) : (
+              <a href="/login" style={styles.loginLink}>
+                Login
+              </a>
+            )}
+          </div>
         </header>
 
         {statusMessage && (
@@ -212,6 +254,10 @@ export default function JournalPage() {
                   </span>
 
                   <small>
+                    Trader: {trade.trader || "Unknown"}
+                  </small>
+
+                  <small>
                     {trade.created_at
                       ? new Date(trade.created_at).toLocaleString()
                       : "No timestamp"}
@@ -271,6 +317,29 @@ const styles = {
     color: "#6B5B2A",
     fontWeight: "700",
     lineHeight: "1.6",
+  },
+  sessionBox: {
+    margin: "18px auto 0",
+    padding: "14px",
+    borderRadius: "18px",
+    background: "#FFFFFF",
+    border: "1px solid #D6B45A",
+    display: "grid",
+    gap: "10px",
+    maxWidth: "520px",
+  },
+  logoutButton: {
+    padding: "12px",
+    border: "none",
+    borderRadius: "14px",
+    background: "#B84A3A",
+    color: "#FFFFFF",
+    fontWeight: "900",
+  },
+  loginLink: {
+    color: "#8A6416",
+    fontWeight: "900",
+    textDecoration: "none",
   },
   statusMessage: {
     marginBottom: "22px",
