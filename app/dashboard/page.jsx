@@ -7,24 +7,42 @@ export default function DashboardPage() {
   const [journal, setJournal] = useState([]);
   const [paperTrades, setPaperTrades] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     loadDashboardData();
   }, []);
 
   const loadDashboardData = async () => {
-    const journalResult = await supabase
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setUser(user || null);
+
+    let journalQuery = supabase
       .from("journal_trades")
       .select("*")
       .order("created_at", { ascending: false });
 
-    const paperResult = await supabase
+    let paperQuery = supabase
       .from("paper_trades")
       .select("*")
       .order("opened_at", { ascending: false });
 
+    if (user?.id) {
+      journalQuery = journalQuery.eq("user_id", user.id);
+      paperQuery = paperQuery.eq("user_id", user.id);
+    } else {
+      journalQuery = journalQuery.eq("trader", "AK Martin");
+      paperQuery = paperQuery.eq("trader", "AK Martin");
+    }
+
+    const journalResult = await journalQuery;
+    const paperResult = await paperQuery;
+
     if (journalResult.error || paperResult.error) {
-      setStatusMessage("Supabase analytics load failed. Check database connection.");
+      setStatusMessage("Supabase analytics load failed.");
       return;
     }
 
@@ -55,115 +73,22 @@ export default function DashboardPage() {
             totalTrades
         )
       : 0;
-const completedTrades = journal.filter((trade) => trade.entry && trade.exit);
-const tradeResults = completedTrades.map((trade) => {
-  const entry = Number(trade.entry);
-  const exit = Number(trade.exit);
-  const pnl = entry > 0 ? ((exit - entry) / entry) * 100 : 0;
 
-  return {
-    ...trade,
-    pnl,
-  };
-});
-
-const bestTrade =
-  tradeResults.length > 0
-    ? [...tradeResults].sort((a, b) => b.pnl - a.pnl)[0]
-    : null;
-
-const worstTrade =
-  tradeResults.length > 0
-    ? [...tradeResults].sort((a, b) => a.pnl - b.pnl)[0]
-    : null;
-const disciplineGrade =
-  winRate >= 70 && averageScore >= 90
-    ? "A+"
-    : winRate >= 60
-    ? "A"
-    : winRate >= 50
-    ? "B"
-    : winRate >= 40
-    ? "C"
-    : "D";
-  let currentStreak = 0;
-let streakType = "NONE";
-
-for (const trade of journal) {
-  const score = Number(trade.score || 0);
-
-  if (currentStreak === 0) {
-    streakType = score >= 75 ? "WIN" : "LOSS";
-    currentStreak = 1;
-    continue;
-  }
-
-  if (streakType === "WIN" && score >= 75) {
-    currentStreak++;
-  } else if (streakType === "LOSS" && score < 75) {
-    currentStreak++;
-  } else {
-    break;
-  }
-}
-
-  <section
-  style={{
-    padding: "20px",
-    borderRadius: "24px",
-    background: "#FFFFFF",
-    border:
-      streakType === "WIN"
-        ? "2px solid #2F8F46"
-        : "2px solid #B84A3A",
-    marginBottom: "20px",
-    textAlign: "center",
-  }}
->
-  <p
-    style={{
-      margin: 0,
-      fontSize: "14px",
-      fontWeight: "900",
-      letterSpacing: "2px",
-    }}
-  >
-    CURRENT STREAK
-  </p>
-
-  <h1
-    style={{
-      margin: "12px 0",
-      fontSize: "42px",
-      fontWeight: "900",
-      color: streakType === "WIN" ? "#2F8F46" : "#B84A3A",
-    }}
-  >
-    {streakType === "WIN" ? "🔥" : "❄️"} {currentStreak}
-  </h1>
-
-  <p style={{ margin: 0, fontWeight: "700" }}>
-    {streakType === "WIN" ? "Winning Trades" : "Losing Trades"}
-  </p>
-</section>
   const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
 
   const latestTrade = journal[0];
   const latestScore = Number(latestTrade?.score || 0);
 
-const verdict =
-  latestScore >= 100
-    ? "TRADE"
-    : latestScore >= 75
-    ? "CAUTION"
-    : "NO TRADE";
+  const verdict =
+    latestScore >= 100 ? "TRADE" : latestScore >= 75 ? "CAUTION" : "NO TRADE";
 
-const verdictColor =
-  verdict === "TRADE"
-    ? "#2F8F46"
-    : verdict === "CAUTION"
-    ? "#D6B45A"
-    : "#B84A3A";
+  const verdictColor =
+    verdict === "TRADE"
+      ? "#2F8F46"
+      : verdict === "CAUTION"
+      ? "#D6B45A"
+      : "#B84A3A";
+
   const harvestGrade =
     averageScore >= 90
       ? "A+"
@@ -174,6 +99,58 @@ const verdictColor =
       : averageScore >= 25
       ? "D"
       : "F";
+
+  const disciplineGrade =
+    winRate >= 70 && averageScore >= 90
+      ? "A+"
+      : winRate >= 60
+      ? "A"
+      : winRate >= 50
+      ? "B"
+      : winRate >= 40
+      ? "C"
+      : "D";
+
+  let currentStreak = 0;
+  let streakType = "NONE";
+
+  for (const trade of journal) {
+    const score = Number(trade.score || 0);
+
+    if (currentStreak === 0) {
+      streakType = score >= 75 ? "WIN" : "LOSS";
+      currentStreak = 1;
+      continue;
+    }
+
+    if (streakType === "WIN" && score >= 75) {
+      currentStreak++;
+    } else if (streakType === "LOSS" && score < 75) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  const completedTrades = journal.filter((trade) => trade.entry && trade.exit);
+
+  const tradeResults = completedTrades.map((trade) => {
+    const entry = Number(trade.entry);
+    const exit = Number(trade.exit);
+    const pnl = entry > 0 ? ((exit - entry) / entry) * 100 : 0;
+
+    return { ...trade, pnl };
+  });
+
+  const bestTrade =
+    tradeResults.length > 0
+      ? [...tradeResults].sort((a, b) => b.pnl - a.pnl)[0]
+      : null;
+
+  const worstTrade =
+    tradeResults.length > 0
+      ? [...tradeResults].sort((a, b) => a.pnl - b.pnl)[0]
+      : null;
 
   const metrics = [
     ["Total Trades", totalTrades],
@@ -190,147 +167,94 @@ const verdictColor =
     <main style={styles.page}>
       <section style={styles.shell}>
         <header style={styles.header}>
-          <img
-            src="/el-harvest-logo.png"
-            alt="EL Harvest Logo"
-            style={styles.logo}
-          />
+          <img src="/el-harvest-logo.png" alt="EL Harvest Logo" style={styles.logo} />
 
           <h1 style={styles.title}>Dashboard</h1>
 
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
+
+          <p style={styles.session}>
+            {user?.email ? `Logged in: ${user.email}` : "Beta Mode: AK Martin"}
+          </p>
         </header>
 
-        {statusMessage && (
-          <section style={styles.statusMessage}>{statusMessage}</section>
-        )}
-<section
-  style={{
-    padding: "24px",
-    borderRadius: "28px",
-    background: "#FFFFFF",
-    border: `3px solid ${verdictColor}`,
-    marginBottom: "20px",
-    textAlign: "center",
-  }}
->
-  <p
-    style={{
-      margin: 0,
-      fontSize: "14px",
-      fontWeight: "900",
-      letterSpacing: "2px",
-      color: verdictColor,
-    }}
-  >
-    EL HARVEST VERDICT
-  </p>
+        {statusMessage && <section style={styles.statusMessage}>{statusMessage}</section>}
 
-  <h1
-    style={{
-      margin: "12px 0",
-      fontSize: "48px",
-      color: verdictColor,
-      fontWeight: "900",
-    }}
-  >
-    {verdict}
-  </h1>
+        <section style={{ ...styles.verdictCard, borderColor: verdictColor }}>
+          <p style={{ ...styles.label, color: verdictColor }}>EL HARVEST VERDICT</p>
+          <h1 style={{ ...styles.verdict, color: verdictColor }}>{verdict}</h1>
+          <p style={styles.subText}>
+            Score: {latestScore}% | Grade: {latestTrade?.grade || "N/A"}
+          </p>
 
-  <p
-    style={{
-      margin: 0,
-      fontWeight: "800",
-    }}
-  >
-    Score: {latestScore}% | Grade: {latestTrade?.grade || "N/A"}
-  </p>
-  <div
-  style={{
-    marginTop: "16px",
-    display: "grid",
-    gap: "6px",
-    fontWeight: "800",
-  }}
->
-  <span>✓ VWAP</span>
-  <span>✓ Cloud</span>
-  <span>✓ Volume</span>
-  <span>✓ Time</span>
-</div>
-</section>
-  <section
-  style={{
-    padding: "20px",
-    borderRadius: "24px",
-    background: "#FFFFFF",
-    border: "2px solid #D6B45A",
-    marginBottom: "20px",
-    textAlign: "center",
-  }}
->
-  <p
-    style={{
-      margin: 0,
-      fontSize: "14px",
-      fontWeight: "900",
-      letterSpacing: "2px",
-      color: "#8A6416",
-    }}
-  >
-    DISCIPLINE GRADE
-  </p>
+          <div style={styles.ruleList}>
+            <span>✓ VWAP</span>
+            <span>✓ Cloud</span>
+            <span>✓ Volume</span>
+            <span>✓ Time</span>
+          </div>
+        </section>
 
-  <h1
-    style={{
-      margin: "12px 0",
-      fontSize: "52px",
-      color: "#8A6416",
-      fontWeight: "900",
-    }}
-  >
-    {disciplineGrade}
-  </h1>
+        <section style={styles.twoGrid}>
+          <div style={styles.infoCard}>
+            <p style={styles.label}>DISCIPLINE GRADE</p>
+            <h1 style={styles.bigGold}>{disciplineGrade}</h1>
+            <p style={styles.subText}>Based on Win Rate and Harvest Score</p>
+          </div>
 
-  <p
-    style={{
-      margin: 0,
-      fontWeight: "700",
-    }}
-  >
-    Based on Win Rate and Harvest Score
-  </p>
-</section>      
+          <div
+            style={{
+              ...styles.infoCard,
+              borderColor: streakType === "WIN" ? "#2F8F46" : "#B84A3A",
+            }}
+          >
+            <p style={styles.label}>CURRENT STREAK</p>
+            <h1
+              style={{
+                ...styles.bigGold,
+                color: streakType === "WIN" ? "#2F8F46" : "#B84A3A",
+              }}
+            >
+              {streakType === "WIN" ? "🔥" : "❄️"} {currentStreak}
+            </h1>
+            <p style={styles.subText}>
+              {streakType === "WIN" ? "Winning Trades" : "Losing Trades"}
+            </p>
+          </div>
+        </section>
+
+        <section style={styles.twoGrid}>
+          <div style={styles.metricCard}>
+            <span>Best Trade</span>
+            <strong>
+              {bestTrade
+                ? `${bestTrade.ticker} ${bestTrade.direction} ${
+                    bestTrade.pnl >= 0 ? "+" : ""
+                  }${bestTrade.pnl.toFixed(1)}%`
+                : "N/A"}
+            </strong>
+          </div>
+
+          <div style={styles.metricCard}>
+            <span>Worst Trade</span>
+            <strong>
+              {worstTrade
+                ? `${worstTrade.ticker} ${worstTrade.direction} ${
+                    worstTrade.pnl >= 0 ? "+" : ""
+                  }${worstTrade.pnl.toFixed(1)}%`
+                : "N/A"}
+            </strong>
+          </div>
+        </section>
+
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
           <div style={styles.score}>{averageScore}%</div>
           <h2 style={styles.grade}>Grade {harvestGrade}</h2>
         </section>
-<section style={styles.metricGrid}>
-  <div style={styles.metricCard}>
-    <span>Best Trade</span>
-    <strong>
-      {bestTrade
-        ? `${bestTrade.ticker} ${bestTrade.direction} ${
-            bestTrade.pnl >= 0 ? "+" : ""
-          }${bestTrade.pnl.toFixed(1)}%`
-        : "N/A"}
-    </strong>
-  </div>
 
-  <div style={styles.metricCard}>
-    <span>Worst Trade</span>
-    <strong>
-      {worstTrade
-        ? `${worstTrade.ticker} ${worstTrade.direction} ${
-            worstTrade.pnl >= 0 ? "+" : ""
-          }${worstTrade.pnl.toFixed(1)}%`
-        : "N/A"}
-    </strong>
-  </div>
-</section>
         <section style={styles.metricGrid}>
           {metrics.map(([label, value]) => (
             <div key={label} style={styles.metricCard}>
@@ -364,21 +288,10 @@ const verdictColor =
         </section>
 
         <section style={styles.navCard}>
-          <a href="/validation" style={styles.button}>
-            Start Validation
-          </a>
-
-          <a href="/journal" style={styles.button}>
-            Open Journal
-          </a>
-
-          <a href="/broker" style={styles.button}>
-            Open Broker Hub
-          </a>
-
-          <a href="/" style={styles.secondary}>
-            ← Back Home
-          </a>
+          <a href="/validation" style={styles.button}>Start Validation</a>
+          <a href="/journal" style={styles.button}>Open Journal</a>
+          <a href="/broker" style={styles.button}>Open Broker Hub</a>
+          <a href="/" style={styles.secondary}>← Back Home</a>
         </section>
       </section>
     </main>
@@ -394,7 +307,7 @@ const styles = {
     padding: "28px",
   },
   shell: {
-    maxWidth: "900px",
+    maxWidth: "980px",
     margin: "0 auto",
   },
   header: {
@@ -402,7 +315,7 @@ const styles = {
     padding: "18px 10px 26px",
   },
   logo: {
-    width: "140px",
+    width: "130px",
     maxWidth: "55%",
     height: "auto",
     marginBottom: "8px",
@@ -412,7 +325,6 @@ const styles = {
     color: "#8A6416",
     fontSize: "42px",
     fontWeight: "900",
-    letterSpacing: "1px",
   },
   mantra: {
     margin: "12px auto 0",
@@ -421,12 +333,69 @@ const styles = {
     fontWeight: "700",
     lineHeight: "1.6",
   },
+  session: {
+    marginTop: "12px",
+    color: "#6D28D9",
+    fontWeight: "900",
+  },
   statusMessage: {
     marginBottom: "22px",
     padding: "18px",
     borderRadius: "18px",
     background: "#FFF7E0",
     border: "1px solid #D6B45A",
+    color: "#8A6416",
+    fontWeight: "900",
+  },
+  verdictCard: {
+    padding: "26px",
+    borderRadius: "28px",
+    background: "#FFFFFF",
+    border: "3px solid",
+    marginBottom: "20px",
+    textAlign: "center",
+    boxShadow: "0 22px 48px rgba(109, 40, 217, 0.12)",
+  },
+  label: {
+    margin: 0,
+    fontSize: "13px",
+    fontWeight: "900",
+    letterSpacing: "2px",
+    color: "#8A6416",
+  },
+  verdict: {
+    margin: "12px 0",
+    fontSize: "52px",
+    fontWeight: "900",
+  },
+  subText: {
+    margin: 0,
+    fontWeight: "800",
+    color: "#4B5563",
+  },
+  ruleList: {
+    marginTop: "16px",
+    display: "grid",
+    gap: "6px",
+    fontWeight: "800",
+  },
+  twoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "18px",
+    marginBottom: "20px",
+  },
+  infoCard: {
+    padding: "22px",
+    borderRadius: "24px",
+    background: "#FFFFFF",
+    border: "2px solid #D6B45A",
+    textAlign: "center",
+    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.10)",
+  },
+  bigGold: {
+    margin: "12px 0",
+    fontSize: "48px",
     color: "#8A6416",
     fontWeight: "900",
   },
@@ -445,17 +414,18 @@ const styles = {
     letterSpacing: "2px",
   },
   score: {
-    fontSize: "68px",
+    fontSize: "64px",
     fontWeight: "900",
     margin: "10px 0",
   },
   grade: {
     color: "#2F8F46",
-    fontSize: "30px",
+    fontSize: "28px",
     margin: 0,
   },
   metricGrid: {
     display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "18px",
     marginTop: "22px",
   },
@@ -507,7 +477,6 @@ const styles = {
     textDecoration: "none",
     fontSize: "18px",
     fontWeight: "900",
-    letterSpacing: "1px",
   },
   secondary: {
     color: "#8A6416",
