@@ -116,7 +116,48 @@ const verdictColor =
         {statusMessage && (
           <section style={styles.statusMessage}>{statusMessage}</section>
         )}
+<section
+  style={{
+    padding: "24px",
+    borderRadius: "28px",
+    background: "#FFFFFF",
+    border: `3px solid ${verdictColor}`,
+    marginBottom: "20px",
+    textAlign: "center",
+  }}
+>
+  <p
+    style={{
+      margin: 0,
+      fontSize: "14px",
+      fontWeight: "900",
+      letterSpacing: "2px",
+      color: verdictColor,
+    }}
+  >
+    EL HARVEST VERDICT
+  </p>
 
+  <h1
+    style={{
+      margin: "12px 0",
+      fontSize: "48px",
+      color: verdictColor,
+      fontWeight: "900",
+    }}
+  >
+    {verdict}
+  </h1>
+
+  <p
+    style={{
+      margin: 0,
+      fontWeight: "800",
+    }}
+  >
+    Score: {latestScore}% | Grade: {latestTrade?.grade || "N/A"}
+  </p>
+</section>
         <section style={styles.scoreCard}>
           <p style={styles.scoreLabel}>HARVEST SCORE</p>
           <div style={styles.score}>{averageScore}%</div>
