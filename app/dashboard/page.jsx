@@ -65,6 +65,85 @@ const disciplineGrade =
     : winRate >= 40
     ? "C"
     : "D";
+  let currentStreak = 0;
+let streakType = "NONE";
+
+for (const trade of journal) {
+  const score = Number(trade.score || 0);
+
+  if (currentStreak === 0) {
+    streakType = score >= 75 ? "WIN" : "LOSS";
+    currentStreak = 1;
+    continue;
+  }
+
+  if (streakType === "WIN" && score >= 75) {
+    currentStreak++;
+  } else if (streakType === "LOSS" && score < 75) {
+    currentStreak++;
+  } else {
+    break;
+  }
+}
+  let currentStreak = 0;
+let streakType = "NONE";
+
+for (const trade of journal) {
+  const score = Number(trade.score || 0);
+
+  if (currentStreak === 0) {
+    streakType = score >= 75 ? "WIN" : "LOSS";
+    currentStreak = 1;
+    continue;
+  }
+
+  if (streakType === "WIN" && score >= 75) {
+    currentStreak++;
+  } else if (streakType === "LOSS" && score < 75) {
+    currentStreak++;
+  } else {
+    break;
+  }
+}
+  <section
+  style={{
+    padding: "20px",
+    borderRadius: "24px",
+    background: "#FFFFFF",
+    border:
+      streakType === "WIN"
+        ? "2px solid #2F8F46"
+        : "2px solid #B84A3A",
+    marginBottom: "20px",
+    textAlign: "center",
+  }}
+>
+  <p
+    style={{
+      margin: 0,
+      fontSize: "14px",
+      fontWeight: "900",
+      letterSpacing: "2px",
+    }}
+  >
+    CURRENT STREAK
+  </p>
+
+  <h1
+    style={{
+      margin: "12px 0",
+      fontSize: "42px",
+      fontWeight: "900",
+      color: streakType === "WIN" ? "#2F8F46" : "#B84A3A",
+    }}
+  >
+    {streakType === "WIN" ? "🔥" : "❄️"} {currentStreak}
+  </h1>
+
+  <p style={{ margin: 0, fontWeight: "700" }}>
+    {streakType === "WIN" ? "Winning Trades" : "Losing Trades"}
+  </p>
+</section>
   const aPlusSetups = journal.filter((trade) => trade.grade === "A+").length;
 
   const latestTrade = journal[0];
