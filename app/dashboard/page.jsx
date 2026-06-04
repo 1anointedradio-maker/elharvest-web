@@ -55,6 +55,27 @@ export default function DashboardPage() {
             totalTrades
         )
       : 0;
+const completedTrades = journal.filter((trade) => trade.entry && trade.exit);
+const tradeResults = completedTrades.map((trade) => {
+  const entry = Number(trade.entry);
+  const exit = Number(trade.exit);
+  const pnl = entry > 0 ? ((exit - entry) / entry) * 100 : 0;
+
+  return {
+    ...trade,
+    pnl,
+  };
+});
+
+const bestTrade =
+  tradeResults.length > 0
+    ? [...tradeResults].sort((a, b) => b.pnl - a.pnl)[0]
+    : null;
+
+const worstTrade =
+  tradeResults.length > 0
+    ? [...tradeResults].sort((a, b) => a.pnl - b.pnl)[0]
+    : null;
 const disciplineGrade =
   winRate >= 70 && averageScore >= 90
     ? "A+"
@@ -287,7 +308,29 @@ const verdictColor =
           <div style={styles.score}>{averageScore}%</div>
           <h2 style={styles.grade}>Grade {harvestGrade}</h2>
         </section>
+<section style={styles.metricGrid}>
+  <div style={styles.metricCard}>
+    <span>Best Trade</span>
+    <strong>
+      {bestTrade
+        ? `${bestTrade.ticker} ${bestTrade.direction} ${
+            bestTrade.pnl >= 0 ? "+" : ""
+          }${bestTrade.pnl.toFixed(1)}%`
+        : "N/A"}
+    </strong>
+  </div>
 
+  <div style={styles.metricCard}>
+    <span>Worst Trade</span>
+    <strong>
+      {worstTrade
+        ? `${worstTrade.ticker} ${worstTrade.direction} ${
+            worstTrade.pnl >= 0 ? "+" : ""
+          }${worstTrade.pnl.toFixed(1)}%`
+        : "N/A"}
+    </strong>
+  </div>
+</section>
         <section style={styles.metricGrid}>
           {metrics.map(([label, value]) => (
             <div key={label} style={styles.metricCard}>
