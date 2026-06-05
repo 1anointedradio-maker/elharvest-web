@@ -421,19 +421,12 @@ const record = {
     fontWeight: "900",
     textDecoration: "none",
   },
-      secondaryBack: {
+  secondaryBack: {
     display: "inline-block",
     marginTop: "24px",
     marginLeft: "22px",
     color: "#2F8F46",
     fontWeight: "900",
     textDecoration: "none",
-         secondaryBack: {
-    display: "inline-block",
-    marginTop: "24px",
-    marginLeft: "22px",
-    color: "#2F8F46",
-    fontWeight: "900",
-    textDecoration: "none",
-  },
+  }
 };
