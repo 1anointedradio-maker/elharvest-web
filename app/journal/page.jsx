@@ -428,7 +428,7 @@ const styles = {
     fontWeight: "900",
     textDecoration: "none",
   },
-  secondaryBack: {
+    secondaryBack: {
     display: "inline-block",
     marginTop: "24px",
     marginLeft: "22px",
