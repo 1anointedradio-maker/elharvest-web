@@ -73,20 +73,26 @@ export default function JournalPage() {
 
     setTrades(data || []);
   };
-
   const saveTrade = async () => {
-    const record = {
-      user_id: user?.id || null,
-      trader: user?.email || "AK Martin",
-      ticker: form.ticker,
-      direction: form.direction,
-      entry: form.entry,
-      exit: form.exit,
-      score: form.score,
-      grade: form.grade,
-      notes: form.notes,
-    };
-
+const record = {
+  user_id: user?.id || null,
+  trader: user?.email || "AK Martin",
+  ticker: form.ticker,
+  direction: form.direction,
+  entry: form.entry,
+  exit: form.exit,
+  score: form.score,
+  grade: form.grade,
+  verdict: ticket.verdict || null,
+  vwap_confirmed: ticket.vwap_confirmed || false,
+  cloud_confirmed: ticket.cloud_confirmed || false,
+  volume_confirmed: ticket.volume_confirmed || false,
+  time_confirmed: ticket.time_confirmed || false,
+  account_size: ticket.account_size || null,
+  risk_percent: ticket.risk_percent || null,
+  max_risk: ticket.max_risk || null,
+  notes: form.notes,
+};
     const { data, error } = await supabase
       .from("journal_trades")
       .insert([record])
@@ -121,15 +127,14 @@ export default function JournalPage() {
     );
 
     setForm({
-      ticker: "",
-      direction: "CALL",
-      entry: "",
-      exit: "",
-      score: "",
-      grade: "",
-      notes: "",
-    });
-  };
+  ticker: "",
+  direction: "CALL",
+  entry: "",
+  exit: "",
+  score: "",
+  grade: "",
+  notes: "",
+});
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -252,7 +257,9 @@ export default function JournalPage() {
                   <span>
                     Score: {trade.score || "0"}% | Grade: {trade.grade || "F"}
                   </span>
-
+                  <span>
+                   Risk: ${trade.max_risk || "0"} | Account: ${trade.account_size || "0"} | Risk %: {trade.risk_percent || "0"}%
+                  </span>
                   <small>
                     Trader: {trade.trader || "Unknown"}
                   </small>
