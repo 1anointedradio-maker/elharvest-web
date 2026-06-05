@@ -288,7 +288,6 @@ const record = {
     </main>
   );
 }
-
 const styles = {
   page: {
     minHeight: "100vh",
