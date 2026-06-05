@@ -286,9 +286,7 @@ const record = {
         </a>
       </section>
     </main>
-  );
-}
-const styles = {
+   const styles = {
   page: {
     minHeight: "100vh",
     background: "#F8F4EA",
@@ -342,11 +340,6 @@ const styles = {
     color: "#FFFFFF",
     fontWeight: "900",
   },
-  loginLink: {
-    color: "#8A6416",
-    fontWeight: "900",
-    textDecoration: "none",
-  },
   statusMessage: {
     marginBottom: "22px",
     padding: "18px",
@@ -355,7 +348,6 @@ const styles = {
     border: "1px solid #2F8F46",
     color: "#2F8F46",
     fontWeight: "900",
-    boxShadow: "0 18px 42px rgba(109, 40, 217, 0.08)",
   },
   card: {
     marginTop: "22px",
@@ -427,7 +419,7 @@ const styles = {
     fontWeight: "900",
     textDecoration: "none",
   },
-    secondaryBack: {
+  secondaryBack: {
     display: "inline-block",
     marginTop: "24px",
     marginLeft: "22px",
