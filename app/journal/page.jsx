@@ -284,11 +284,11 @@ const record = {
         <a href="/broker" style={styles.secondaryBack}>
           Continue to Broker Hub →
         </a>
-        </section>
+                </a>
       </section>
     </main>
   );
-  }
+}
    const styles = {
   page: {
     minHeight: "100vh",
