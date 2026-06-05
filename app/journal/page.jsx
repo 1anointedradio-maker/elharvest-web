@@ -284,7 +284,6 @@ const record = {
         <a href="/broker" style={styles.secondaryBack}>
           Continue to Broker Hub →
         </a>
-                </a>
       </section>
     </main>
   );
