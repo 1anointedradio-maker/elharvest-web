@@ -163,7 +163,7 @@ export default function DashboardPage() {
     ["A+ Setups", aPlusSetups],
     ["Total Paper Trades", paperTrades.length],
   ];
-
+  
   return (
     <main style={styles.page}>
       <section style={styles.shell}>
