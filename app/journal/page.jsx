@@ -414,6 +414,13 @@ const record = {
     background: "#F8F4EA",
     border: "1px solid rgba(168,117,23,0.25)",
   },
+    back: {
+  display: "inline-block",
+  marginTop: "24px",
+  color: "#8A6416",
+  fontWeight: "900",
+  textDecoration: "none",
+},
     secondaryBack: {
     display: "inline-block",
     marginTop: "24px",
