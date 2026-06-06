@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
-
+export const dynamic = "force-dynamic";
 export default function JournalPage() {
   const [trades, setTrades] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
