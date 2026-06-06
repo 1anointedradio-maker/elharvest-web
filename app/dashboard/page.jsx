@@ -292,12 +292,11 @@ export default function DashboardPage() {
           <a href="/journal" style={styles.button}>Open Journal</a>
           <a href="/broker" style={styles.button}>Open Broker Hub</a>
           <a href="/" style={styles.secondary}>← Back Home</a>
-        </section>
       </section>
-    </main>
+</section>
+</main>
   );
 }
-
 const styles = {
   page: {
     minHeight: "100vh",
