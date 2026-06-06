@@ -428,5 +428,5 @@ const record = {
     color: "#2F8F46",
     fontWeight: "900",
     textDecoration: "none",
-  },
+  },}};
 };
