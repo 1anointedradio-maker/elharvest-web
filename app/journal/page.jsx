@@ -237,7 +237,7 @@ const record = {
           </button>
         </section>
 
-        <<section style={styles.card}>
+        <section style={styles.card}>
   <h2 style={styles.sectionTitle}>Trade History</h2>
 
   {trades.length === 0 ? (
