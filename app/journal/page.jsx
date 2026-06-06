@@ -237,45 +237,47 @@ const record = {
           </button>
         </section>
 
-        <section style={styles.card}>
-          <h2 style={styles.sectionTitle}>Session History</h2>
+        <<section style={styles.card}>
+  <h2 style={styles.sectionTitle}>Trade History</h2>
 
-          {trades.length === 0 ? (
-            <p style={styles.empty}>No trades saved yet.</p>
-          ) : (
-            <div style={styles.list}>
-              {trades.map((trade) => (
-                <div key={trade.id} style={styles.trade}>
-                  <strong>
-                    {trade.ticker || "UNKNOWN"} — {trade.direction}
-                  </strong>
+  {trades.length === 0 ? (
+    <p style={styles.empty}>No trades saved yet.</p>
+  ) : (
+    <div style={styles.list}>
+      {trades.map((trade) => (
+        <div key={trade.id || trade.created_at} style={styles.trade}>
+          <strong>
+            {trade.ticker} {trade.direction}
+          </strong>
 
-                  <span>
-                    Entry: {trade.entry || "-"} | Exit: {trade.exit || "-"}
-                  </span>
+          <span>
+            Entry: {trade.entry || "N/A"} | Exit: {trade.exit || "N/A"}
+          </span>
 
-                  <span>
-                    Score: {trade.score || "0"}% | Grade: {trade.grade || "F"}
-                  </span>
-                  <span>
-                   Risk: ${trade.max_risk || "0"} | Account: ${trade.account_size || "0"} | Risk %: {trade.risk_percent || "0"}%
-                  </span>
-                  <small>
-                    Trader: {trade.trader || "Unknown"}
-                  </small>
+          <span>
+            Score: {trade.score || "0"} | Grade: {trade.grade || "F"}
+          </span>
 
-                  <small>
-                    {trade.created_at
-                      ? new Date(trade.created_at).toLocaleString()
-                      : "No timestamp"}
-                  </small>
+<span>
+  Risk: ${trade.max_risk || "0"} | Account: ${trade.account_size || "0"} | Risk %:{" "}
+  {trade.risk_percent || "0"}%
+</span>
+          <small>
+            Trader: {trade.trader || "Unknown"}
+          </small>
 
-                  <p>{trade.notes}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          <small>
+            {trade.created_at
+              ? new Date(trade.created_at).toLocaleString()
+              : "No timestamp"}
+          </small>
+
+          <p>{trade.notes}</p>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
 
         <a href="/validation" style={styles.back}>
           ← Back to Validation
@@ -428,5 +430,5 @@ const record = {
     color: "#2F8F46",
     fontWeight: "900",
     textDecoration: "none",
-  },
+   },
 };
