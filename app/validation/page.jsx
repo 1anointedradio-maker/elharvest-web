@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { getElHarvestSignal } from "@/lib/elHarvestEngine";
 
 export default function ValidationPage() {
   const [rules, setRules] = useState({
@@ -20,6 +21,18 @@ export default function ValidationPage() {
   const numericAccountSize = Number(accountSize || 0);
   const numericRiskPercent = Number(riskPercent || 0);
   const maxRisk = numericAccountSize * (numericRiskPercent / 100);
+    const harvestSignal = getElHarvestSignal({
+    price: 720.47,
+    vwap: 718.1,
+    cloudColor: rules.cloud ? "green" : "red",
+    futureCloudSlope: rules.cloud ? "rising" : "falling",
+    cloudFloor: 718.2,
+    cloudCeiling: 720.6,
+    macdHistogram: 0.39,
+    rsi: 57,
+    volumeIncreasing: rules.volume,
+    structure: rules.cloud ? "failed-breakdown" : "neutral",
+  });
 
   const grade =
     completed === 4 ? "A+" :
