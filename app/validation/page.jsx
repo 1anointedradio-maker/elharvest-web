@@ -248,7 +248,20 @@ export default function ValidationPage() {
             <p style={styles.timestamp}>Validated At: {timestamp}</p>
           </section>
         </section>
+<section style={styles.card}>
+  <h2>EL Harvest Signal Engine</h2>
 
+  <p><strong>Score:</strong> {harvestSignal.score}</p>
+  <p><strong>Grade:</strong> {harvestSignal.grade}</p>
+  <p><strong>Direction:</strong> {harvestSignal.direction}</p>
+  <p><strong>Position Size:</strong> {harvestSignal.size}</p>
+
+  <ul>
+    {harvestSignal.notes.map((note) => (
+      <li key={note}>{note}</li>
+    ))}
+  </ul>
+</section>
         <a href="/journal" style={styles.back}>
           Go to Journal →
         </a>
