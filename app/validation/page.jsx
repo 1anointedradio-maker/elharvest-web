@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { getElHarvestSignal } from "@/lib/elHarvestEngine";
-
+import { getElHarvestSignal } from "../../lib/elHarvestEngine";
 export default function ValidationPage() {
   const [rules, setRules] = useState({
     vwap: false,
