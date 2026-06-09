@@ -183,21 +183,25 @@ export default function ValidationPage() {
 
             <div style={styles.riskGrid}>
               <input
-                style={styles.input}
-                placeholder="Account Size"
-                inputMode="decimal"
-                value={accountSize}
-                onChange={(e) => setAccountSize(e.target.value)}
-              />
-
-              <input
-                style={styles.input}
-                placeholder="Risk %"
-                inputMode="decimal"
-                value={riskPercent}
-                onChange={(e) => setRiskPercent(e.target.value)}
-              />
-            </div>
+  type="number"
+  step="0.01"
+  min="0"
+  inputMode="decimal"
+  style={styles.input}
+  placeholder="Account Size"
+  value={accountSize}
+  onChange={(e) => setAccountSize(e.target.value)}
+/>
+<input
+  type="number"
+  step="0.01"
+  min="0"
+  inputMode="decimal"
+  style={styles.input}
+  placeholder="Risk %"
+  value={riskPercent}
+  onChange={(e) => setRiskPercent(e.target.value)}
+/>
 
             <section style={styles.riskBox}>
               <span>Max Dollar Risk</span>
