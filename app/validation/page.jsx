@@ -183,20 +183,19 @@ export default function ValidationPage() {
 
             <div style={styles.riskGrid}>
               <input
-  type="number"
-  step="0.01"
-  min="0"
+  type="text"
+  
   inputMode="decimal"
   style={styles.input}
+  pattern="[0-9]*"
   placeholder="Account Size"
   value={accountSize}
   onChange={(e) => setAccountSize(e.target.value)}
 />
 <input
-  type="number"
-  step="0.01"
-  min="0"
+  type="text"
   inputMode="decimal"
+  pattern="[0-9]*"
   style={styles.input}
   placeholder="Risk %"
   value={riskPercent}
