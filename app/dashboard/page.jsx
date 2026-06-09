@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { elHarvestValidationModel } from "../../lib/elHarvestRules";
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
@@ -32,6 +33,13 @@ export default function DashboardPage() {
   return (
     <main style={styles.page}>
       <section style={styles.shell}>
+        <section style={styles.card}>
+  <p style={styles.step}>ACTIVE MODEL</p>
+  <h2 style={styles.cardTitle}>{elHarvestValidationModel.version}</h2>
+  <p style={styles.mantra}>
+    Cloud Weight: {elHarvestValidationModel.coreWeights.cloud}% · VWAP: {elHarvestValidationModel.coreWeights.vwap}% · Volume: {elHarvestValidationModel.coreWeights.volume}%
+  </p>
+</section>
         <header style={styles.header}>
           <h1>EL Harvest Dashboard</h1>
           <p>Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.</p>
