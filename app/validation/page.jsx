@@ -268,7 +268,6 @@ export default function ValidationPage() {
       <li key={note}>{note}</li>
     ))}
   </ul>
-</section>
         <a href="/journal" style={styles.back}>
           Go to Journal →
         </a>
