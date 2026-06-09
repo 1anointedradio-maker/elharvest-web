@@ -252,10 +252,10 @@ export default function ValidationPage() {
             >
               SEND TO JOURNAL
             </button>
+<p style={styles.timestamp}>Validated At: {timestamp}</p>
+</div>
+</section>
 
-            <p style={styles.timestamp}>Validated At: {timestamp}</p>
-          </section>
-        </section>
 <section style={styles.card}>
   <h2>EL Harvest Signal Engine</h2>
 
