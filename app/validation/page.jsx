@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { getElHarvestSignal } from "../../lib/elHarvestEngine";
+import { elHarvestValidationModel } from "../../lib/elHarvestRules";
+
 export default function ValidationPage() {
   const [rules, setRules] = useState({
     vwap: false,
@@ -96,6 +98,9 @@ export default function ValidationPage() {
           <p style={styles.mantra}>
             Sow the Seed. Keep the Faith. Trust the Process. Reap with EL Harvest.
           </p>
+          <p style={styles.modelText}>
+  Model: {elHarvestValidationModel.version}
+</p>
         </header>
 
         <section style={styles.dashboard}>
@@ -305,6 +310,12 @@ const styles = {
     fontWeight: "700",
     lineHeight: "1.6",
   },
+  modelText: {
+  marginTop: "8px",
+  color: "#8A6416",
+  fontWeight: "800",
+  fontSize: "14px",
+},
   dashboard: {
     display: "grid",
     gap: "22px",
