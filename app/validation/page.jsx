@@ -253,7 +253,6 @@ export default function ValidationPage() {
               SEND TO JOURNAL
             </button>
 <p style={styles.timestamp}>Validated At: {timestamp}</p>
-</div>
 </section>
 
 <section style={styles.card}>
